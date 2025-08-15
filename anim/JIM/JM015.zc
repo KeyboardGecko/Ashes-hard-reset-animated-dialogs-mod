@@ -1,0 +1,136 @@
+extend class CustomAnimData
+{
+    ui static void RegisterAnims_JM015(PanelPlayer p)
+    {
+        Array<String> f;
+        Array<int> d;
+        // Frame names → source paths:
+        // "A" <= clear faces\\A.png
+        // "DIAJIM1" <= C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\DIAJIM1.png
+        // "E" <= clear faces\\E.png
+        // "EE" <= clear faces\\EE.png
+        // "EEE" <= clear faces\\EEE.png
+        // "M" <= clear faces\\M.png
+        // "O" <= clear faces\\O.png
+        // "R" <= clear faces\\R.png
+        // "S" <= clear faces\\S.png
+        // "SS" <= clear faces\\SS.png
+        f.Push("DIAJIM1"); d.Push(287);
+        f.Push("EEE"); d.Push(147);
+        f.Push("R"); d.Push(196);
+        f.Push("EE"); d.Push(49);
+        f.Push("E"); d.Push(129);
+        f.Push("M"); d.Push(113);
+        f.Push("EEE"); d.Push(74);
+        f.Push("E"); d.Push(88);
+        f.Push("EEE"); d.Push(130);
+        f.Push("SS"); d.Push(432);
+        f.Push("DIAJIM1"); d.Push(260);
+        f.Push("R"); d.Push(151);
+        f.Push("O"); d.Push(124);
+        f.Push("EEE"); d.Push(87);
+        f.Push("S"); d.Push(83);
+        f.Push("O"); d.Push(185);
+        f.Push("R"); d.Push(157);
+        f.Push("M"); d.Push(183);
+        f.Push("SS"); d.Push(166);
+        f.Push("O"); d.Push(242);
+        f.Push("DIAJIM1"); d.Push(842);
+        f.Push("E"); d.Push(69);
+        f.Push("SS"); d.Push(165);
+        f.Push("M"); d.Push(94);
+        f.Push("EEE"); d.Push(190);
+        f.Push("S"); d.Push(173);
+        f.Push("E"); d.Push(140);
+        f.Push("S"); d.Push(149);
+        f.Push("EEE"); d.Push(118);
+        f.Push("SS"); d.Push(130);
+        f.Push("EEE"); d.Push(143);
+        f.Push("SS"); d.Push(114);
+        f.Push("EE"); d.Push(222);
+        f.Push("R"); d.Push(178);
+        f.Push("E"); d.Push(208);
+        f.Push("DIAJIM1"); d.Push(495);
+        f.Push("M"); d.Push(117);
+        f.Push("R"); d.Push(146);
+        f.Push("SS"); d.Push(193);
+        f.Push("DIAJIM1"); d.Push(624);
+        f.Push("EEE"); d.Push(114);
+        f.Push("S"); d.Push(116);
+        f.Push("R"); d.Push(182);
+        f.Push("M"); d.Push(87);
+        f.Push("S"); d.Push(91);
+        f.Push("SS"); d.Push(65);
+        f.Push("A"); d.Push(174);
+        f.Push("S"); d.Push(98);
+        f.Push("E"); d.Push(71);
+        f.Push("EE"); d.Push(78);
+        f.Push("O"); d.Push(166);
+        f.Push("M"); d.Push(95);
+        f.Push("EEE"); d.Push(96);
+        f.Push("E"); d.Push(109);
+        f.Push("EE"); d.Push(161);
+        f.Push("SS"); d.Push(131);
+        f.Push("M"); d.Push(141);
+        f.Push("R"); d.Push(126);
+        f.Push("SS"); d.Push(64);
+        f.Push("EEE"); d.Push(94);
+        f.Push("E"); d.Push(110);
+        f.Push("O"); d.Push(131);
+        f.Push("SS"); d.Push(74);
+        f.Push("R"); d.Push(106);
+        f.Push("S"); d.Push(101);
+        f.Push("O"); d.Push(74);
+        f.Push("R"); d.Push(162);
+        f.Push("SS"); d.Push(155);
+        f.Push("O"); d.Push(102);
+        f.Push("E"); d.Push(112);
+        f.Push("S"); d.Push(117);
+        f.Push("DIAJIM1"); d.Push(724);
+        f.Push("S"); d.Push(110);
+        f.Push("EEE"); d.Push(107);
+        f.Push("SS"); d.Push(179);
+        f.Push("EEE"); d.Push(236);
+        f.Push("EE"); d.Push(299);
+        f.Push("DIAJIM1"); d.Push(578);
+        f.Push("SS"); d.Push(77);
+        f.Push("EEE"); d.Push(108);
+        f.Push("SS"); d.Push(94);
+        f.Push("EE"); d.Push(59);
+        f.Push("M"); d.Push(54);
+        f.Push("E"); d.Push(161);
+        f.Push("SS"); d.Push(77);
+        f.Push("S"); d.Push(96);
+        f.Push("E"); d.Push(77);
+        f.Push("S"); d.Push(85);
+        f.Push("O"); d.Push(122);
+        f.Push("E"); d.Push(145);
+        f.Push("EEE"); d.Push(111);
+        f.Push("EE"); d.Push(66);
+        f.Push("DIAJIM1"); d.Push(494);
+        f.Push("S"); d.Push(148);
+        f.Push("O"); d.Push(121);
+        f.Push("DIAJIM1"); d.Push(641);
+        f.Push("R"); d.Push(84);
+        f.Push("EE"); d.Push(64);
+        f.Push("S"); d.Push(114);
+        f.Push("EEE"); d.Push(59);
+        f.Push("S"); d.Push(101);
+        f.Push("EE"); d.Push(62);
+        f.Push("M"); d.Push(76);
+        f.Push("E"); d.Push(164);
+        f.Push("SS"); d.Push(89);
+        f.Push("S"); d.Push(92);
+        f.Push("O"); d.Push(79);
+        f.Push("EE"); d.Push(211);
+        f.Push("E"); d.Push(96);
+        f.Push("SS"); d.Push(111);
+        f.Push("DIAJIM1"); d.Push(275);
+        f.Push("S"); d.Push(87);
+        f.Push("O"); d.Push(82);
+        f.Push("M"); d.Push(94);
+        f.Push("EE"); d.Push(108);
+        f.Push("DIAJIM1"); d.Push(200);
+        p.DefineAnimationByNames("JM015", f, d, false, true);
+    }
+}

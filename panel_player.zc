@@ -1,0 +1,288 @@
+// Лёгкий singleton, чтобы жить независимо от нод
+
+class PanelPlayer : Object
+{
+    bool ready;
+    Array<TextureID> frames;
+
+    Array<String> animNames;
+    Array<int>    clipOffset, clipCount;
+    Array<bool>   clipLoop, clipStopLast;
+    Array<int>    flatFrames;
+    Array<int>    flatDurMs;      // ← было flatDurTics, теперь миллисекунды
+
+    int  curClip, seqPos;
+    bool active;
+    int  lastFrameIdx;
+
+    // рендерная геометрия — как у тебя
+    int vW, vH;
+    double topMargin;
+
+    double timeLeftMs;            // ← вместо timeLeft (тики)
+
+	String snd;
+
+	TextureID tex;
+	Vector2 sz;
+	double x;
+	double y;
+
+//     static int MsToTics(int ms) { return (ms * TICRATE + 999) / 1000; }
+
+    ui void PreloadOnce()
+    {
+        if (ready) return;
+        // Загрузка кадров ОДИН раз. Здесь — явный список, либо вызови свой генератор.
+//         String base = "sprites/jim/";
+        Array<String> names;
+   		names.Push("A");
+        names.Push("blink");
+        names.Push("DIAJIM1_");
+        names.Push("E");
+        names.Push("EE");
+        names.Push("EEE");
+        names.Push("M");
+        names.Push("O");
+        names.Push("R");
+        names.Push("S");
+        names.Push("SS");
+        names.Push("U");
+        names.Push("wink");
+		
+		for (int i = 0; i < names.Size(); i++)
+        {
+            TextureID id = TexMan.CheckForTexture(names[i]);
+            frames.Push(id); // ok: TextureID это int
+        }
+		
+        // Пример: зацикленный idle
+		Array<String> fn; Array<int> dm;
+		fn.Push("DIAJIM1_"); 
+		dm.Push(200);
+		
+		DefineAnimationByNames("idle", fn, dm, true, true);
+		
+		CustomAnimData.RegisterAnims_JM001(self);
+		CustomAnimData.RegisterAnims_JM002(self);
+		CustomAnimData.RegisterAnims_JM003(self);
+		CustomAnimData.RegisterAnims_JM004(self);
+		CustomAnimData.RegisterAnims_JM005(self);
+		CustomAnimData.RegisterAnims_JM006(self);
+		CustomAnimData.RegisterAnims_JM007(self);
+		CustomAnimData.RegisterAnims_JM008(self);
+		CustomAnimData.RegisterAnims_JM009(self);
+		CustomAnimData.RegisterAnims_JM010(self);
+		CustomAnimData.RegisterAnims_JM011(self);
+		CustomAnimData.RegisterAnims_JM012(self);
+		CustomAnimData.RegisterAnims_JM013(self);
+		CustomAnimData.RegisterAnims_JM014(self);
+		CustomAnimData.RegisterAnims_JM015(self);
+		CustomAnimData.RegisterAnims_JM016(self);
+		CustomAnimData.RegisterAnims_JM017(self);
+		CustomAnimData.RegisterAnims_JM018(self);
+		CustomAnimData.RegisterAnims_JM019(self);
+
+        curClip = -1; seqPos = 0; timeLeftMs = 0.0;
+        active = false; lastFrameIdx = 0;
+
+        vW = 320; vH = 200; topMargin = 0.0;
+        ready = true;
+
+    }
+
+    // --- вспомогательные маппинги ---
+	int EnsureFrameIndexByName(String name)
+	{
+		// 1) ищем среди уже загруженных
+		for (int i = 0; i < frames.Size(); i++)
+		{
+			// frames[i] — int, поэтому приводим обратно к TextureID
+			if (TexMan.GetName(frames[i]) == name)
+				return i;
+		}
+
+		// 2) дозагрузить при необходимости
+		TextureID id = TexMan.CheckForTexture(name);
+		if (!id.IsValid()) return -1;
+
+		frames.Push(id);               // <-- cast к int
+		return frames.Size() - 1;
+	}
+
+  // --- регистрация клипов без конвертации в тики ---
+    void DefineAnimation(String name, Array<int> fIdx, Array<int> durMs, bool loop=false, bool stopLast=true)
+    {
+        int n = min(fIdx.Size(), durMs.Size());
+        if (n <= 0) return;
+
+        int off = flatFrames.Size();
+        for (int i = 0; i < n; i++)
+        {
+            int fi = fIdx[i]; if (fi < 0 || fi >= frames.Size()) continue;
+            flatFrames.Push(fi);
+            int ms = durMs[i]; if (ms <= 0) ms = 1;
+            flatDurMs.Push(ms);                 // ← сохраняем миллисекунды
+        }
+        int cnt = flatFrames.Size() - off;
+        if (cnt <= 0) return;
+
+        int idx = FindAnim(name);
+        if (idx >= 0) {
+            clipOffset[idx] = off; clipCount[idx] = cnt;
+            clipLoop[idx] = loop;  clipStopLast[idx] = stopLast;
+        } else {
+            animNames.Push(name);
+            clipOffset.Push(off); clipCount.Push(cnt);
+            clipLoop.Push(loop);  clipStopLast.Push(stopLast);
+        }
+    }
+
+    void DefineAnimationByNames(String name, Array<String> fNames, Array<int> durMs, bool loop=false, bool stopLast=true)
+    {
+        Array<int> idx;
+        int n = min(fNames.Size(), durMs.Size());
+        for (int i = 0; i < n; i++)
+        {
+            int fi = EnsureFrameIndexByName(fNames[i]);
+            if (fi >= 0) idx.Push(fi);
+        }
+        if (idx.Size() == 0) return;
+        DefineAnimation(name, idx, durMs, loop, stopLast);
+    }
+
+    ui bool PlayAnim(String name)
+    {
+        PreloadOnce();
+        int idx = FindAnim(name);
+        if (idx < 0 || clipCount[idx] <= 0) return false;
+
+        curClip = idx; active = true; seqPos = 0;
+
+        int base = clipOffset[idx];
+        timeLeftMs = flatDurMs[base];          // ← миллисекунды
+        if (timeLeftMs <= 0) timeLeftMs = 1;
+
+        lastFrameIdx = flatFrames[base];
+        return true;
+    }
+	
+ ui void Tick()
+    {
+        if (!active || curClip < 0) return;
+        int cnt = clipCount[curClip];
+        if (cnt <= 0) { active = false; return; }
+
+        double dt = 1000.0 / TICRATE;
+        timeLeftMs -= dt;
+
+        // Может «перепрыгнуть» через короткие кадры — догоняем while'ом
+        while (timeLeftMs <= 0.0)
+        {
+            seqPos++;
+            if (seqPos >= cnt)
+            {
+                if (clipLoop[curClip])
+                {
+                    seqPos = 0;
+                }
+                else
+                {
+                    active = false;
+                    if (clipStopLast[curClip])
+                    {
+                        int last = clipOffset[curClip] + (cnt - 1);
+                        lastFrameIdx = flatFrames[last];
+                    }
+                    else lastFrameIdx = -1;
+                    return;
+                }
+            }
+
+            int base = clipOffset[curClip] + seqPos;
+            // переносим «долг» в следующий кадр
+            timeLeftMs += flatDurMs[base];
+            lastFrameIdx = flatFrames[base];
+        }
+    }
+
+    ui void Draw()
+    {
+        int drawIdx = lastFrameIdx;
+        if (active && curClip >= 0)
+        {
+            int cnt = clipCount[curClip];
+            if (cnt > 0 && seqPos >= 0 && seqPos < cnt)
+            {
+                int base = clipOffset[curClip] + seqPos;
+                drawIdx = flatFrames[base];
+            }
+        }
+        if (drawIdx < 0 || drawIdx >= frames.Size()) return;
+
+        TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
+        Vector2 sz = TexMan.GetScaledSize(tex);
+        double x = (vW - sz.x) * 0.5;
+        double y = topMargin;
+
+        Screen.DrawTexture(tex, false, x, y,
+            DTA_VirtualWidth, vW,
+            DTA_VirtualHeight, vH,
+            DTA_KeepRatio, true
+        );
+    }
+
+    int FindAnim(String n)
+    {
+        for (int i = 0; i < animNames.Size(); i++) if (animNames[i] == n) return i;
+        return -1;
+    }
+
+
+	// Короткое имя -> звук (добавь префикс, если используешь папку типа "voice/")
+// 	ui void PlaySoundForClip(String clipName, bool playSound, String soundPrefix)
+// 	{
+// 		if (!playSound) return;
+// 		snd = soundPrefix.Length() > 0 ? soundPrefix + clipName : clipName;
+// 		S_StartSound(snd, CHAN_UI, CHANF_UI, 1.0);
+// 	}
+
+		bool IsStopped()
+	{
+		return !active || curClip < 0 || clipCount[curClip] <= 0;
+	}
+
+	bool IsPlaying(String name)
+	{
+		int idx = FindAnim(name);
+		return active && idx == curClip;
+	}
+
+// 	ui bool PlayIfDifferent(String name, bool playSound = true, String soundPrefix = "")
+// 	{
+// 		if (IsPlaying(name)) return false;
+// 		return Play(name, playSound, soundPrefix);
+// 	}
+
+	int CurrentFrameIndex()
+	{
+		if (active && curClip >= 0)
+		{
+			int count = clipCount[curClip];
+			if (count > 0 && seqPos >= 0 && seqPos < count)
+			{
+				int base = clipOffset[curClip] + seqPos;
+				return flatFrames[base];
+			}
+		}
+		return lastFrameIdx;
+	}
+
+	String CurrentAnimationName()
+	{
+		return (curClip >= 0 && curClip < animNames.Size()) ? animNames[curClip] : "";
+	}
+	
+
+
+}

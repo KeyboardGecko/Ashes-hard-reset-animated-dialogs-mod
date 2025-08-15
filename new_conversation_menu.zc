@@ -1,0 +1,93 @@
+class MyConversationMenu : ConversationMenu
+{
+    StrifeDialogueNode _prev;
+	MyUIOverlay o;
+	String curAnim;
+
+    override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
+    {
+		
+        int r = Super.Init(CurNode, player, activereply);
+       
+		let o = MyUIOverlay.Get();
+        if (!o) { Console.Printf("no overlay"); return r; }
+        
+		o.EnsureStatic();                      // подготовка
+        o.BeginConversationStatic();   // отметили вход
+        o.HeartbeatStatic();           // сразу первый пульс
+
+		curAnim = ResolveAnimForNode(CurNode); // первая анимация
+        o.ShowAnimStatic(curAnim);   // показать
+
+        _prev = CurNode;
+        return r;
+    }
+	
+	override void onDestroy(){
+	if (mCurNode == null)
+		Console.printf("dialog end");
+
+		super.onDestroy();
+	}
+	
+    override void Ticker()
+    {
+        Super.Ticker();
+        MyUIOverlay.HeartbeatStatic();
+
+        // обычная логика смены реплик
+        if (mCurNode != _prev)
+        {
+            String next = ResolveAnimForNode(mCurNode);
+            if (next != curAnim) {
+//                 MyUIOverlay.BridgeHoldStatic(70);
+                MyUIOverlay.ShowAnimStatic(next);
+                curAnim = next;
+            }
+            _prev = mCurNode;
+        }
+
+        // ← Здесь ловим конец диалога
+        if (mCurNode == null)
+        {
+            o.EndConversationStatic(120); // мягкий добег; поставь 0 для мгновенного скрытия
+        }
+    }
+
+    override void Drawer()
+    {
+        // Панель НЕ рисуем здесь, отдаём рендер RenderOverlay — так не мигает
+        Super.Drawer();
+    }
+
+	
+	String getAnimationName(String path){
+
+		int slashPos = path.RightIndexOf("/"); // ищем последний слэш
+
+		String justName;
+		if (slashPos >= 0)
+		{
+			justName = path.Mid(slashPos + 1); // всё после слэша
+		}
+		else
+		{
+			justName = path;
+		}
+		return justName;
+	}
+
+	
+    // Вытащить имя клипа из ноды: сначала из UserData (anim=JM001), иначе из SpeakerVoice
+    ui String ResolveAnimForNode(StrifeDialogueNode n)
+    {
+        if (n == null) return "idle";
+
+        if (n.SpeakerVoice != 0)
+        {
+            return getAnimationName(n.SpeakerVoice);
+        }
+
+        return "idle";
+    }
+}
