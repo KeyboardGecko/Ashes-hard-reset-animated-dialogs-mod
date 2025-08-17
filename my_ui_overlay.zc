@@ -2,193 +2,108 @@ class MyUIOverlay : StaticEventHandler
 {
     ui PanelPlayer panel;
     ui bool   bShow, inConversation;
-    ui int    holdTics, fadeOutTics; // ← храним в тиках, не в миллисекундах
+    ui int    holdTics, fadeOutTics;
 
-	ui int hb;                // heartbeat в тиках
-	ui int hbTimeout;     // считаем диалог "кончившимся", если 2 тика пульса нет
+    ui int hb;
+    ui int hbTimeout;     
 
-	// метод, который дергает меню каждый тик
-	ui void Heartbeat() { hb = hbTimeout; }
-
-	// статическая обёртка
-	ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
-
-
+    ui void Heartbeat() { hb = hbTimeout; }
+    ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
 
     ui int MsToTics(int ms) { return (ms * TICRATE + 999) / 1000; }
 
-    ui void Ensure() {
-        if (panel == null) { 
-			hbTimeout = 2;
-			panel = new("PanelPlayer"); panel.PreloadOnce(); 
-		}
+    ui void Ensure()
+    {
+        if (hbTimeout == 0) hbTimeout = 2;
+
+        if (panel == null)
+        {
+            panel = new("PanelPlayer");
+            panel.PreloadOnce();
+        }
     }
 
-    // ---- управление из меню (UI) ----
     ui void BeginConversation() { inConversation = true; }
-    ui void EndConversation(int fadeMs = 10) { inConversation = false; fadeOutTics = MsToTics(fadeMs); bShow = false; holdTics = 0; }
 
-    ui void ShowAnimInst(String clip) { Ensure(); bShow = true; holdTics = 0; panel.PlayAnim(clip); }
-    ui void BridgeHoldInst(int ms)    { bShow = false; holdTics = MsToTics(ms); }
-    ui void HideInst()                { bShow = false; holdTics = 0; }
+    ui void EndConversation(int fadeMs = 10)
+    {
+        inConversation = false;
+        fadeOutTics = MsToTics(fadeMs);
+        bShow = false;
+        holdTics = 0;
+    }
 
-    // ---- Тики (стабильные 35 Гц) ----
+    ui void ShowAnimInst(String clip)  { 
+		
+		Ensure(); 
+		bShow = true; 
+		holdTics = 0; 
+		panel.PlayAnimChar(clip); 
+	}
+	
+    ui void HideInst()                 { bShow = false; holdTics = 0; }
+
     override void UiTick()
     {
-	    if (hb > 0) hb--;
+        if (hb > 0) hb--;
+        if (inConversation && hb == 0) EndConversation(120);
 
-		// если диалог считался активным, но пульс пропал — закрываем мягко
-		if (inConversation && hb == 0)
-			EndConversation(120);   // 0 — мгновенно, 120 — короткий добег
+        if (!jm_anim_enabled) { bShow = false; holdTics = 0; inConversation = false; fadeOutTics = 0; return; }
 
         Ensure();
-        if (panel != null) panel.Tick();   // ← теперь анимация всегда в тиках
+        if (panel != null && jm_anim_play) panel.Tick();
 
-        if (holdTics > 0)       holdTics--;
+        if (holdTics > 0) holdTics--;
         if (!inConversation && fadeOutTics > 0) fadeOutTics--;
+
     }
 
-    // ---- Рисуем (кадровая частота не влияет на скорость) ----
-    override void RenderOverlay(RenderEvent e)
+    // ---- Rendering the panel ----
+	override void RenderOverlay(RenderEvent e)
     {
+        if (!jm_anim_enabled) return;
         bool visible = inConversation || (holdTics > 0) || (fadeOutTics > 0);
         if (!visible || panel == null) return;
         panel.Draw();
     }
+
+    ui void ShowVoiceInst(Name voice)
+    {
+        Ensure();
+        if (panel)
+        {
+            // лениво определяем персонажа и регистрируем его клипы (по voice-префиксу)
+            panel.PlayForVoice(voice);      // ← panel сама: EnsureCharacterForVoice -> PlayAnimChar
+            bShow = true;
+            holdTics = 0;
+            inConversation = true;
+            Heartbeat();                     // продлеваем жизнь панели
+        }
+    }
+
+    // Иногда удобно просто «idle» для текущего персонажа:
+    ui void ShowIdleInst()
+    {
+        Ensure();
+        if (panel)
+        {
+            panel.PlayAnimChar("idle");      // JIM.idle / PORKY.idle …
+            bShow = true;
+            inConversation = true;
+            Heartbeat();
+        }
+    }
+
+
 
     // ---- статические обёртки (UI) ----
     ui static MyUIOverlay Get()                      { return MyUIOverlay(StaticEventHandler.Find("MyUIOverlay")); }
     ui static void BeginConversationStatic()         { let o = Get(); if (o) o.BeginConversation(); }
     ui static void EndConversationStatic(int ms=120) { let o = Get(); if (o) o.EndConversation(ms); }
     ui static void ShowAnimStatic(String clip)       { let o = Get(); if (o) o.ShowAnimInst(clip); }
-    ui static void BridgeHoldStatic(int ms=70)       { let o = Get(); if (o) o.BridgeHoldInst(ms); }
     ui static void HideStatic()                      { let o = Get(); if (o) o.HideInst(); }
     ui static void EnsureStatic()                      { let o = Get(); if (o) o.Ensure(); }
 
+    ui static void ShowVoiceStatic(String voice)  { let o = Get(); if (o) o.ShowVoiceInst(voice); }
+    ui static void ShowIdleStatic()             { let o = Get(); if (o) o.ShowIdleInst(); }
 }
-
-
-
-
-
-// class MyUIOverlay : StaticEventHandler
-// {
-//     // ---- Состояние UI ----
-//     ui PanelPlayer panel;     // проигрыватель панели (твой класс)
-//     ui bool   bShow;          // показывать ли панель прямо сейчас
-//     ui double holdMillis;     // "мост" между клипами, мс (панель скрыта, но слой держим)
-//     ui bool   inConversation; // флаг: мы внутри диалога
-//     ui int    fadeOutTics;    // короткий добег после выхода (в тиках)
-
-//     ui static int MsToTics(int ms) { return (ms * TICRATE + 999) / 1000; }
-
-//     // --- Жизненный цикл / подготовка ---
-//     ui void Ensure()
-//     {
-//         if (panel == null)
-//         {
-//             panel = new("PanelPlayer");
-//             panel.PreloadOnce(); // загрузка текстур/клипов один раз
-//         }
-//     }
-
-//     // --- Управляющие методы (UI-контекст) ---
-//     ui void BeginConversation()
-//     {
-// 		Console.printf("convo init");
-//         inConversation = true;
-//         // не трогаем bShow/holdMillis: показом управляет ShowAnimInst/BridgeHoldInst
-//     }
-
-//     ui void EndConversation(int fadeMs = 120)
-//     {
-//         inConversation = false;
-//         // мягко погасим слой после выхода из диалога
-//         fadeOutTics = MsToTics(fadeMs);
-//         // и уберём "жёсткий" показ
-//         bShow = false;
-//         holdMillis = 0;
-// 		Console.printf("convo end");
-
-//     }
-
-//     ui void ShowAnimInst(String clipName)
-//     {
-//         Ensure();
-//         bShow = true;
-//         holdMillis = 0;
-//         panel.PlayAnim(clipName);
-//     }
-
-//     ui void BridgeHoldInst(int ms)
-//     {
-//         // краткий "мост": не показываем панель, но слой держим
-//         bShow = false;
-//         holdMillis = ms;
-//     }
-
-//     ui void HideInst()
-//     {
-//         bShow = false;
-//         holdMillis = 0;
-//     }
-
-//     // --- Рендер цикла (в UI-контексте) ---
-//     override void RenderOverlay(RenderEvent e)
-//     {
-//         // Подготовка
-//         Ensure();
-
-//         // Обновление анимации
-//         if (panel != null) panel.Tick();
-
-//         // Таймеры "моста" и добега
-//         if (holdMillis > 0) holdMillis -= 1000.0 / TICRATE;
-//         if (!inConversation && fadeOutTics > 0) fadeOutTics--;
-
-//         // Рисуем только если:
-//         //   - сейчас идёт диалог, ИЛИ
-//         //   - активен "мост" holdMillis, ИЛИ
-//         //   - добегаем несколько тиков после выхода
-//         bool shouldDraw = inConversation || (holdMillis > 0) || (fadeOutTics > 0);
-//         if (!shouldDraw) return;
-
-//         if (panel != null) panel.Draw();
-//     }
-
-//     // --- Статические UI-обёртки (вызывать из меню/диалога) ---
-//     ui static MyUIOverlay Get()
-//     {
-//         return MyUIOverlay(StaticEventHandler.Find("MyUIOverlay"));
-//     }
-
-//     ui static void EnsureStatic()
-//     {
-//         let o = Get(); if (o) o.Ensure();
-//     }
-
-//     ui static void BeginConversationStatic()
-//     {
-//         let o = Get(); if (o) o.BeginConversation();
-//     }
-
-//     ui static void EndConversationStatic(int fadeMs = 120)
-//     {
-//         let o = Get(); if (o) o.EndConversation(fadeMs);
-//     }
-
-//     ui static void ShowAnimStatic(String clip)
-//     {
-//         let o = Get(); if (o) o.ShowAnimInst(clip);
-//     }
-
-//     ui static void BridgeHoldStatic(int ms = 70)
-//     {
-//         let o = Get(); if (o) o.BridgeHoldInst(ms);
-//     }
-
-//     ui static void HideStatic()
-//     {
-//         let o = Get(); if (o) o.HideInst();
-//     }
-// }

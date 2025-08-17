@@ -3,82 +3,66 @@ class MyConversationMenu : ConversationMenu
     StrifeDialogueNode _prev;
 	MyUIOverlay o;
 	String curAnim;
-
-    override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
+	
+	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
     {
-		
         int r = Super.Init(CurNode, player, activereply);
-       
-		let o = MyUIOverlay.Get();
+
+		o = MyUIOverlay.Get();
         if (!o) { Console.Printf("no overlay"); return r; }
         
-		o.EnsureStatic();                      // подготовка
-        o.BeginConversationStatic();   // отметили вход
-        o.HeartbeatStatic();           // сразу первый пульс
-
-		curAnim = ResolveAnimForNode(CurNode); // первая анимация
-        o.ShowAnimStatic(curAnim);   // показать
+		o.EnsureStatic();                      // basically init (if not already)
+        o.BeginConversationStatic();   
+        o.ShowVoiceStatic(CurNode.SpeakerVoice); 
+		o.HeartbeatStatic();           // heartbeat started. No hb - no panel.
+		
+		PlayNodeVoice(curNode);
+		
+		curAnim = ResolveAnimForNode(CurNode); 
+//         o.ShowAnimStatic(curAnim);
 
         _prev = CurNode;
         return r;
     }
 	
-	override void onDestroy(){
-	if (mCurNode == null)
-		Console.printf("dialog end");
-
-		super.onDestroy();
-	}
-	
     override void Ticker()
     {
         Super.Ticker();
-        MyUIOverlay.HeartbeatStatic();
+        o.HeartbeatStatic();
 
-        // обычная логика смены реплик
+        // Looking at ticks, changing animation if node changes
         if (mCurNode != _prev)
         {
             String next = ResolveAnimForNode(mCurNode);
             if (next != curAnim) {
-//                 MyUIOverlay.BridgeHoldStatic(70);
-                MyUIOverlay.ShowAnimStatic(next);
+                o.ShowAnimStatic(next);
                 curAnim = next;
             }
+
+			PlayNodeVoice(mCurNode);
             _prev = mCurNode;
         }
 
-        // ← Здесь ловим конец диалога
         if (mCurNode == null)
         {
-            o.EndConversationStatic(120); // мягкий добег; поставь 0 для мгновенного скрытия
+            o.EndConversationStatic(60);
         }
     }
 
     override void Drawer()
+	// leaving it here in case we would want to change something
     {
-        // Панель НЕ рисуем здесь, отдаём рендер RenderOverlay — так не мигает
         Super.Drawer();
     }
-
 	
-	String getAnimationName(String path){
 
-		int slashPos = path.RightIndexOf("/"); // ищем последний слэш
+    override bool DrawBackdrop()
+    {
+        // Своё затемнение (пример: 60%).
+        return true;        // сказать остальному коду, что фон затемнён
+    }
 
-		String justName;
-		if (slashPos >= 0)
-		{
-			justName = path.Mid(slashPos + 1); // всё после слэша
-		}
-		else
-		{
-			justName = path;
-		}
-		return justName;
-	}
-
-	
-    // Вытащить имя клипа из ноды: сначала из UserData (anim=JM001), иначе из SpeakerVoice
+    // animation file should have the name of audiofile here. For consistency.
     ui String ResolveAnimForNode(StrifeDialogueNode n)
     {
         if (n == null) return "idle";
@@ -87,7 +71,69 @@ class MyConversationMenu : ConversationMenu
         {
             return getAnimationName(n.SpeakerVoice);
         }
-
         return "idle";
     }
+	
+	String getAnimationName(String path){
+		int slashPos = path.RightIndexOf("/");
+		String justName;
+		if (slashPos >= 0)
+		{
+			justName = path.Mid(slashPos + 1);
+		}
+		else
+		{
+			justName = path;
+		}
+		return justName;
+	}
+	
+    ui void PlayNodeVoice(StrifeDialogueNode n)
+    {
+        if (n == null) return;
+
+        let cvOn  = CVar.GetCVar('jm_voice_enable', players[consoleplayer]);
+        if (cvOn && !cvOn.GetBool()) return;
+
+        double vol = 1.0;
+        let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+        if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+        if (n.SpeakerVoice == "" || n.SpeakerVoice == "none") return;
+		
+		let pl = players[consoleplayer];
+		if (pl && pl.mo)
+		{
+		    let npc = (pl ? pl.ConversationNPC : null);   // текущий NPC, с которым идёт диалог
+			if (!npc) return;
+			
+		// let's play in two channels. Maybe it's louder that way.
+			npc.A_StartSound(n.SpeakerVoice, CHAN_6, 0, vol, ATTN_NORM);
+			npc.A_StartSound(n.SpeakerVoice, CHAN_5, 0, vol, ATTN_NORM);
+
+		}
+    }
+		
+}
+
+/////////////////////////////////////////////////////////////////////////
+// ---- SILENCING THE ORIGINAL STRIFE DIALOG AUDIO PLAYING METHOD ----
+// ---- (which sucked)----
+/////////////////////////////////////////////////////////////////////////
+class VoiceHijack : StaticEventHandler
+{
+    override void WorldTick()
+    {
+        // works only in game with real players
+        let pi = players[consoleplayer];
+        if (!pi) return;
+
+        // choose npc which has a conversation going
+        let npc = pi.ConversationNPC;
+        if (!npc) return;
+
+        // clears CHAN_VOICE, silencing that stupid p_conversation.cpp method
+        npc.A_StopSound(CHAN_VOICE);
+  
+  }
 }

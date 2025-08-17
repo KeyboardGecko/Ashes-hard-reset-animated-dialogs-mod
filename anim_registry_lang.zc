@@ -1,0 +1,178 @@
+// zscript/anim_registry_lang_multi.zs
+// Помощник: читаем данные из LANGUAGE и регистрируем клипы
+
+class AnimRegistryLang : Object
+{
+    // Достаём строку из LANGUAGE; если ключа нет — возвращаем ""
+    static String L(String key)
+    {
+        let s = StringTable.Localize(key);
+        return s ? s : "";
+    }
+
+    // Разделить CSV-строку имён на массив
+    static void SplitCSVNames(String src, Array<String> outArr)
+    {
+        outArr.Clear();
+        String cur = "";
+        int len = int(src.Length());
+        for (int i = 0; i < len; i++)
+        {
+            String ch = src.CharAt(i);  // ровно один символ как строка
+            bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
+            if (sep)
+            {
+                if (cur.Length() > 0) { outArr.Push(cur); cur = ""; }
+            }
+            else
+            {
+                cur = cur .. ch; // конкатенация строк
+            }
+        }
+        if (cur.Length() > 0) outArr.Push(cur);
+    }
+
+    // Безопасный парсер целого
+    static int ParseIntSafe(String s, int def)
+    {
+        int sign = 1, i = 0, val = 0;
+        if (s.Length() == 0) return def;
+
+        String first = s.Mid(0,1);   // один символ строкой
+        if (first == "-" || first == "+")
+        {
+            sign = (first == "-") ? -1 : 1;
+            i = 1;
+        }
+
+        int len = int(s.Length());
+        for (; i < len; i++)
+        {
+            int c = int(s.CharCodeAt(i));   // код символа (int)
+            // цифры: '0'..'9' == 48..57
+            if (c < 48 || c > 57) return def;
+            val = val * 10 + (c - 48);
+        }
+        return sign * val;
+    }
+
+    static void SplitCSVInts(String src, Array<int> outArr)
+    {
+        outArr.Clear();
+        String cur = "";
+        int len = int(src.Length());
+        for (int i = 0; i < len; i++)
+        {
+            String ch = src.CharAt(i);
+            bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
+            if (sep)
+            {
+                if (cur.Length() > 0) { outArr.Push(ParseIntSafe(cur, 0)); cur = ""; }
+            }
+            else
+            {
+                cur = cur .. ch;
+            }
+        }
+        if (cur.Length() > 0) outArr.Push(ParseIntSafe(cur, 0));
+    }
+
+    static bool ParseBool(String s)
+    {
+        s = s.MakeLower();
+        return (s == "1" || s == "true" || s == "yes" || s == "on");
+    }
+
+    // Проверка префикса без учёта регистра
+    static bool StartsWithIgnoreCase(String s, String pref)
+    {
+        String su = s.MakeUpper();
+        String pu = pref.MakeUpper();
+        if (pu.Length() > su.Length()) return false;
+        return su.Left(pu.Length()) == pu;
+    }
+
+    // Из имени звуковой реплики (JM001 / por02 / AND03) -> "JIM"/"PORKY"/"ANDY"
+    static String ResolveCharFromVoice(String voiceName)
+    {
+        Array<String> prefs;
+        SplitCSVNames(L("$ANIMS_MAP_LIST"), prefs);
+        for (int i = 0; i < prefs.Size(); i++)
+        {
+            String pref = prefs[i];
+            if (StartsWithIgnoreCase(voiceName, pref))
+            {
+                String who = L("$ANIMS_MAP_" .. pref); // вернёт "JIM"/"PORKY"/"ANDY"
+                if (who.Length() > 0) return who;
+            }
+        }
+        return "";
+    }
+
+    // --- Эти методы вызываются из UI-контекста, поэтому помечаем их ui ---
+
+    // Прелоад строго для выбранного персонажа (опционально)
+	static ui void PreloadFor(PanelPlayer p, String who)
+	{
+		Array<String> names;
+		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
+
+		Console.Printf("Preloading for: %s", who);
+
+		for (int i = 0; i < names.Size(); i++)
+		{
+			String texName = names[i];
+			TextureID id = TexMan.CheckForTexture(texName);
+
+			if (id.IsValid())
+			{
+				p.frames.Push(id);
+				Console.Printf("  OK: %s", texName);
+			}
+			else
+			{
+				Console.Printf("  MISSING: %s", texName);
+			}
+		}
+
+		Console.Printf("Preload finished for: %s", who);
+	}
+
+    // Регистрация всех клипов выбранного персонажа.
+    // prefix=true → имена в реестре будут "JIM.idle", "JIM.JM001", ...
+    static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
+    {
+        Array<String> clips;
+        SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
+
+        for (int ci = 0; ci < clips.Size(); ci++)
+        {
+            String clip = clips[ci];
+            String base = "$ANIMS_" .. who .. "_" .. clip;
+
+            String sF = L(base .. "_FRAMES");
+            String sD = L(base .. "_DURS");
+            if (sF.Length() == 0 || sD.Length() == 0) continue;
+
+            // Объявления — до операторов: правило «как в C89»
+            Array<String> f;
+            Array<int>    d;
+
+            SplitCSVNames(sF, f);
+            SplitCSVInts (sD, d);
+
+            int n = min(f.Size(), d.Size());
+            if (n <= 0) continue;
+            while (f.Size() > n) f.Pop();
+            while (d.Size() > n) d.Pop();
+
+            bool   loopFlag = ParseBool(L(base .. "_LOOP"));
+            bool   stopFlag = ParseBool(L(base .. "_STOP"));
+            String regName  = prefix ? (who .. "." .. clip) : clip;
+
+            p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
+			Console.Printf("RegisterFor finished for: %s", regName);
+
+        }
+    }
+}
