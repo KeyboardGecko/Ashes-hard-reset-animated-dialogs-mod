@@ -1,66 +1,68 @@
 class MyConversationMenu : ConversationMenu
 {
     StrifeDialogueNode _prev;
-	MyUIOverlay o;
+	DialogUIOverlay o;
 	String curAnim;
 	
-	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
-    {
+ 	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
+	{
         int r = Super.Init(CurNode, player, activereply);
 
-		o = MyUIOverlay.Get();
-        if (!o) { Console.Printf("no overlay"); return r; }
-        
-		o.EnsureStatic();                      // basically init (if not already)
-        o.BeginConversationStatic();   
-        o.ShowVoiceStatic(CurNode.SpeakerVoice); 
-		o.HeartbeatStatic();           // heartbeat started. No hb - no panel.
-		
-		PlayNodeVoice(curNode);
-		
-		curAnim = ResolveAnimForNode(CurNode); 
-//         o.ShowAnimStatic(curAnim);
+		o = DialogUIOverlay.Get();
+ 		if (!o) return r;
 
-        _prev = CurNode;
-        return r;
-    }
-	
-    override void Ticker()
-    {
-        Super.Ticker();
-        o.HeartbeatStatic();
+		o.EnsureStatic();
+		o.BeginConversationStatic();
+		o.HeartbeatStatic();
 
-        // Looking at ticks, changing animation if node changes
-        if (mCurNode != _prev)
-        {
-            String next = ResolveAnimForNode(mCurNode);
-            if (next != curAnim) {
-                o.ShowAnimStatic(next);
-                curAnim = next;
-            }
+		// прокинуть fallback кадр для ПЕРВОГО узла
+		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
+
+		o.ShowVoiceStatic(CurNode.SpeakerVoice); // покажет voice/idle/fallback или спрячется (через Overlay)
+		PlayNodeVoice(CurNode);
+
+		_prev = CurNode;
+		return r;
+	}
+
+	override void Ticker()
+	{
+		String voice;
+
+		Super.Ticker();
+		o.HeartbeatStatic();
+
+		if (mCurNode != _prev)
+		{
+			// каждый раз обновляем fallback
+			o.SetFallbackBackdropStatic(mCurNode ? mCurNode.Backdrop : "");
+
+			if (mCurNode != null) voice = mCurNode.SpeakerVoice;
+			else voice = "";			
+			o.ShowVoiceStatic(voice);
 
 			PlayNodeVoice(mCurNode);
-            _prev = mCurNode;
-        }
+			_prev = mCurNode;
+		}
 
-        if (mCurNode == null)
-        {
-            o.EndConversationStatic(60);
-        }
-    }
+		if (mCurNode == null)
+		{
+			o.EndConversationStatic(60);
+		}
+	}
 
+	
     override void Drawer()
-	// leaving it here in case we would want to change something
     {
+
         Super.Drawer();
     }
-	
 
     override bool DrawBackdrop()
     {
-        // Своё затемнение (пример: 60%).
-        return true;        // сказать остальному коду, что фон затемнён
+        return true;
     }
+
 
     // animation file should have the name of audiofile here. For consistency.
     ui String ResolveAnimForNode(StrifeDialogueNode n)

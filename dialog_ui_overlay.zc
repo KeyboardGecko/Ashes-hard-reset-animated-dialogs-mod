@@ -1,0 +1,152 @@
+class DialogUIOverlay : StaticEventHandler
+{
+    ui PanelPlayer panel;
+    ui bool   bShow, inConversation;
+    ui int    fadeOutTics;
+
+    ui int hb;
+    ui int hbTimeout;     
+
+    ui void Heartbeat() { hb = hbTimeout; }
+    ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
+
+    ui int MsToTics(int ms) { return (ms * TICRATE + 999) / 1000; }
+
+    ui void Ensure()
+    {
+        if (hbTimeout == 0) hbTimeout = 2;
+
+        if (panel == null)
+        {
+            panel = new("PanelPlayer");
+            panel.PreloadOnce();
+        }
+    }
+
+    ui void BeginConversation() { 
+		inConversation = true; 
+	}
+
+    ui void EndConversation(int fadeMs = 10)
+    {
+        inConversation = false;
+        fadeOutTics = MsToTics(fadeMs);
+        bShow = false;
+		panel.OnConversationEnd();
+    }
+
+	ui void ShowAnimInst(String clip)
+	{
+		Ensure();
+		bool ok = panel && panel.PlayAnimChar(clip);
+		bShow = ok && panel.CanDraw();
+		if (bShow) { inConversation = true; Heartbeat(); }
+		else if (panel) { panel.Reset(); bShow = false; }
+	}
+
+    ui void HideInst()                 { bShow = false;}
+
+    override void UiTick()
+	{
+		if (hb > 0) hb--;
+		if (inConversation && hb == 0) EndConversation(120);
+
+		if (!jm_anim_enabled) { bShow = false; inConversation = false; fadeOutTics = 0; return; }
+
+		Ensure();
+		if (panel && jm_anim_play) panel.Tick();
+
+		if (panel && !panel.CanDraw()) bShow = false;
+
+		if (!inConversation && fadeOutTics > 0) fadeOutTics--;
+	}
+
+
+//     // ---- Rendering the panel ----
+
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (!jm_anim_enabled) return;
+        if (!panel) return;       // ключевая строка
+        bool visible = bShow && (inConversation || (fadeOutTics > 0));
+        if (!visible) return;
+        panel.Draw();
+    }
+	
+	ui void SetFallbackBackdropInst(String tex)
+	{
+		Ensure();
+		if (panel) {
+		panel.SetFallbackTexture(tex);
+		}
+	}
+
+	ui static void SetFallbackBackdropStatic(String tex)
+	{
+		let o = Get(); if (o) o.SetFallbackBackdropInst(tex);
+	}
+
+	ui void ShowVoiceInst(String voice)
+	{
+		Ensure();
+		if (!panel) { bShow = false; return; }
+
+		bool ok = panel.PlayForVoice(voice);
+		bShow = ok && panel.CanDraw();          // показываем только если реально есть что рисовать
+
+		if (bShow) { inConversation = true; Heartbeat(); }
+	}
+
+
+    // Иногда удобно просто «idle» для текущего персонажа:
+    ui void ShowIdleInst()
+    {
+        Ensure();
+        if (panel)
+        {
+            panel.PlayAnimChar("idle");
+			if (panel.CanDraw()) { inConversation = true; Heartbeat(); }
+		}
+    }
+
+    // ---- статические обёртки (UI) ----
+    ui static DialogUIOverlay Get()                      { return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay")); }
+    ui static void BeginConversationStatic()         { let o = Get(); if (o) o.BeginConversation(); }
+    ui static void EndConversationStatic(int ms=120) { let o = Get(); if (o) o.EndConversation(ms); }
+    ui static void ShowAnimStatic(String clip)       { let o = Get(); if (o) o.ShowAnimInst(clip); }
+    ui static void HideStatic()                      { let o = Get(); if (o) o.HideInst(); }
+    ui static void EnsureStatic()                      { let o = Get(); if (o) o.Ensure(); }
+
+    ui static void ShowVoiceStatic(String voice)  { let o = Get(); if (o) o.ShowVoiceInst(voice); }
+    ui static void ShowIdleStatic()             { let o = Get(); if (o) o.ShowIdleInst(); }
+}
+
+
+
+
+// 	ui void ShowVoiceInst(String voice)
+// 	{
+// 		Ensure();
+// 		if (!panel) { bShow = false; return; }
+
+// 		bool ok = panel.PlayForVoice(voice);
+// 		bShow = ok && panel.CanDraw();
+// 		holdTics = 0;
+
+// 		if (bShow) { inConversation = true; Heartbeat(); }
+// 		else { panel.Reset(); bShow = false; }
+// 	}
+
+//     ui void ShowVoiceInst(String voice)
+//     {
+//         Ensure();
+//         if (!panel) { bShow = false; return; }
+
+//         bool ok = panel.PlayForVoice(voice);
+//         bShow = ok && panel.CanDraw();   // показываем только если реально есть что рисовать
+//         holdTics = 0;
+
+//         if (bShow) { inConversation = true; Heartbeat(); }
+//         else { /* ничего не показываем */ }
+//     }
+

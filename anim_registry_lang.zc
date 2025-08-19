@@ -77,6 +77,36 @@ class AnimRegistryLang : Object
         if (cur.Length() > 0) outArr.Push(ParseIntSafe(cur, 0));
     }
 
+	static double ParseFloatSafe(String s, double def)
+	{
+		if (s == "") return def;
+		return s.ToDouble();
+	}
+
+	static void SplitCSVFloats(String src, Array<double> outArr)
+	{
+		outArr.Clear();
+		String cur = "";
+		int len = int(src.Length());
+		for (int i = 0; i < len; i++)
+		{
+			String ch = src.CharAt(i);
+			bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
+			if (sep)
+			{
+				if (cur.Length() > 0) 
+				{
+					outArr.Push(ParseFloatSafe(cur, 0.0));
+					cur = "";
+				}
+			}
+			else cur = cur .. ch;
+		}
+		if (cur.Length() > 0) outArr.Push(ParseFloatSafe(cur, 0.0));
+	}
+
+
+
     static bool ParseBool(String s)
     {
         s = s.MakeLower();
@@ -117,8 +147,6 @@ class AnimRegistryLang : Object
 		Array<String> names;
 		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
 
-		Console.Printf("Preloading for: %s", who);
-
 		for (int i = 0; i < names.Size(); i++)
 		{
 			String texName = names[i];
@@ -127,7 +155,6 @@ class AnimRegistryLang : Object
 			if (id.IsValid())
 			{
 				p.frames.Push(id);
-				Console.Printf("  OK: %s", texName);
 			}
 			else
 			{
@@ -135,7 +162,6 @@ class AnimRegistryLang : Object
 			}
 		}
 
-		Console.Printf("Preload finished for: %s", who);
 	}
 
     // Регистрация всех клипов выбранного персонажа.
@@ -154,12 +180,10 @@ class AnimRegistryLang : Object
             String sD = L(base .. "_DURS");
             if (sF.Length() == 0 || sD.Length() == 0) continue;
 
-            // Объявления — до операторов: правило «как в C89»
             Array<String> f;
-            Array<int>    d;
-
-            SplitCSVNames(sF, f);
-            SplitCSVInts (sD, d);
+			Array<double> d;
+			SplitCSVNames(sF, f);
+			SplitCSVFloats(sD, d);
 
             int n = min(f.Size(), d.Size());
             if (n <= 0) continue;
@@ -171,8 +195,6 @@ class AnimRegistryLang : Object
             String regName  = prefix ? (who .. "." .. clip) : clip;
 
             p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
-			Console.Printf("RegisterFor finished for: %s", regName);
-
         }
     }
 }
