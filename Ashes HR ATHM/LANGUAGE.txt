@@ -1,0 +1,15 @@
+[enu default]
+JM_OPT_ANIM_TITLE   = "Dialogue Settings";
+JM_OPT_ANIM_ENABLE  = "Show animation panel";
+JM_OPT_ANIM_SUBMENU = "Dialogue Settings";
+JM_OPT_ANIM_PLAY = "Play animation";
+JM_VOICE_PLAY = "Voiceover enabled";
+JM_VOICE_VOL = "Voice volume";
+
+// [ru default]
+// JM_OPT_ANIM_TITLE   = "Настройки диалогов";
+// JM_OPT_ANIM_ENABLE  = "Панель анимации";
+// JM_OPT_ANIM_SUBMENU = "Настройки диалогов";
+// JM_OPT_ANIM_PLAY = "Проигрывать анимации";
+// JM_VOICE_PLAY = "Озвучка в диалогах";
+// JM_VOICE_VOL = "Громкость озвучки";

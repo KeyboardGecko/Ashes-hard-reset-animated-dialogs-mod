@@ -15,10 +15,9 @@ class MyConversationMenu : ConversationMenu
 		o.BeginConversationStatic();
 		o.HeartbeatStatic();
 
-		// прокинуть fallback кадр для ПЕРВОГО узла
 		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
 
-		o.ShowVoiceStatic(CurNode.SpeakerVoice); // покажет voice/idle/fallback или спрячется (через Overlay)
+		o.ShowVoiceStatic(CurNode.SpeakerVoice);
 		PlayNodeVoice(CurNode);
 
 		_prev = CurNode;
@@ -34,7 +33,6 @@ class MyConversationMenu : ConversationMenu
 
 		if (mCurNode != _prev)
 		{
-			// каждый раз обновляем fallback
 			o.SetFallbackBackdropStatic(mCurNode ? mCurNode.Backdrop : "");
 
 			if (mCurNode != null) voice = mCurNode.SpeakerVoice;
@@ -64,7 +62,7 @@ class MyConversationMenu : ConversationMenu
     }
 
 
-    // animation file should have the name of audiofile here. For consistency.
+    // animation file should have the same name as audiofile. For consistency.
     ui String ResolveAnimForNode(StrifeDialogueNode n)
     {
         if (n == null) return "idle";

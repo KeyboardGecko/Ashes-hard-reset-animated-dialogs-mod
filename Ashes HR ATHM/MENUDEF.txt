@@ -1,0 +1,17 @@
+OptionMenu "JMAnimOptions"
+{
+    Title "$JM_OPT_ANIM_TITLE"
+    Option "$JM_OPT_ANIM_ENABLE", "jm_anim_enabled", "OnOff"
+    Option "$JM_OPT_ANIM_PLAY", "jm_anim_play", "OnOff", "jm_anim_enabled", 0
+
+	StaticText ""
+	Option "$JM_VOICE_PLAY", "jm_voice_enable", "OnOff"
+    Slider "$JM_VOICE_VOL", "jm_voice_volume", 0.0, 1.0, 0.05, 2, "jm_voice_enable"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+    StaticText ""
+	Submenu "$JM_OPT_ANIM_SUBMENU", "JMAnimOptions"
+
+}

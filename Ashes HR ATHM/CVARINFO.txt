@@ -1,0 +1,5 @@
+nosave bool jm_anim_enabled = true;  // show panel
+nosave bool jm_anim_play    = true;  // play animations
+user bool  jm_voice_enable = true;   // enable voice (obviously)
+user float jm_voice_volume = 1;    // 0.0 .. 1.0
+user string jm_voice_current = "";

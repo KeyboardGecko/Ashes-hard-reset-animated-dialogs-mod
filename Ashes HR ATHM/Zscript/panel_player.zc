@@ -13,7 +13,6 @@ class PanelPlayer : Object
     bool active;
     int  lastFrameIdx;
 
-    // рендерная геометрия — как у тебя
     int vW, vH;
     double topMargin;
 
@@ -48,7 +47,6 @@ class PanelPlayer : Object
 		fallbackTex = tex;
 	}
 
-	// персонаж-зависимое имя клипа
 	ui String FallbackAnimName()
 	{
 		return (character.Length()>0) ? (character .. ".FALLBACK") : "FALLBACK";
@@ -60,23 +58,20 @@ class PanelPlayer : Object
 		int i = FindAnim(fbName);
 
 		if (fallbackTex.Length() == 0)
-			return (i >= 0 && clipCount[i] > 0); // есть готовый непустой — ок, иначе нечего
+			return (i >= 0 && clipCount[i] > 0); 
 
 		int fi = EnsureFrameIndexByName(fallbackTex);
 		if (fi < 0)
 		{
-			Console.Printf("[FALLBACK] missing texture: '%s'", fallbackTex);
 			return (i >= 0 && clipCount[i] > 0);
 		}
 
-		// собираем данные однокадрового клипа
 		int off = flatFrames.Size();
 		flatFrames.Push(fi);
-		flatDurMs.Push(3600000.0); // «вечный» кадр
+		flatDurMs.Push(3600000.0); 
 
 		if (i >= 0)
 		{
-			// клип уже есть по имени — ПЕРЕОПРЕДЕЛИМ его, даже если clipCount == 0
 			clipOffset[i]   = off;
 			clipCount[i]    = 1;
 			clipLoop[i]     = true;
@@ -84,7 +79,6 @@ class PanelPlayer : Object
 		}
 		else
 		{
-			// создаём новый
 			animNames.Push(fbName);
 			clipOffset.Push(off);
 			clipCount.Push(1);
@@ -92,67 +86,27 @@ class PanelPlayer : Object
 			clipStopLast.Push(true);
 		}
 
-		Console.Printf("[FALLBACK] ready '%s' -> frame #%d (%s)", fbName, fi, TexMan.GetName(frames[fi]));
 		return true;
 	}
 
-
-
-    // однокадровый клип с «панелью» из Backdrop
-// 	ui bool EnsureFallbackAnim()
-// 	{
-// 		String fbName = FallbackAnimName();
-// 		Console.Printf("looking for fallback, %s", fbName);
-
-// 		if (FindAnim(fbName) >= 0) return true;
-
-// 		if (fallbackTex.Length() == 0)
-// 		{
-// 			Console.Printf("[FALLBACK] no texture set");
-// 			return false;
-// 		}
-
-// 		// пробуем как есть
-// 		int fi = EnsureFrameIndexByName(fallbackTex);
-// 		if (fi < 0)
-// 		{
-// 			Console.Printf("[FALLBACK] missing texture: '%s'", fallbackTex);
-// 			return false;
-// 		}
-
-// 		Array<int> f; f.Push(fi);
-// 		Array<double> d; d.Push(360); // практически «вечный» кадр
-// 		DefineAnimation(fbName, f, d, true, true);
-
-// 		Console.Printf("[FALLBACK] registered '%s' -> frame #%d (%s)", fbName, fi, TexMan.GetName(frames[fi]));
-// 		return true;
-// 	}
-
 	ui void OnConversationEnd()
 	{
-		// Сначала инвалидируем FALLBACK'и (использует loadedChars)
 		InvalidateFallbackClips();
-
-		// Теперь можно очистить списки
 		loadedChars.Clear();
 
-		// Сброс персонажа и текущего состояния
 		character = "";
 		prevCharacter = "";
 
-		// (опционально) если хочешь убить и IDLE/анимации — добавь здесь общий Reset(),
-		// но обычно это лишнее: зарегистрированные клипы можно кэшировать на весь сеанс
 	}
 
 
 	ui bool PlayFallback()
 	{
 		bool okEnsure = EnsureFallbackAnim();
-		if (!okEnsure) { Console.Printf("[FALLBACK] ensure failed"); return false; }
+		if (!okEnsure)  return false; 
 
 		String fbName = FallbackAnimName();
 		bool ok = PlayAnim(fbName);
-		Console.Printf("[FALLBACK] play %s -> %s", fbName, ok ? "OK" : "FAIL");
 		return ok;
 	}
 
@@ -161,7 +115,6 @@ class PanelPlayer : Object
 	{
 		EnsureCharacterForVoice(voiceName);
 
-		// 1) основная анимация (персонажная)
 		if (character.Length() > 0)
 		{
 			String clip = GetAnimationName(voiceName).MakeUpper(); // "JM001"
@@ -169,41 +122,24 @@ class PanelPlayer : Object
 			if (PlayAnimChar("IDLE")) return true;
 		}
 
-		// 2) общий idle
 		if (PlayAnim("IDLE")) return true;
 
-		// 3) fallback (персонифицированный или общий)
 		return PlayFallback();
 	}
 
 	ui bool CanDraw()
 	{
-		// идёт активный клип
 		if (active && curClip >= 0 && clipCount[curClip] > 0) return true;
 
-		// есть «замороженный» последний кадр (stopLast)
 		if (lastFrameIdx >= 0) return true;
 
-		// idle персонажа / общий idle
 		if (character.Length()>0 && FindAnim(character .. ".IDLE") >= 0) return true;
 		if (FindAnim("IDLE") >= 0) return true;
 
-		// fallback (персон./общий)
 		int i = FindAnim(FallbackAnimName());
 		return (i >= 0 && clipCount[i] > 0);
 	}
 
-
-// 	ui bool CanDraw()
-// 	{
-// 		if (active && curClip >= 0 && clipCount[curClip] > 0) return true;
-// 		if (character.Length()>0 && FindAnim(character .. ".IDLE") >= 0) return true;
-// 		int i = FindAnim(FallbackAnimName());
-
-// 		if (FindAnim("IDLE") >= 0) return true;
-
-// 		return (i >= 0 && clipCount[i] > 0);
-// 	}
 	
 	static int IndexOfStr(Array<String> arr, String s)
 	{
@@ -225,17 +161,14 @@ class PanelPlayer : Object
 		String want = name;
 		String wantLC = want.MakeLower();
 
-		// 1) поиск среди уже загруженных без учета регистра
 		for (int i = 0; i < frames.Size(); i++)
 		{
 			String have = TexMan.GetName(frames[i]);
 			if (have.MakeLower() == wantLC) return i;
 		}
 
-		// 2) пробуем как есть
 		TextureID id = TexMan.CheckForTexture(want, TexMan.Type_MiscPatch);
 
-		// 3) пробуем в нижнем регистре (частый случай в PK3)
 		if (!id.IsValid() && want != wantLC)
 			id = TexMan.CheckForTexture(wantLC, TexMan.Type_MiscPatch);
 
@@ -245,47 +178,6 @@ class PanelPlayer : Object
 		return frames.Size() - 1;
 	}
 
-// 	int EnsureFrameIndexByName(String name) {
-// 		for (int i = 0; i < frames.Size(); i++) {
-// 		if (TexMan.GetName(frames[i]) == name) return i; }
-// 		TextureID id = TexMan.CheckForTexture(name);
-// 		if (!id.IsValid()) return -1;
-// 		frames.Push(id);
-// 		return frames.Size() - 1;
-// 	}
-	
-
-// 	ui void EnsureCharacterForVoice(String voiceName)
-// 	{
-// 		String clearVoiceName = (voiceName.RightIndexOf("/") >= 0)
-// 			? voiceName.Mid(voiceName.RightIndexOf("/") + 1)
-// 			: voiceName;
-
-// 		String who = AnimRegistryLang.ResolveCharFromVoice(clearVoiceName);
-
-// 		if (who.Length() == 0)
-// 		{
-// 			character = "";     // нет персонажа — выходим
-// 			// fallbackTex НЕ трогаем — его уже поставило меню под текущий узел
-// 			return;
-// 		}
-
-// 		bool changed = (character != who);
-// 		character = who;
-
-// 		if (changed)
-// 		{
-// 			// инвалидируем старые fallback-клипы, но НЕ трогаем fallbackTex:
-// 			InvalidateFallbackClips();
-// 		}
-
-// 		if (IndexOfStr(loadedChars, who) < 0)
-// 		{
-// 			AnimRegistryLang.PreloadFor(self, who);
-// 			AnimRegistryLang.RegisterFor(self, who, true);
-// 			loadedChars.Push(who);
-// 		}
-// 	}
 
 	ui void EnsureCharacterForVoice(String voiceName)
 	{
@@ -294,7 +186,6 @@ class PanelPlayer : Object
 
 		if (who.Length() == 0)
 		{
-			character = "";   // нет персонажа — пойдём в общий FALLBACK по текущему fallbackTex
 			return;
 		}
 
@@ -302,7 +193,7 @@ class PanelPlayer : Object
 		character = who;
 
 		if (changed)
-			InvalidateFallbackClips();   // клипы обнулим, НО fallbackTex не трогаем
+			InvalidateFallbackClips(); 
 
 		if (IndexOfStr(loadedChars, who) < 0)
 		{
@@ -315,17 +206,15 @@ class PanelPlayer : Object
 
 	ui void InvalidateFallbackClips()
 	{
-		// общий
 		int k = FindAnim("FALLBACK"); if (k >= 0) clipCount[k] = 0;
 
-		// для любого из уже загруженных персонажей
 		for (int i = 0; i < loadedChars.Size(); i++)
 		{
 			String fb = loadedChars[i] .. ".FALLBACK";
 			int j = FindAnim(fb); if (j >= 0) clipCount[j] = 0;
 		}
 
-		// если сейчас мы отображаем старый fallback — погасим проигрывание
+		// if old fallback is displayed
 		if (curClip >= 0)
 		{
 			String cur = animNames[curClip];
@@ -359,10 +248,8 @@ class PanelPlayer : Object
         ready = true;
     }
 
-    // --- вспомогательные маппинги ---
+    // --- helpers ---
 	
-
-  // --- регистрация клипов без конвертации в тики ---
 	void DefineAnimation(String name, Array<int> fIdx, Array<double> durMs, bool loop=false, bool stopLast=true)
 	{
 		int n = min(fIdx.Size(), durMs.Size());
@@ -418,8 +305,8 @@ class PanelPlayer : Object
         PreloadOnce();
         int idx = FindAnim(GetAnimationName(name));
 	
-		if (idx < 0) { Console.Printf("Anim not found: %s", name); return false; }
-		if (clipCount[idx] <= 0) { Console.Printf("Anim empty: %s", name); return false; }
+		if (idx < 0) return false; 
+		if (clipCount[idx] <= 0)  return false; 
 
         if (idx < 0 || clipCount[idx] <= 0) return false;
 
@@ -478,7 +365,6 @@ class PanelPlayer : Object
 				}
 				else
 				{
-					// --- клип завершён ---
 					String curName = animNames[curClip];
 					bool wasIdle = (curName == "IDLE") ||
 								   (character.Length()>0 && curName == character .. ".IDLE");
@@ -494,12 +380,11 @@ class PanelPlayer : Object
 					}
 					else lastFrameIdx = -1;
 
-					// Авто-переход в idle только если это не idle и не fallback
 					if (!wasIdle && !wasFallback)
 					{
-						if (TryStartIdle()) return;  // запустили idle — выходим
+						if (TryStartIdle()) return;
 					}
-					return; // ничего лучше — остаёмся на последнем кадре/скрываемся
+					return;
 				}
 			}
 
@@ -531,7 +416,8 @@ class PanelPlayer : Object
         Screen.DrawTexture(tex, false, x, y,
             DTA_VirtualWidth, vW,
             DTA_VirtualHeight, vH,
-            DTA_KeepRatio, true
+            DTA_KeepRatio, true,
+			DTA_TopLeft,       true
         );
     }
 
@@ -572,107 +458,3 @@ class PanelPlayer : Object
 	}
 	
 }
-
-	
-//     ui void EnsureCharacterForVoice(String voiceName)
-//     {
-
-// 		String clearVoiceName = (voiceName.RightIndexOf("/") >= 0) ? voiceName.Mid(voiceName.RightIndexOf("/") + 1) : voiceName;
-//         String who = AnimRegistryLang.ResolveCharFromVoice(clearVoiceName);
-// 		Console.printf("character: %s", who);
-//         if (who.Length()==0) return;
-
-//         // Регистрируем анимации этого персонажа один раз
-//         if (IndexOfStr(loadedChars, who) < 0)
-//         {
-//             AnimRegistryLang.PreloadFor(self, who);
-//             AnimRegistryLang.RegisterFor(self, who, true);
-//             loadedChars.Push(who);
-//         }
-//         character = who; // активный персонаж
-//     }
-
-
-//     ui bool PlayForVoice(String voiceName)
-//     {
-//         EnsureCharacterForVoice(voiceName);
-
-//         String clip = GetAnimationName(voiceName).MakeUpper();
-//         if (character.Length() > 0)
-//         {
-//             if (PlayAnimChar(clip)) return true;
-//         }
-//         // персонаж не распознан или клипа нет — показываем «панель»
-//         return PlayFallback();
-//     }
-
-//     ui bool PlayForVoice(String voiceName)
-//     {
-//         EnsureCharacterForVoice(voiceName);
-
-//         String clip = GetAnimationName(voiceName).MakeUpper(); // "JM001"
-//         if (character.Length() > 0 && PlayAnimChar(clip)) return true;
-
-//         // попытки IDLE
-//         if (character.Length() > 0 && PlayAnimChar("IDLE")) return true;
-//         if (PlayAnim("IDLE")) return true;
-
-//         // последний шанс — FALLBACK
-//         if (PlayFallback()) return true;
-
-//         return false;
-//     }
-
-//     ui bool PlayForVoice(String voice)
-//     {
-//         String clear, who, clip;
-//         int slash;
-
-//         slash = voice.RightIndexOf("/");
-//         if (slash >= 0) clear = voice.Mid(slash + 1); else clear = voice;
-
-//         who = AnimRegistryLang.ResolveCharFromVoice(clear);
-//         if (who.Length() == 0) return false;
-
-//         EnsureCharacterForVoice(voice); // твоя реализация как была
-
-//         // 1) Пытаемся проиграть анимацию под имя файла (без пути)
-//         clip = clear;
-//         if (PlayAnimChar(clip)) return true;
-
-//         // 2) Пытаемся IDLE
-//         if (PlayAnimChar("IDLE")) return true;
-
-//         // 3) Пытаемся одно-кадровый фолбэк из бэкдропа
-
-//         if (PlayFallback()) return true;
-
-//         if (fallbackStill.Length() > 0 && HasValidTexture(fallbackStill))
-//         {
-//             return PlayOneFrameStill(fallbackStill, 60); // реализовано у тебя/добавь: положить 1 Name и 1 длительность
-//         }
-
-//         return false;
-//     }
-
-
-// 	ui bool CanDraw()
-// 	{
-// 		if (active && curClip >= 0 && clipCount[curClip] > 0) return true;
-// 		if (character.Length() > 0 && FindAnim(character .. ".IDLE") >= 0) return true;
-// 		if (FindAnim("IDLE") >= 0) return true;
-// 		// FALLBACK только если реально задана текстура и клип определён
-// 		if (fallbackTex.Length() > 0 && FindAnim("FALLBACK") >= 0) return true;
-// 		return false;
-// 	}
-
-
-// 	ui bool PlayForVoice(String voiceName)
-// 	{
-// 		EnsureCharacterForVoice(voiceName);      // выставит character = "JM"
-// 		String clip = getAnimationName(voiceName); // "jm/jm001" -> "jm001"
-// 		clip = clip.MakeUpper();                   // "JM001" (как в LIST)
-// 		return PlayAnimChar(clip);                 // соберёт "JM.JM001"
-// 	}
-
-	

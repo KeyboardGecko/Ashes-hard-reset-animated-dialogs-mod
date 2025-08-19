@@ -1,16 +1,13 @@
-// zscript/anim_registry_lang_multi.zs
-// Помощник: читаем данные из LANGUAGE и регистрируем клипы
+// Helper class to read LANGUAGE_ANIM.txt and register clips
 
 class AnimRegistryLang : Object
 {
-    // Достаём строку из LANGUAGE; если ключа нет — возвращаем ""
     static String L(String key)
     {
         let s = StringTable.Localize(key);
         return s ? s : "";
     }
 
-    // Разделить CSV-строку имён на массив
     static void SplitCSVNames(String src, Array<String> outArr)
     {
         outArr.Clear();
@@ -18,7 +15,7 @@ class AnimRegistryLang : Object
         int len = int(src.Length());
         for (int i = 0; i < len; i++)
         {
-            String ch = src.CharAt(i);  // ровно один символ как строка
+            String ch = src.CharAt(i);  // I KNOW IT'S DEPRECATED SHUT UP
             bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
             if (sep)
             {
@@ -26,19 +23,18 @@ class AnimRegistryLang : Object
             }
             else
             {
-                cur = cur .. ch; // конкатенация строк
+                cur = cur .. ch; 
             }
         }
         if (cur.Length() > 0) outArr.Push(cur);
     }
 
-    // Безопасный парсер целого
     static int ParseIntSafe(String s, int def)
     {
         int sign = 1, i = 0, val = 0;
         if (s.Length() == 0) return def;
 
-        String first = s.Mid(0,1);   // один символ строкой
+        String first = s.Mid(0,1); 
         if (first == "-" || first == "+")
         {
             sign = (first == "-") ? -1 : 1;
@@ -48,8 +44,7 @@ class AnimRegistryLang : Object
         int len = int(s.Length());
         for (; i < len; i++)
         {
-            int c = int(s.CharCodeAt(i));   // код символа (int)
-            // цифры: '0'..'9' == 48..57
+            int c = int(s.CharCodeAt(i));  
             if (c < 48 || c > 57) return def;
             val = val * 10 + (c - 48);
         }
@@ -113,7 +108,6 @@ class AnimRegistryLang : Object
         return (s == "1" || s == "true" || s == "yes" || s == "on");
     }
 
-    // Проверка префикса без учёта регистра
     static bool StartsWithIgnoreCase(String s, String pref)
     {
         String su = s.MakeUpper();
@@ -122,7 +116,6 @@ class AnimRegistryLang : Object
         return su.Left(pu.Length()) == pu;
     }
 
-    // Из имени звуковой реплики (JM001 / por02 / AND03) -> "JIM"/"PORKY"/"ANDY"
     static String ResolveCharFromVoice(String voiceName)
     {
         Array<String> prefs;
@@ -132,16 +125,16 @@ class AnimRegistryLang : Object
             String pref = prefs[i];
             if (StartsWithIgnoreCase(voiceName, pref))
             {
-                String who = L("$ANIMS_MAP_" .. pref); // вернёт "JIM"/"PORKY"/"ANDY"
+                String who = L("$ANIMS_MAP_" .. pref);
                 if (who.Length() > 0) return who;
             }
         }
         return "";
     }
 
-    // --- Эти методы вызываются из UI-контекста, поэтому помечаем их ui ---
+    // --- UI context methods---
 
-    // Прелоад строго для выбранного персонажа (опционально)
+    // character preload
 	static ui void PreloadFor(PanelPlayer p, String who)
 	{
 		Array<String> names;
@@ -156,16 +149,16 @@ class AnimRegistryLang : Object
 			{
 				p.frames.Push(id);
 			}
-			else
-			{
-				Console.Printf("  MISSING: %s", texName);
-			}
+// 			else
+// 			{
+// 				Console.Printf("  MISSING: %s", texName);
+// 			}
 		}
 
 	}
 
-    // Регистрация всех клипов выбранного персонажа.
-    // prefix=true → имена в реестре будут "JIM.idle", "JIM.JM001", ...
+    // Register all animations for character (who).
+    // prefix=true - "JM.idle", "JM.JM001"...
     static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
     {
         Array<String> clips;

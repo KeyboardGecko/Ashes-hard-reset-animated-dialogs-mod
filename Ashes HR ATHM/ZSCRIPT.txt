@@ -1,0 +1,6 @@
+version "4.12.2"
+
+#include "zscript/panel_player.zc"
+#include "zscript/dialog_ui_overlay.zc"
+#include "zscript/new_conversation_menu.zc"
+#include "zscript/anim_registry_lang.zc"
