@@ -6,7 +6,7 @@ A mod replacing the standard Strife dialog system for **GZDoom**.
 - Animations for dialog portraits, similar to fallout 1 and 2. 
 - Smooth transitions between dialog steps (no flickering).
 - Dialog audios are separated into channels 5 and 6 (previously CHAN_VOICE).
-- Idle animations (plays after current animation).
+- Idle animation that plays after current animation.
 - Fallback image: if there's no animations, the PANEL image from strife dialog is used.
 - Separate submenu in the game's main menu for fine-tuning.
 - Separate animation making tool.
@@ -36,7 +36,5 @@ Originally intended for [**Ashes: Hard Reset**](https://www.moddb.com/mods/ashes
 - Export animations into the `LANGUAGE_ANIM` lump via "menu" - "Export to LANGUAGE_ANIM".
  - You can find images for animation projects in "graphics - dialog - JM" folder.
 ⚠️ Don’t forget to select **all JSONs** you want to include into LANGUAGE_ANIM.  
-- **IDLE animations** are empty by default – you’ll need to write them in using basic method of typing with hands. See `LANGUAGE_ANIM` for details.
-- Animation images are stored in: graphics/dialog/JM.
-  Create the "clear faces" folder in the same folder your project files are, put images there, then open any project file.
-
+- **IDLE animations** are empty by default – you’ll need to write them using basic method of typing with hands. See `LANGUAGE_ANIM` for details.
+- Refer to example folder for, you know, an example.
