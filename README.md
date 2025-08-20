@@ -16,7 +16,7 @@ Originally intended for [**Ashes: Hard Reset**](https://www.moddb.com/mods/ashes
 ---
 
 ## 🔹 How to Test
-1. Load the `.PK3` file **together with** Ashes HR PK3 into GZDoom.  
+1. Load the `.PK3` file **together with** Ashes: Hard Reset.PK3 into GZDoom.  
 2. Start the game and talk to **Jimmy** (may use the console command "changemap MAP02" to speed up the process).
 
 ---
