@@ -1,0 +1,312 @@
+{
+  "version": 1,
+  "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM003.wav",
+  "clips": [
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 290.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 392.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 501.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 595.0,
+      "label": "f"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 721.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 859.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 963.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 1232.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 1742.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 1889.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 2041.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 2278.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 2480.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 2695.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 3239.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 3374.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 3516.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3639.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 3733.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 3879.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 4234.0,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 4377.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 4497.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 4640.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 4817.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5308.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 5445.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5526.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 5597.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 5786.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5923.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 6069.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 6188.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 6499.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 6611.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 6702.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 6826.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 6980.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 7806.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 7934.0,
+      "label": "f"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 8017.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 8101.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 8199.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 8317.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 8422.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 8527.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 8621.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 8712.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 8814.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 8952.0,
+      "label": "f"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 9106.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 9211.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 9349.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 9483.0,
+      "label": "t"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 9595.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 9672.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 9739.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 9880.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 10027.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 10158.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 10354.0,
+      "label": ""
+    }
+  ],
+  "defaultImage": "clear faces\\JMDEF.png"
+}

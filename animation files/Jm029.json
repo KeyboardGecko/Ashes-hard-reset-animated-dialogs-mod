@@ -1,0 +1,502 @@
+{
+  "version": 1,
+  "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM029.wav",
+  "clips": [
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 512.4099358049127,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 742.9187563473406,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 980.7279486439301,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 1195.7758315959093,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 1272.0636025678034,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 1400.6819871609825,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 1531.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 1628.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 1694.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 1909.5599671591835,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 2007.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 2282.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 2421.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3021.9906135597885,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3147.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3240.0000000000005,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 3342.2175621092306,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3419.0075091521694,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3484.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 3580.8253610357688,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3637.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 3752.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3850.260485254231,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3917.7819468267307,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 4007.3912189453845,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 4102.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 4188.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 4275.812228941658,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 4437.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 4501.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 4596.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 4693.0,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 4796.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 4857.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5003.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 5125.08584629,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 5205.30340839923,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 5400.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5603.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 5774.0004902176,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 6040.913662645962,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 6153.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 6284.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 6465.048745720113,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 6593.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 6878.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 7027.061131307815,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 7711.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 7784.053996070823,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 7940.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 8030.680314334205,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 8274.045247438371,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 8526.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 8633.164133592038,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 8728.838011787533,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 8935.914248441353,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 9091.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 9224.140353625979,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 9343.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 9436.136062866839,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 9606.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 9703.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 9808.003782190324,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 9945.56434667079,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 10090.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 10150.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 10230.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 10325.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 10481.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 10625.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 11336.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 11383.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 11461.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 11523.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 11688.676023575066,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 11750.241909628916,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 11905.023779966059,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 11968.539960708224,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 12042.917933203982,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 12125.591811399478,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 12263.86608251273,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 12309.894153237927,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 12379.056141450392,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 12506.190058937662,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 12590.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 12660.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 12728.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 12829.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 12939.460039291776,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 13015.136062866837,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 13085.42982318701,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 13289.695512781982,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 13369.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 13487.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 13552.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 13760.73139875308,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 13875.182849688274,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 14037.734773399943,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 14181.853635305131,
+      "label": ""
+    }
+  ],
+  "defaultImage": "clear faces\\JMDEF.png"
+}

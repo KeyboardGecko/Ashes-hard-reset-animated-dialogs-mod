@@ -1,0 +1,541 @@
+{
+ "version": 1,
+ "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM027.wav",
+ "clips": [
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 155.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 218.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 340.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 439.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 525.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 756.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 865.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 1508.3613735842896,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 1615.3528152863432,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 1751.0342687951659,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 1861.1473338715352,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 2003.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 2114.0808715404814,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 2183.9037086654357,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 2244.3180240976026,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 2418.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 2474.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 2554.80706026386,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 2711.425243853654,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 2769.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 2893.3269233458846,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 2946.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 3107.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 3220.1692849290475,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 3328.2086493104225,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 3391.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 3484.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 3578.0905561662967,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 3647.413416450108,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 3713.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 3825.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 3925.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4034.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 4204.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4326.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 4484.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4583.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 4708.7412753547105,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4834.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 4973.87007945233,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 5127.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 5693.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 5859.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 5945.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 6025.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 6176.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 6250.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 6305.377934239469,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 6402.090556166298,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 6493.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 6610.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 6686.921271237249,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 6774.8582520487835,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 6889.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 6928.35039726164,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 7032.149693184028,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 7128.232304117514,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 7236.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 7365.287378073173,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 7415.429126024391,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 7467.972463022172,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 7526.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 7591.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 7693.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 7777.196821906878,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 7842.236186288253,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMA.png",
+   "startMs": 7893.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 7976.381816410207,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 8160.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 8249.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 8381.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 8498.628433507161,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 8588.230344287917,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 8660.90627951682,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 8740.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 8899.10626574058,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 8987.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 9139.496027383595,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 9235.165402758314,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 9322.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 9510.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 9706.740158904657,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 9837.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 9931.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 10040.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 10221.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 10364.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 10499.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 10724.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\JMDEF.png"
+}
