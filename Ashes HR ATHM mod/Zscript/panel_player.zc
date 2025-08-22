@@ -27,6 +27,21 @@ class PanelPlayer : Object
 
     String fallbackTex;  
 
+	// for random delay at the start of every idle animation
+	static bool IsIdleName(String n) {
+		return n == "IDLE" || StringEndsWith(n, ".IDLE");
+	}
+
+	bool IsCurrentClipIdle() {
+		if (curClip < 0 || curClip >= animNames.Size()) return false;
+		
+		return IsIdleName(animNames[curClip]);
+	}
+
+	double RandomIdleHoldMs() {
+		return FRandom(100, 600);
+	}
+
     ui bool HasAnimInStringTable(String who, String anim)
     {
         String key, s;
@@ -316,6 +331,11 @@ class PanelPlayer : Object
         timeLeftMs = flatDurMs[base];          // ← миллисекунды
         if (timeLeftMs <= 0) timeLeftMs = 1;
 
+	    if (IsIdleName(GetAnimationName(name))) {
+			timeLeftMs += RandomIdleHoldMs();
+		}
+
+
         lastFrameIdx = flatFrames[base];
         return true;
     }
@@ -411,7 +431,8 @@ class PanelPlayer : Object
         TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
         Vector2 sz = TexMan.GetScaledSize(tex);
         double x = (vW - sz.x) * 0.5;
-        double y = topMargin;
+        double y = (vH - sz.y) * 0.25;
+//         double y = topMargin;
 
         Screen.DrawTexture(tex, false, x, y,
             DTA_VirtualWidth, vW,
