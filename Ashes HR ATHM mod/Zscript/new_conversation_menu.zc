@@ -107,8 +107,8 @@ class MyConversationMenu : ConversationMenu
 		    let npc = (pl ? pl.ConversationNPC : null);   // текущий NPC, с которым идёт диалог
 			if (!npc) return;
 			
-		// let's play in two channels. Maybe it's louder that way.
-			npc.A_StartSound(n.SpeakerVoice, CHAN_6, 0, vol, ATTN_NORM);
+			int flags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
+			
 			npc.A_StartSound(n.SpeakerVoice, CHAN_5, 0, vol, ATTN_NORM);
 
 		}

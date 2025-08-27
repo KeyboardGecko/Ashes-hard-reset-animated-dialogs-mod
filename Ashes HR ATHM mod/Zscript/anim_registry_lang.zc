@@ -15,7 +15,7 @@ class AnimRegistryLang : Object
         int len = int(src.Length());
         for (int i = 0; i < len; i++)
         {
-            String ch = src.CharAt(i);  // I KNOW IT'S DEPRECATED SHUT UP
+            String ch = src.Mid(i, 1);  // I KNOW IT'S DEPRECATED SHUT UP
             bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
             if (sep)
             {
@@ -44,7 +44,7 @@ class AnimRegistryLang : Object
         int len = int(s.Length());
         for (; i < len; i++)
         {
-            int c = int(s.CharCodeAt(i));  
+            int c = int(s.ByteAt(i));  
             if (c < 48 || c > 57) return def;
             val = val * 10 + (c - 48);
         }
@@ -58,7 +58,7 @@ class AnimRegistryLang : Object
         int len = int(src.Length());
         for (int i = 0; i < len; i++)
         {
-            String ch = src.CharAt(i);
+            String ch = src.Mid(i, 1);
             bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
             if (sep)
             {
@@ -85,7 +85,7 @@ class AnimRegistryLang : Object
 		int len = int(src.Length());
 		for (int i = 0; i < len; i++)
 		{
-			String ch = src.CharAt(i);
+			String ch = src.Mid(i, 1);
 			bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
 			if (sep)
 			{

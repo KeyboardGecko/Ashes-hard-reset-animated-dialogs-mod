@@ -7,6 +7,10 @@ class DialogUIOverlay : StaticEventHandler
     ui int hb;
     ui int hbTimeout;     
 
+	//this for making music quieter in dialogs
+	ui bool musicDuckApplied; 
+
+
     ui void Heartbeat() { hb = hbTimeout; }
     ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
 
@@ -24,15 +28,22 @@ class DialogUIOverlay : StaticEventHandler
     }
 
     ui void BeginConversation() { 
+		int volLevel;
+		
+		MakeMusicQuieter();
+
 		inConversation = true; 
 	}
 
     ui void EndConversation(int fadeMs = 10)
     {
+// 		ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536);
+		TurnMusicBack();
+
         inConversation = false;
         fadeOutTics = MsToTics(fadeMs);
         bShow = false;
-		panel.OnConversationEnd();
+ 		panel.OnConversationEnd();
     }
 
 	ui void ShowAnimInst(String clip)
@@ -40,11 +51,24 @@ class DialogUIOverlay : StaticEventHandler
 		Ensure();
 		bool ok = panel && panel.PlayAnimChar(clip);
 		bShow = ok && panel.CanDraw();
-		if (bShow) { inConversation = true; Heartbeat(); }
-		else if (panel) { panel.Reset(); bShow = false; }
+		if (bShow) 
+		{ 
+// 			DialogAudioDuck.BeginStatic(0.1);
+			inConversation = true; 
+			Heartbeat(); 
+		}
+		else if (panel) 
+		{ 
+// 			DialogAudioDuck.EndStatic();
+			panel.Reset(); 
+			bShow = false;
+		}
 	}
 
-    ui void HideInst()                 { bShow = false;}
+    ui void HideInst()                 
+	{ 
+		bShow = false;
+	}
 
     override void UiTick()
 	{
@@ -60,7 +84,7 @@ class DialogUIOverlay : StaticEventHandler
 
 		if (!inConversation && fadeOutTics > 0) fadeOutTics--;
 	}
-
+	
 
 //     // ---- Rendering the panel ----
 
@@ -94,7 +118,10 @@ class DialogUIOverlay : StaticEventHandler
 		bool ok = panel.PlayForVoice(voice);
 		bShow = ok && panel.CanDraw();
 
-		if (bShow) { inConversation = true; Heartbeat(); }
+		if (bShow) { inConversation = true; Heartbeat(); 
+		
+		}
+
 	}
 
     ui void ShowIdleInst()
@@ -117,4 +144,46 @@ class DialogUIOverlay : StaticEventHandler
 
     ui static void ShowVoiceStatic(String voice)  { let o = Get(); if (o) o.ShowVoiceInst(voice); }
     ui static void ShowIdleStatic()             { let o = Get(); if (o) o.ShowIdleInst(); }
+
+/////////////////////////////////////////////////////////
+// -- this part is for making music in dialogs go to
+// --  30% and back. If not already quiet.
+// -- It's all relative. Argh, I dunno, look at the code
+/////////////////////////////////////////////////////////
+
+	ui void makeMusicQuieter(){
+
+		double targetAbs = 0.30;
+		double user = 1.0;
+		
+		let cv = CVar.GetCVar('snd_musicvolume', players[consoleplayer]);
+		if (cv) user = clamp(cv.GetFloat(), 0.0, 1.0);
+
+		double absNow = user * 1.0;
+
+		musicDuckApplied = false;
+
+		// If already quiet, do nothing
+		if (absNow > targetAbs && user > 0.0)
+		{
+			double mult = clamp(targetAbs / user, 0.0, 2.0);
+			int mult16  = int(mult * 65536.0 + 0.5);   // fixed 16.16
+
+			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', mult16);
+
+			musicDuckApplied = true;
+			Console.Printf("Dialog duck: user=%.2f, mult=%.2f → abs=%.2f",
+				user, mult, user * mult);
+		}
+	}
+	
+	ui void TurnMusicBack(){
+	    if (musicDuckApplied)
+		{
+			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536); // 1.0 в fixed 16.16
+			musicDuckApplied = false;
+			Console.Printf("Dialog duck: restore music to 1.00x");
+		}
+	}
+
 }
