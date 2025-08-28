@@ -1,4 +1,4 @@
-class MyConversationMenu : ConversationMenu
+class NewConversationMenu : ConversationMenu
 {
     StrifeDialogueNode _prev;
 	DialogUIOverlay o;

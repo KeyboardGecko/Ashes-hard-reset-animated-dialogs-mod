@@ -1,5 +1,5 @@
 GameInfo {
-    DefaultConversationMenuClass = "MyConversationMenu"
+    DefaultConversationMenuClass = "NewConversationMenu"
     AddEventHandlers = "DialogUIOverlay"
 	AddEventHandlers = "VoiceHijack"
 }

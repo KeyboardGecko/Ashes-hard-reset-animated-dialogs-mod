@@ -10,7 +10,6 @@ class DialogUIOverlay : StaticEventHandler
 	//this for making music quieter in dialogs
 	ui bool musicDuckApplied; 
 
-
     ui void Heartbeat() { hb = hbTimeout; }
     ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
 
@@ -28,8 +27,6 @@ class DialogUIOverlay : StaticEventHandler
     }
 
     ui void BeginConversation() { 
-		int volLevel;
-		
 		MakeMusicQuieter();
 
 		inConversation = true; 
@@ -37,7 +34,6 @@ class DialogUIOverlay : StaticEventHandler
 
     ui void EndConversation(int fadeMs = 10)
     {
-// 		ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536);
 		TurnMusicBack();
 
         inConversation = false;
@@ -53,13 +49,11 @@ class DialogUIOverlay : StaticEventHandler
 		bShow = ok && panel.CanDraw();
 		if (bShow) 
 		{ 
-// 			DialogAudioDuck.BeginStatic(0.1);
 			inConversation = true; 
 			Heartbeat(); 
 		}
 		else if (panel) 
 		{ 
-// 			DialogAudioDuck.EndStatic();
 			panel.Reset(); 
 			bShow = false;
 		}
@@ -153,7 +147,7 @@ class DialogUIOverlay : StaticEventHandler
 
 	ui void makeMusicQuieter(){
 
-		double targetAbs = 0.30;
+		double targetAbs = 0.25;
 		double user = 1.0;
 		
 		let cv = CVar.GetCVar('snd_musicvolume', players[consoleplayer]);
@@ -167,13 +161,13 @@ class DialogUIOverlay : StaticEventHandler
 		if (absNow > targetAbs && user > 0.0)
 		{
 			double mult = clamp(targetAbs / user, 0.0, 2.0);
-			int mult16  = int(mult * 65536.0 + 0.5);   // fixed 16.16
+			int mult16  = int(mult * 65536.0 + 0.5);
 
 			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', mult16);
 
 			musicDuckApplied = true;
-			Console.Printf("Dialog duck: user=%.2f, mult=%.2f → abs=%.2f",
-				user, mult, user * mult);
+// 			Console.Printf("Dialog duck: user=%.2f, mult=%.2f → abs=%.2f",
+// 				user, mult, user * mult);
 		}
 	}
 	
@@ -182,7 +176,7 @@ class DialogUIOverlay : StaticEventHandler
 		{
 			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536); // 1.0 в fixed 16.16
 			musicDuckApplied = false;
-			Console.Printf("Dialog duck: restore music to 1.00x");
+// 			Console.Printf("Dialog duck: restore music to 1.00x");
 		}
 	}
 
