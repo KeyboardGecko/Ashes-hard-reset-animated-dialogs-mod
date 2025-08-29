@@ -1,0 +1,145 @@
+{
+ "version": 1,
+ "audio": "audio\\BIS14.ogg",
+ "clips": [
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 118.48846278629095,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 244.43210169556508,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 570.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1692.5189318762152,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 1753.2838505151524,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1910.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 2033.492750183467,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 2159.6242593951606,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 2260.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 2400.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 2540.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 2610.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 2674.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 2908.0187870302416,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 3030.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 3100.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 3170.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 3310.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 3450.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 3520.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 3590.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 3660.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 3800.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\BISDEF.png"
+}

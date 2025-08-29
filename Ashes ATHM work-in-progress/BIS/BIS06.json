@@ -1,0 +1,445 @@
+{
+ "version": 1,
+ "audio": "audio\\BIS06.ogg",
+ "clips": [
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 92.60180304120577,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 187.82547580254038,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 344.5255759714963,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISN.png",
+   "startMs": 466.47600553114137,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 582.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 828.5800289460192,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 971.5005008447794,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1158.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 1331.7482470432722,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 1640.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 1771.1494490707428,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 1890.67402335268,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 2050.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 2236.4994991552207,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISAA.png",
+   "startMs": 2436.9488480570076,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 2602.73896313373,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISN.png",
+   "startMs": 2742.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 2890.250751267169,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 3100.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 3240.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 3810.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 3930.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 4061.149449070743,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 4186.974924873283,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 4417.612329219704,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 4525.6008013516475,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 4640.100300506868,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 4791.149449070744,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 4950.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 5092.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 5233.025075126718,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 5354.451352280905,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 5487.225676140452,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 5701.875626055975,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 5830.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 6056.024073437157,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 6212.549649408656,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 6340.67402335268,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 6460.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 6530.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 6600.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 6680.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 6850.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 6999.550651098214,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 7113.725175295672,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 7270.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 7340.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 7912.575726224931,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 8030.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 8205.600801351648,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 8495.350050084475,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 8690.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 8799.524574281937,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 8932.998998310442,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 9226.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 9369.550651098212,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 9474.676026731799,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISN.png",
+   "startMs": 9599.097098129621,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 9838.850550929257,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 9944.200601013737,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 10210.501502534338,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 10350.25075126717,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 10547.393117116055,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 10687.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 10786.525575971495,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 10931.17552588702,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 11089.649949915523,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 11218.150450760302,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 11390.25075126717,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 11540.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 11819.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 12100.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 12245.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\BISDEF.png"
+}

@@ -1,0 +1,242 @@
+{
+  "version": 1,
+  "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM024.wav",
+  "clips": [
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 406.76847534473006,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 474.85266612846453,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 561.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 656.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 708.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 975.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 1061.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 1215.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 1654.7795232860315,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 1845.5590465720625,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 1909.2598410953437,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 2124.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 2429.705332256929,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 2486.0,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 2843.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 3028.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3160.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 3314.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 3375.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 3468.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 3719.0,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 3769.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 3978.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMA.png",
+      "startMs": 4571.0,
+      "label": "a"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 4659.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 4716.147333871536,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 4822.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 4955.894761520332,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 5054.23152465527,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5195.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 5254.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 5451.0,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JMM.png",
+      "startMs": 5520.0,
+      "label": "m"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 5591.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 5667.0,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 5771.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 5875.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 6148.0,
+      "label": ""
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 6614.89108229623,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMR.png",
+      "startMs": 6674.0,
+      "label": "aa"
+    },
+    {
+      "image": "clear faces\\JMSS.png",
+      "startMs": 6793.0,
+      "label": "s"
+    },
+    {
+      "image": "clear faces\\JMEE.png",
+      "startMs": 6948.031337100749,
+      "label": "ee"
+    },
+    {
+      "image": "clear faces\\JMEEE.png",
+      "startMs": 6987.684284560994,
+      "label": "e"
+    },
+    {
+      "image": "clear faces\\JME.png",
+      "startMs": 7094.0,
+      "label": "oo"
+    },
+    {
+      "image": "clear faces\\JMO.png",
+      "startMs": 7242.684284560995,
+      "label": "o"
+    },
+    {
+      "image": "clear faces\\JMS.png",
+      "startMs": 7396.494855297593,
+      "label": "n"
+    },
+    {
+      "image": "clear faces\\JMDEF.png",
+      "startMs": 7488.0,
+      "label": ""
+    }
+  ],
+  "defaultImage": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\JMDEF.png"
+}

@@ -1,0 +1,121 @@
+{
+ "version": 1,
+ "audio": "audio\\VI019.ogg",
+ "clips": [
+  {
+   "image": "images\\VIHAL1.png",
+   "startMs": 0.0,
+   "label": "hal1",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 423.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL3.png",
+   "startMs": 899.0,
+   "label": "hal3",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 1327.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL4.png",
+   "startMs": 1719.0,
+   "label": "hal4",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 2579.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL3.png",
+   "startMs": 3051.0,
+   "label": "hal3",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 3895.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL3.png",
+   "startMs": 4511.0,
+   "label": "hal3",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL4.png",
+   "startMs": 4855.0,
+   "label": "hal4",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL3.png",
+   "startMs": 5402.0,
+   "label": "hal3",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 5802.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL4.png",
+   "startMs": 6828.0,
+   "label": "hal4",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL3.png",
+   "startMs": 7087.0,
+   "label": "hal3",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 7946.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL1.png",
+   "startMs": 8616.0,
+   "label": "hal1",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL2.png",
+   "startMs": 8856.0,
+   "label": "hal2",
+   "color": null
+  },
+  {
+   "image": "images\\VIHAL1.png",
+   "startMs": 9138.0,
+   "label": "hal1",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 9427.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\VIDEF.png"
+}

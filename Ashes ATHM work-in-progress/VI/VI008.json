@@ -1,0 +1,379 @@
+{
+ "version": 1,
+ "audio": "audio\\VI008.ogg",
+ "clips": [
+  {
+   "image": "images\\VIn.png",
+   "startMs": 284.0698909378013,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 363.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 498.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 636.0873171467283,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 797.4410585996823,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 901.2974734270398,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 986.4386558902279,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 1056.0873171467285,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 1205.6244525231257,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 1345.01313944498,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 1497.9445172690696,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\VIAA.png",
+   "startMs": 1744.0753966505029,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 1855.980662598381,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 1936.7236323030877,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 2022.026841435311,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 2137.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 2202.497810092503,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 2286.410492945775,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 2356.410492945775,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 2419.074270752795,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 2483.4498182296693,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 2552.043705098888,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIF.png",
+   "startMs": 2630.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 2732.6914127811006,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 2825.2671377656147,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 2956.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 3051.091696961722,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 3221.523995931417,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 3325.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 3450.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 3872.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 3974.8384121004765,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 4080.4803838835765,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 4133.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 4209.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 4344.523995931418,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 4426.180316280772,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 4527.013046393933,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 4661.388593870808,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 5016.310281584708,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 5162.395727990008,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 5276.349570414991,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 5440.462864623603,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIF.png",
+   "startMs": 5606.567701030304,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 5737.030565653907,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 5892.803466631576,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 6150.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 6273.432298969696,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 6497.847171730464,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 6621.414872760767,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 6694.069890937801,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 6795.270227603265,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 6883.843709036148,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 6985.467244438596,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 7075.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 7180.052371677828,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 7250.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 7400.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 7503.746715138755,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 7750.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 7960.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 8400.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\VIDEF.png"
+}

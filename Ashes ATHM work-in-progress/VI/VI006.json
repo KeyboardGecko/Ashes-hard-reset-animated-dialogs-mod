@@ -1,0 +1,229 @@
+{
+ "version": 1,
+ "audio": "audio\\VI006.ogg",
+ "clips": [
+  {
+   "image": "images\\VIOB.png",
+   "startMs": 94.84717173046357,
+   "label": "ob",
+   "color": null
+  },
+  {
+   "image": "images\\VIAAB.png",
+   "startMs": 208.44543841467546,
+   "label": "ab",
+   "color": null
+  },
+  {
+   "image": "images\\VINB.png",
+   "startMs": 291.0,
+   "label": "nb",
+   "color": null
+  },
+  {
+   "image": "images\\VIAAB.png",
+   "startMs": 398.65939799202647,
+   "label": "ab",
+   "color": null
+  },
+  {
+   "image": "images\\VISB.png",
+   "startMs": 498.2882303301457,
+   "label": "sb",
+   "color": null
+  },
+  {
+   "image": "images\\VIMB.png",
+   "startMs": 604.0655111228081,
+   "label": "mb",
+   "color": null
+  },
+  {
+   "image": "images\\VIAAB.png",
+   "startMs": 680.4716242535894,
+   "label": "ab",
+   "color": null
+  },
+  {
+   "image": "images\\VINB.png",
+   "startMs": 871.3973535007948,
+   "label": "nb",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEFB.png",
+   "startMs": 956.3913962674858,
+   "label": "defb",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 1373.6393674384565,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIF.png",
+   "startMs": 1470.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 1548.279470700159,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 1624.6593979920265,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 1727.253284861245,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 1819.6943434609273,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 1866.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIF.png",
+   "startMs": 1941.1848848787904,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\VIo.png",
+   "startMs": 2086.8733575693773,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 2250.6244580872485,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 2430.943248507179,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 2572.242946296498,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 2733.954038517052,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 2862.4978100925036,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 2980.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 3048.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 3165.855484916226,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 3349.6855838309402,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 3453.5982666842115,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIE.png",
+   "startMs": 3608.640968198013,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VIs.png",
+   "startMs": 3725.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 3864.0000000000005,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIu.png",
+   "startMs": 4027.6593979920262,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VIEI.png",
+   "startMs": 4106.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\VIn.png",
+   "startMs": 4258.279470700159,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VIa.png",
+   "startMs": 4362.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\VIm.png",
+   "startMs": 4479.222719207338,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VIDEF.png",
+   "startMs": 4710.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\VIDEF.png"
+}

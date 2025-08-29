@@ -1,0 +1,73 @@
+{
+ "version": 1,
+ "audio": "audio\\VNC28.ogg",
+ "clips": [
+  {
+   "image": "images\\VNCS.png",
+   "startMs": 228.0352821697119,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VNCM.png",
+   "startMs": 335.49117945757195,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\VNCN.png",
+   "startMs": 419.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VNCE.png",
+   "startMs": 496.31801283901706,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\VNCS.png",
+   "startMs": 584.508820542428,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VNCU.png",
+   "startMs": 685.9716796019082,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VNCS.png",
+   "startMs": 794.8934625571375,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\VNCU.png",
+   "startMs": 948.6281810012478,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\VNCO.png",
+   "startMs": 1073.554782025375,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\VNCN.png",
+   "startMs": 1217.0812436526594,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\VNCDEF.png",
+   "startMs": 1340.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\VNCDEF.png"
+}

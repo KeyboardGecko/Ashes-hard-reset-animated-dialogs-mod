@@ -1,0 +1,163 @@
+{
+ "version": 1,
+ "audio": "audio\\LUK01.ogg",
+ "clips": [
+  {
+   "image": "DIALUCS.png",
+   "startMs": 0.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 30.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 100.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 440.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 1210.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 1490.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 1570.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 1690.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 1760.0,
+   "label": "DEF",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 1900.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 2740.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 2810.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 2880.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 3160.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 3440.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 3580.0,
+   "label": "DEF",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 4040.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 4710.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 4920.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 5060.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 5130.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 5270.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\LUC2.png",
+   "startMs": 5340.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\LUC3.png",
+   "startMs": 5550.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 6250.0,
+   "label": "DEF",
+   "color": null
+  },
+  {
+   "image": "images\\LUCDEF.png",
+   "startMs": 6600.0,
+   "label": "DEF",
+   "color": null
+  }
+ ],
+ "defaultImage": "DIALUCS.png"
+}

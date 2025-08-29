@@ -1,0 +1,73 @@
+{
+ "version": 1,
+ "audio": "audio\\POR10.ogg",
+ "clips": [
+  {
+   "image": "images\\PORAW.png",
+   "startMs": 120.0,
+   "label": "aw",
+   "color": null
+  },
+  {
+   "image": "images\\PORAA.png",
+   "startMs": 263.2838505151523,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\PORs.png",
+   "startMs": 330.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORu.png",
+   "startMs": 520.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\PORDEF.png",
+   "startMs": 800.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\PORu.png",
+   "startMs": 1445.201487016646,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\PORa.png",
+   "startMs": 1600.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\PORe.png",
+   "startMs": 1730.1572080845297,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORF.png",
+   "startMs": 1829.6855838309405,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\PORN.png",
+   "startMs": 1935.7915512117338,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\PORDEF.png",
+   "startMs": 2080.0283203980916,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\PORDEF.png"
+}

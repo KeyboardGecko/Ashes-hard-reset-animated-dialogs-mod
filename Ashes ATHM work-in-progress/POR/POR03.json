@@ -1,0 +1,133 @@
+{
+ "version": 1,
+ "audio": "audio\\POR03.ogg",
+ "clips": [
+  {
+   "image": "images\\PORA.png",
+   "startMs": 46.865598128870275,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\PORS.png",
+   "startMs": 167.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORF.png",
+   "startMs": 315.14919859665275,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\POREI.png",
+   "startMs": 468.34991095518376,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\PORUW.png",
+   "startMs": 750.0,
+   "label": "uw",
+   "color": null
+  },
+  {
+   "image": "images\\PORM.png",
+   "startMs": 1240.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\PORE.png",
+   "startMs": 1320.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORN.png",
+   "startMs": 1564.5088205424277,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\PORDEF.png",
+   "startMs": 1702.666666666667,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\PORA.png",
+   "startMs": 2126.445217974624,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\PORU.png",
+   "startMs": 2328.6666666666665,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\PORAA.png",
+   "startMs": 2449.3333333333335,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\PORE.png",
+   "startMs": 2562.6666666666665,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORA.png",
+   "startMs": 2685.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\PORS.png",
+   "startMs": 2780.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORN.png",
+   "startMs": 2885.3333333333335,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\PORE.png",
+   "startMs": 2960.954038517052,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORS.png",
+   "startMs": 3047.46285905948,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORAA.png",
+   "startMs": 3166.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\PORS.png",
+   "startMs": 3317.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORDEF.png",
+   "startMs": 3480.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\PORDEF.png"
+}

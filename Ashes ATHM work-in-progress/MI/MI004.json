@@ -1,0 +1,535 @@
+{
+ "version": 1,
+ "audio": "audio\\MI004.ogg",
+ "clips": [
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 55.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIU.png",
+   "startMs": 227.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 348.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 469.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 620.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 744.3694815668651,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIE.png",
+   "startMs": 851.2799478178922,
+   "label": "eee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIAAA.png",
+   "startMs": 979.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 1166.9381658827356,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 1330.4401043642147,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR2.png",
+   "startMs": 1425.7238343724323,
+   "label": "aaa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 1554.7041915612604,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIF.png",
+   "startMs": 1684.6130388347124,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 1778.8733575693777,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR.png",
+   "startMs": 1885.7220948879215,
+   "label": "r",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 1966.6167005181014,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 2054.851551545457,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 2209.973814161086,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIAA.png",
+   "startMs": 2380.410492945775,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 2643.326473730124,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR2.png",
+   "startMs": 2781.0,
+   "label": "aaa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 2876.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIU.png",
+   "startMs": 2982.820932502055,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 3100.7313987530815,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 3294.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 3483.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 3652.9886534290267,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIDEF.png",
+   "startMs": 3885.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 4377.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR2.png",
+   "startMs": 4493.0,
+   "label": "aaa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIF.png",
+   "startMs": 4579.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 4833.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIE.png",
+   "startMs": 4903.0,
+   "label": "eee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 5017.272383437243,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 5177.186631878594,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 5244.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIE.png",
+   "startMs": 5287.817150311729,
+   "label": "eee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 5427.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIDEF.png",
+   "startMs": 5523.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 6249.3896168179235,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIE.png",
+   "startMs": 6303.094949074853,
+   "label": "eee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 6374.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 6458.7474276487965,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIU.png",
+   "startMs": 6545.272682274528,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 6679.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 6818.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIF.png",
+   "startMs": 6919.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 7020.399906222739,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIAAA.png",
+   "startMs": 7168.325535957512,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 7432.735180943407,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 7672.42326257727,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 7850.702711910335,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 8045.137139211144,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIDEF.png",
+   "startMs": 8273.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 8547.540984684161,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 8696.338893783073,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 8836.64186500411,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIAAA.png",
+   "startMs": 9009.914248441351,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 9167.093315939297,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 9353.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 9459.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 9585.442253100973,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 9736.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR.png",
+   "startMs": 9855.0,
+   "label": "r",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 9966.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 10140.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIO.png",
+   "startMs": 10258.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 10362.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 10492.353472747838,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIU.png",
+   "startMs": 10612.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIDEF.png",
+   "startMs": 10847.896972476245,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 11760.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIE.png",
+   "startMs": 11830.0,
+   "label": "eee",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR.png",
+   "startMs": 11910.874739968547,
+   "label": "r",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS2.png",
+   "startMs": 12044.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 12137.080524305933,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR2.png",
+   "startMs": 12214.0,
+   "label": "aaa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR.png",
+   "startMs": 12437.639367438456,
+   "label": "r",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIF.png",
+   "startMs": 12542.350312037743,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 12644.003782190324,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIU.png",
+   "startMs": 12750.899119680053,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIR2.png",
+   "startMs": 12974.0,
+   "label": "aaa",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 13143.693050309079,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 13274.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIEEEE.png",
+   "startMs": 13402.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIS.png",
+   "startMs": 13500.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIM.png",
+   "startMs": 13680.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clean face\\MIDEF.png",
+   "startMs": 13822.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clean face\\MIDEF.png"
+}

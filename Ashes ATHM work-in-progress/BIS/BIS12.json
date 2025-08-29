@@ -1,0 +1,127 @@
+{
+ "version": 1,
+ "audio": "audio\\BIS12.ogg",
+ "clips": [
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 180.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 290.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 388.1222626156292,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 486.08458784499743,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 609.0655111228078,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 725.7117613775238,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 843.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISN.png",
+   "startMs": 943.052371677828,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 1045.0845961373282,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 1153.7745556370965,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 1268.3005924838712,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1401.5115372137088,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 1563.3048798810476,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 2320.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 2420.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 2560.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 2650.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISF.png",
+   "startMs": 2765.183582905244,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 2992.3569535745974,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 3310.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\BISDEF.png"
+}

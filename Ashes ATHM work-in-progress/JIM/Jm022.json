@@ -1,0 +1,331 @@
+{
+ "version": 1,
+ "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM022.wav",
+ "clips": [
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 161.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 246.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 369.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 455.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 578.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 831.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 980.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 1341.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 1431.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 1584.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 1724.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 1933.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 2119.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 2896.244423752696,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 3014.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 3234.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 3390.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 3518.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 3638.523746086552,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 3752.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 3919.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4028.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 4170.96048296134,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 4318.542684852821,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 4389.674996715329,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMA.png",
+   "startMs": 4547.127205135607,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 4666.19080770341,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 4748.318012839017,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 4836.508820542429,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 4961.865317390375,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 5054.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 5163.0,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 5269.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 5391.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 5493.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 5896.65017940906,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 5997.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 6052.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 6156.466397629937,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 6249.3615817982945,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 6393.058819808724,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 6474.342105956038,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 6533.853083313892,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMM.png",
+   "startMs": 6607.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 6663.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JME.png",
+   "startMs": 6818.469906229492,
+   "label": "oo",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 6894.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMS.png",
+   "startMs": 7066.548905029321,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 7144.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMR.png",
+   "startMs": 7228.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 7348.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEEE.png",
+   "startMs": 7479.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMEE.png",
+   "startMs": 7600.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMDEF.png",
+   "startMs": 7805.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\JMDEF.png"
+}

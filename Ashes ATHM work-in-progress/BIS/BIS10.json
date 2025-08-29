@@ -1,0 +1,79 @@
+{
+ "version": 1,
+ "audio": "audio\\BIS10.ogg",
+ "clips": [
+  {
+   "image": "clear faces\\BISO.png",
+   "startMs": 65.84970375806434,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISU.png",
+   "startMs": 191.87773738437082,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISA.png",
+   "startMs": 324.8471717304635,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISEI.png",
+   "startMs": 469.6242593951608,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 586.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 710.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 1221.877737384371,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1415.2928115654347,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISN.png",
+   "startMs": 1507.2052929984104,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISE.png",
+   "startMs": 1628.3570542847453,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISS.png",
+   "startMs": 1830.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\BISDEF.png",
+   "startMs": 2040.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "clear faces\\BISDEF.png"
+}

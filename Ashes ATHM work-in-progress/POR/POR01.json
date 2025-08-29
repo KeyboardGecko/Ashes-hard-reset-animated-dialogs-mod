@@ -1,0 +1,127 @@
+{
+ "version": 1,
+ "audio": "audio\\POR01.ogg",
+ "clips": [
+  {
+   "image": "images\\POREI.png",
+   "startMs": 126.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\PORe.png",
+   "startMs": 238.66666666666663,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORu.png",
+   "startMs": 362.0000000000001,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\PORe.png",
+   "startMs": 493.33333333333337,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\PORm.png",
+   "startMs": 660.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\PORu.png",
+   "startMs": 794.0000000000001,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\PORs.png",
+   "startMs": 890.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORa.png",
+   "startMs": 1030.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\PORs.png",
+   "startMs": 1170.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\PORAW.png",
+   "startMs": 1310.0,
+   "label": "aw",
+   "color": null
+  },
+  {
+   "image": "images\\PORUW.png",
+   "startMs": 1529.3333333333333,
+   "label": "uw",
+   "color": null
+  },
+  {
+   "image": "images\\POROW.png",
+   "startMs": 1811.3333333333335,
+   "label": "ow",
+   "color": null
+  },
+  {
+   "image": "images\\PORUW.png",
+   "startMs": 2100.666666666666,
+   "label": "uw",
+   "color": null
+  },
+  {
+   "image": "images\\PORNW.png",
+   "startMs": 2277.333333333333,
+   "label": "nw",
+   "color": null
+  },
+  {
+   "image": "images\\PORUW.png",
+   "startMs": 2708.0,
+   "label": "uw",
+   "color": null
+  },
+  {
+   "image": "images\\POROW.png",
+   "startMs": 2829.333333333333,
+   "label": "ow",
+   "color": null
+  },
+  {
+   "image": "images\\PORAW.png",
+   "startMs": 2945.0,
+   "label": "aw",
+   "color": null
+  },
+  {
+   "image": "images\\POREIW.png",
+   "startMs": 3076.4428973840845,
+   "label": "eiw",
+   "color": null
+  },
+  {
+   "image": "images\\PORUW.png",
+   "startMs": 3258.0,
+   "label": "uw",
+   "color": null
+  },
+  {
+   "image": "images\\PORDFW.png",
+   "startMs": 3760.0,
+   "label": "defw",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\PORDEF.png"
+}
