@@ -5,3 +5,4 @@ script "Dlg_SetMusicVol" (int vol_fixed) net
 {
     SetMusicVolume(vol_fixed);
 }
+

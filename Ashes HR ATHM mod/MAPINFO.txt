@@ -2,4 +2,5 @@ GameInfo {
     DefaultConversationMenuClass = "NewConversationMenu"
     AddEventHandlers = "DialogUIOverlay"
 	AddEventHandlers = "VoiceHijack"
+// 	AddEventHandlers = "DuckBridge"
 }
