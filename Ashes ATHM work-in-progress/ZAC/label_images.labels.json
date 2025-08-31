@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "images": {
+    "a": "images\\ZACa.png",
+    "n": "images\\ZACn.png",
+    "u": "images\\ZACu.png",
+    "s": "images\\ZACs.png",
+    "__NO_LABEL__": "images\\ZACDEF.png",
+    "ei": "images\\ZACEI.png",
+    "e": "images\\ZACe.png",
+    "m": "images\\ZACm.png",
+    "f": "images\\ZACf.png",
+    "o": "images\\ZACo.png",
+    "aa": "images\\ZACAA.png",
+    "smile": "images\\ZACSML.png"
+  }
+}

@@ -1,0 +1,409 @@
+{
+ "version": 1,
+ "audio": "audio\\ZAC08.ogg",
+ "clips": [
+  {
+   "image": "images\\ZACUI.png",
+   "startMs": 51.0,
+   "label": "ui",
+   "color": null
+  },
+  {
+   "image": "images\\ZACOI.png",
+   "startMs": 107.80715026287412,
+   "label": "oi",
+   "color": null
+  },
+  {
+   "image": "images\\ZACu.png",
+   "startMs": 208.68062048588666,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 337.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACe.png",
+   "startMs": 457.4943205126763,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 587.5866853346769,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACo.png",
+   "startMs": 702.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 841.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 972.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 1110.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 1320.6430464254026,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 1385.3800280020155,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACm.png",
+   "startMs": 1534.3180128390177,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\ZACAA.png",
+   "startMs": 1629.2544102712143,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 1716.1908077034104,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 1824.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 1917.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACAA.png",
+   "startMs": 2128.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\ZACu.png",
+   "startMs": 2247.2818054536297,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 2347.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 2537.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 2822.793342667339,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 2868.0187870302416,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 3007.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 3134.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 3185.5217494495982,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACo.png",
+   "startMs": 3364.252806187498,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 3550.3236669112894,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 3711.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 4278.618384593179,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACAA.png",
+   "startMs": 4383.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\ZACf.png",
+   "startMs": 4494.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 4687.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 4796.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACm.png",
+   "startMs": 5063.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 5159.470821701433,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACm.png",
+   "startMs": 5242.427576889769,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 5348.586685334678,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACf.png",
+   "startMs": 5465.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 5574.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 5695.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACm.png",
+   "startMs": 5793.758501957046,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 5911.2052906575655,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 6070.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACu.png",
+   "startMs": 6313.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 6398.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 6478.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 6584.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACm.png",
+   "startMs": 7201.598026837043,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 7275.363974321965,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 7369.109564050752,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 7532.600743508323,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 7591.936397432197,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACo.png",
+   "startMs": 7696.833208618595,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\ZACs.png",
+   "startMs": 7779.34633323711,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\ZACf.png",
+   "startMs": 7895.802230524969,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 8046.763230813643,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 8180.890435949251,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACo.png",
+   "startMs": 8345.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\ZACu.png",
+   "startMs": 8410.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 8467.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACo.png",
+   "startMs": 8574.445217974626,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 8712.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACe.png",
+   "startMs": 8890.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 9006.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 9167.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 9600.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\ZACDEF.png"
+}

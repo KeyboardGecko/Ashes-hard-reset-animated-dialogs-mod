@@ -1,0 +1,85 @@
+{
+ "version": 1,
+ "audio": "audio\\ZAC14.ogg",
+ "clips": [
+  {
+   "image": "images\\ZACSI.png",
+   "startMs": 240.0,
+   "label": "si",
+   "color": null
+  },
+  {
+   "image": "images\\ZACNI.png",
+   "startMs": 359.0,
+   "label": "ni",
+   "color": null
+  },
+  {
+   "image": "images\\ZACUI.png",
+   "startMs": 465.904096061553,
+   "label": "ui",
+   "color": null
+  },
+  {
+   "image": "images\\ZACSI.png",
+   "startMs": 668.3499109551835,
+   "label": "si",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEII.png",
+   "startMs": 733.3996438207345,
+   "label": "eii",
+   "color": null
+  },
+  {
+   "image": "images\\ZACSI.png",
+   "startMs": 868.9910955183641,
+   "label": "si",
+   "color": null
+  },
+  {
+   "image": "images\\ZACa.png",
+   "startMs": 1160.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\ZACBLK.png",
+   "startMs": 1300.1137129017193,
+   "label": "blink",
+   "color": null
+  },
+  {
+   "image": "images\\ZACAA.png",
+   "startMs": 1380.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\ZACe.png",
+   "startMs": 1530.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\ZACEI.png",
+   "startMs": 1681.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\ZACn.png",
+   "startMs": 1810.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 1950.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\ZACDEF.png"
+}
