@@ -1,0 +1,115 @@
+{
+ "version": 1,
+ "audio": "audio\\RIG14.ogg",
+ "clips": [
+  {
+   "image": "images\\RIGO.png",
+   "startMs": 40.09946573110174,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 177.24866432775443,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 264.3481300588562,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 333.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 414.1012466274292,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 762.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 851.1491985966528,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 960.1012466274291,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 1069.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 1206.8508014033475,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 1278.598575282938,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 1404.7513356722454,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 1512.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 1598.7513356722457,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGU.png",
+   "startMs": 1660.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 1737.4991095518362,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 1807.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 1905.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\RIGDEF.png"
+}

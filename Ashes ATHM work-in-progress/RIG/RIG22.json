@@ -1,0 +1,85 @@
+{
+ "version": 1,
+ "audio": "audio\\RIG22.ogg",
+ "clips": [
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 111.6666666666666,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 182.33333333333346,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 288.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 370.33333333333337,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 464.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 583.6666666666666,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 696.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 1029.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 1148.0,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 1296.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 1405.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 1517.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 1741.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\RIGDEF.png"
+}

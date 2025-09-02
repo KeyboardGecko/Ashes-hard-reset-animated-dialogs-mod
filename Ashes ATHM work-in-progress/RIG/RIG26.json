@@ -1,0 +1,247 @@
+{
+ "version": 1,
+ "audio": "audio\\RIG26.ogg",
+ "clips": [
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 171.31063718041648,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 278.57020801677,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGAA.png",
+   "startMs": 429.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA1.png",
+   "startMs": 539.0,
+   "label": "h1",
+   "color": null
+  },
+  {
+   "image": "images\\RIGU.png",
+   "startMs": 674.3333333333334,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 826.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 901.5039726164052,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 1005.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 1148.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 1287.333333333333,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 1664.882117199364,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 1797.7975067451416,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 1878.644746355834,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 2011.3037398822876,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGAA.png",
+   "startMs": 2131.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA1.png",
+   "startMs": 2278.6941426360418,
+   "label": "h1",
+   "color": null
+  },
+  {
+   "image": "images\\RIGF.png",
+   "startMs": 2485.0604182435154,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 2725.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 2960.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA1.png",
+   "startMs": 3171.0,
+   "label": "h1",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA2.png",
+   "startMs": 3476.0028373313507,
+   "label": "h2",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA3.png",
+   "startMs": 3703.0840322855165,
+   "label": "h3",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA4.png",
+   "startMs": 4033.1102936850293,
+   "label": "h4",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 4169.020326323029,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA6.png",
+   "startMs": 4290.182938494992,
+   "label": "h6",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA7.png",
+   "startMs": 4432.923367658639,
+   "label": "h7",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA6.png",
+   "startMs": 4594.680818936973,
+   "label": "h6",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 4719.663796822286,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA8.png",
+   "startMs": 4852.0,
+   "label": "h8",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 5010.0,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA8.png",
+   "startMs": 5364.0,
+   "label": "h8",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 5617.433793780094,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA6.png",
+   "startMs": 5761.173586599974,
+   "label": "h6",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 5897.0,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA6.png",
+   "startMs": 6352.0,
+   "label": "h6",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA8.png",
+   "startMs": 6454.131240212939,
+   "label": "h8",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA5.png",
+   "startMs": 6559.797070758922,
+   "label": "h5",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA8.png",
+   "startMs": 7171.0,
+   "label": "h8",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA6.png",
+   "startMs": 7338.207811309543,
+   "label": "h6",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA7.png",
+   "startMs": 7550.890317378837,
+   "label": "h7",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\RIGDEF.png"
+}

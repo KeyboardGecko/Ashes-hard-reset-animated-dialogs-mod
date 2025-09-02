@@ -1,0 +1,151 @@
+{
+ "version": 1,
+ "audio": "audio\\RIG30.ogg",
+ "clips": [
+  {
+   "image": "images\\RIGHA4.png",
+   "startMs": 9.89163993888048,
+   "label": "h4",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA3.png",
+   "startMs": 183.8255397370846,
+   "label": "h3",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA2.png",
+   "startMs": 330.84256185177225,
+   "label": "h2",
+   "color": null
+  },
+  {
+   "image": "images\\RIGHA1.png",
+   "startMs": 505.368776668048,
+   "label": "h1",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 689.3192431364499,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 793.9651014188415,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGE.png",
+   "startMs": 925.8008405150381,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\RIGF.png",
+   "startMs": 1031.3182898056175,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 1133.6459409400027,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGAA.png",
+   "startMs": 1250.5872464528964,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\RIGF.png",
+   "startMs": 1448.4825507094206,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 1611.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 2106.482550709421,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGM.png",
+   "startMs": 2224.870637677355,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 2406.1642609038036,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGAA.png",
+   "startMs": 2506.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\RIGA.png",
+   "startMs": 2644.034898581159,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\RIGU.png",
+   "startMs": 2741.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\RIGEI.png",
+   "startMs": 2837.989767998011,
+   "label": "ei",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 2976.1642609038036,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGAA.png",
+   "startMs": 3057.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\RIGN.png",
+   "startMs": 3220.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\RIGS.png",
+   "startMs": 3355.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\RIGDEF.png",
+   "startMs": 3557.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\RIGDEF.png"
+}
