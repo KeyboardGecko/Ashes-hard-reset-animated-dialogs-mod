@@ -1,0 +1,43 @@
+{
+ "version": 1,
+ "audio": "audio\\MPY40.ogg",
+ "clips": [
+  {
+   "image": "images\\MPYO.png",
+   "startMs": 161.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\MPYU.png",
+   "startMs": 247.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\MPYA.png",
+   "startMs": 379.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\MPYEI.png",
+   "startMs": 496.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\MPYS.png",
+   "startMs": 629.185670911284,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\MPYDEF.png",
+   "startMs": 808.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\MPYDEF.png"
+}

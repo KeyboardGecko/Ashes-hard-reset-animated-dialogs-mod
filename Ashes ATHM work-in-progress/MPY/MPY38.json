@@ -1,0 +1,67 @@
+{
+ "version": 1,
+ "audio": "audio\\MPY38.ogg",
+ "clips": [
+  {
+   "image": "images\\MPYU.png",
+   "startMs": 174.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\MPYA.png",
+   "startMs": 245.81432908871605,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\MPYCH.png",
+   "startMs": 365.0,
+   "label": "ch",
+   "color": null
+  },
+  {
+   "image": "images\\MPYU.png",
+   "startMs": 465.3828455763425,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\MPYA.png",
+   "startMs": 612.6542886059145,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\MPYE.png",
+   "startMs": 753.2086784188327,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\MPYN.png",
+   "startMs": 859.8885974532297,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\MPYO.png",
+   "startMs": 941.7656911526848,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\MPYU.png",
+   "startMs": 1086.4942481231133,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\MPYDEF.png",
+   "startMs": 1190.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\MPYDEF.png"
+}
