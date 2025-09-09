@@ -1,0 +1,439 @@
+{
+ "version": 1,
+ "audio": "audio\\JAR16.ogg",
+ "clips": [
+  {
+   "image": "images\\JARS.png",
+   "startMs": 107.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 181.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 258.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 349.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JARAA.png",
+   "startMs": 435.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 545.5313823053694,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 632.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 757.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 872.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 1005.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 1094.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 1184.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 1240.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 1390.2829467833467,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 1517.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 1716.43672935424,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 1899.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 2166.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 2234.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 2380.851463270973,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 2468.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 2548.728556970428,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 2620.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 2719.665792359689,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 2838.122906300545,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 2899.160040482802,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 2991.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 3106.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 3188.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 3323.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 3398.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 3619.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4174.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 4322.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4470.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 4599.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4709.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 4829.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4932.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 5096.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 5216.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 5347.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 5523.542886059145,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 5608.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 5772.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 5931.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 6035.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 6149.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 6236.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 6290.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 6506.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 6607.8885974532295,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 6707.8629670247465,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 6802.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 6985.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 7226.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 7376.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 7479.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 7540.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 7632.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 7827.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 8494.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 8855.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 9068.531382305368,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 9214.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 9379.951362063966,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 9481.197174665058,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 9565.88859745323,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 9733.294450537122,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 9819.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 9948.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 10176.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\JARDEF.png"
+}

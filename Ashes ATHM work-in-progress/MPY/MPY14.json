@@ -82,32 +82,26 @@
   },
   {
    "image": "images\\MPYF.png",
-   "startMs": 2177.0,
+   "startMs": 2146.720103967143,
    "label": "f",
    "color": null
   },
   {
    "image": "images\\MPYA.png",
-   "startMs": 2269.0,
+   "startMs": 2282.763589105844,
    "label": "a",
    "color": null
   },
   {
    "image": "images\\MPYEI.png",
-   "startMs": 2379.985484137305,
+   "startMs": 2463.723980859331,
    "label": "ee",
    "color": null
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 2471.982134322837,
-   "label": "n",
-   "color": null
-  },
-  {
-   "image": "images\\MPYS.png",
    "startMs": 2572.978784508369,
-   "label": "s",
+   "label": "n",
    "color": null
   },
   {
@@ -118,7 +112,7 @@
   },
   {
    "image": "images\\MPYU.png",
-   "startMs": 2726.0,
+   "startMs": 2734.2581534635065,
    "label": "u",
    "color": null
   },
@@ -129,14 +123,14 @@
    "color": null
   },
   {
-   "image": "images\\MPYDEF.png",
+   "image": "images\\MPYN.png",
    "startMs": 3128.0,
-   "label": "",
+   "label": "n",
    "color": null
   },
   {
    "image": "images\\MPYA.png",
-   "startMs": 3348.0,
+   "startMs": 3328.730975251818,
    "label": "a",
    "color": null
   },
@@ -165,12 +159,6 @@
    "color": null
   },
   {
-   "image": "images\\MPYS.png",
-   "startMs": 3874.0,
-   "label": "s",
-   "color": null
-  },
-  {
    "image": "images\\MPYU.png",
    "startMs": 3973.0,
    "label": "u",
@@ -178,7 +166,7 @@
   },
   {
    "image": "images\\MPYS.png",
-   "startMs": 4087.0,
+   "startMs": 4109.612410015401,
    "label": "s",
    "color": null
   },
@@ -219,14 +207,8 @@
    "color": null
   },
   {
-   "image": "images\\MPYS.png",
-   "startMs": 5018.0,
-   "label": "s",
-   "color": null
-  },
-  {
    "image": "images\\MPYN.png",
-   "startMs": 5114.0,
+   "startMs": 5065.544835681283,
    "label": "n",
    "color": null
   },
@@ -309,9 +291,9 @@
    "color": null
   },
   {
-   "image": "images\\MPYDEF.png",
-   "startMs": 7213.016749072341,
-   "label": "",
+   "image": "images\\MPYN.png",
+   "startMs": 7248.5505362394,
+   "label": "n",
    "color": null
   },
   {
@@ -369,12 +351,6 @@
    "color": null
   },
   {
-   "image": "images\\MPYU.png",
-   "startMs": 8439.0,
-   "label": "u",
-   "color": null
-  },
-  {
    "image": "images\\MPYF.png",
    "startMs": 8484.0,
    "label": "f",
@@ -399,9 +375,9 @@
    "color": null
   },
   {
-   "image": "images\\MPYDEF.png",
+   "image": "images\\MPYN.png",
    "startMs": 9159.0,
-   "label": "",
+   "label": "n",
    "color": null
   },
   {
@@ -472,19 +448,13 @@
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 10576.0,
+   "startMs": 10592.151721439574,
    "label": "n",
    "color": null
   },
   {
-   "image": "images\\MPYEI.png",
-   "startMs": 10638.0,
-   "label": "ee",
-   "color": null
-  },
-  {
    "image": "images\\MPYF.png",
-   "startMs": 10720.0,
+   "startMs": 10707.078622848341,
    "label": "f",
    "color": null
   },
@@ -540,12 +510,6 @@
    "image": "images\\MPYF.png",
    "startMs": 12013.0,
    "label": "f",
-   "color": null
-  },
-  {
-   "image": "images\\MPYS.png",
-   "startMs": 12085.0,
-   "label": "s",
    "color": null
   },
   {
@@ -634,31 +598,43 @@
   },
   {
    "image": "images\\MPYS.png",
-   "startMs": 14040.224820030802,
+   "startMs": 13982.078622848341,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 14185.0,
+   "startMs": 14088.089671362566,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\MPYM.png",
-   "startMs": 14322.764131454975,
+   "startMs": 14180.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\MPYEI.png",
+   "startMs": 14268.60688575829,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\MPYM.png",
+   "startMs": 14364.90061531988,
    "label": "m",
    "color": null
   },
   {
    "image": "images\\MPYE.png",
-   "startMs": 14457.534263712938,
+   "startMs": 14463.34021272346,
    "label": "e",
    "color": null
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 14546.0,
+   "startMs": 14589.544617578917,
    "label": "n",
    "color": null
   },
@@ -724,7 +700,7 @@
   },
   {
    "image": "images\\MPYEI.png",
-   "startMs": 15791.45107921896,
+   "startMs": 15777.687490113116,
    "label": "ee",
    "color": null
   },
@@ -736,49 +712,49 @@
   },
   {
    "image": "images\\MPYO.png",
-   "startMs": 16043.855607094478,
+   "startMs": 16028.151823266971,
    "label": "o",
    "color": null
   },
   {
    "image": "images\\MPYEI.png",
-   "startMs": 16180.440207934285,
+   "startMs": 16156.453607192158,
    "label": "ee",
    "color": null
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 16290.032613854026,
+   "startMs": 16264.04712971672,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\MPYE.png",
-   "startMs": 16425.314491393372,
+   "startMs": 16397.33012386089,
    "label": "e",
    "color": null
   },
   {
    "image": "images\\MPYU.png",
-   "startMs": 16551.46621283294,
+   "startMs": 16507.49077813904,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\MPYM.png",
-   "startMs": 16689.0,
+   "startMs": 16614.786047689133,
    "label": "m",
    "color": null
   },
   {
    "image": "images\\MPYO.png",
-   "startMs": 16794.0,
+   "startMs": 16704.245810544613,
    "label": "o",
    "color": null
   },
   {
    "image": "images\\MPYN.png",
-   "startMs": 16893.0,
+   "startMs": 16845.02679851574,
    "label": "n",
    "color": null
   },
@@ -790,7 +766,7 @@
   },
   {
    "image": "images\\MPYA.png",
-   "startMs": 17112.46195050363,
+   "startMs": 17164.763589105838,
    "label": "a",
    "color": null
   },

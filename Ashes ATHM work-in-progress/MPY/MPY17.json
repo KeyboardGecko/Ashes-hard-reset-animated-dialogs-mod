@@ -10,13 +10,13 @@
   },
   {
    "image": "images\\MPYE.png",
-   "startMs": 666.9944757428879,
+   "startMs": 625.703708425356,
    "label": "e",
    "color": null
   },
   {
    "image": "images\\MPYM.png",
-   "startMs": 882.6855086066313,
+   "startMs": 852.4056125737748,
    "label": "m",
    "color": null
   },
@@ -54,12 +54,6 @@
    "image": "images\\MPYS.png",
    "startMs": 1788.0,
    "label": "s",
-   "color": null
-  },
-  {
-   "image": "images\\MPYN.png",
-   "startMs": 1872.0,
-   "label": "n",
    "color": null
   },
   {

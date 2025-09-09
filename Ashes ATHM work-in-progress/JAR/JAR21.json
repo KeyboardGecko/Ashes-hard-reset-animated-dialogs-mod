@@ -1,0 +1,601 @@
+{
+ "version": 1,
+ "audio": "audio\\JAR21.ogg",
+ "clips": [
+  {
+   "image": "images\\JARU.png",
+   "startMs": 115.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 343.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 642.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 728.1262861756018,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 864.7029265419459,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 972.1600404828017,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 1103.9142278817117,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 1237.0998987929956,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 1331.7541873989103,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARAA.png",
+   "startMs": 1429.9628658177432,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 1584.8399595171982,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 1709.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 2038.1114025467705,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 2150.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 2270.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 2382.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 2540.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 2630.777194906459,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 2742.2343088473153,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 2864.5198785515945,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 2963.0857721182883,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 3077.925731635487,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 3177.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 3345.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 3460.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 3568.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 3727.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 3840.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 4282.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 4404.46861769463,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 4468.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4561.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 4669.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 4736.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 4836.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 4946.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 5049.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 5175.5800202414,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 5312.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 5544.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 5622.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 5708.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 5915.099898792996,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 6079.271443029573,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 6171.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 6290.185670911284,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 6419.271443029572,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 6492.35721514786,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 6579.122906300542,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 6710.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 6851.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 6956.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 7099.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 7325.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 7423.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 7587.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 7667.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 7745.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 7854.654288605914,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 7956.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 8119.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 8218.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 8336.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 8438.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 8557.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 8716.505751876886,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 8848.891220374162,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 8909.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 9047.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 9147.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 9271.30857721183,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 9382.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 9669.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 9836.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARO.png",
+   "startMs": 9986.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\JARN.png",
+   "startMs": 10131.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 10300.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 10539.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 10645.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 10772.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 10886.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 11006.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JAREI.png",
+   "startMs": 11228.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 11357.259939275798,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 11446.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARM.png",
+   "startMs": 11577.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 11653.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 11842.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 11963.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARAA.png",
+   "startMs": 12113.0,
+   "label": "aa",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 12240.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 12404.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 12922.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 13058.282946783347,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 13300.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 13432.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 13739.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARF.png",
+   "startMs": 13875.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 14020.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\JARDEF.png"
+}

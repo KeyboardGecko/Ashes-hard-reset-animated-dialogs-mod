@@ -208,7 +208,7 @@
   },
   {
    "image": "images\\MPYA.png",
-   "startMs": 5078.0,
+   "startMs": 5055.97825743065,
    "label": "a",
    "color": null
   },
@@ -268,7 +268,7 @@
   },
   {
    "image": "images\\MPYS.png",
-   "startMs": 6334.752513123199,
+   "startMs": 6312.730770553849,
    "label": "s",
    "color": null
   },
@@ -279,9 +279,9 @@
    "color": null
   },
   {
-   "image": "images\\MPYEI.png",
-   "startMs": 6451.295877322002,
-   "label": "ee",
+   "image": "images\\MPYN.png",
+   "startMs": 6492.258153463507,
+   "label": "n",
    "color": null
   },
   {
@@ -328,7 +328,7 @@
   },
   {
    "image": "images\\MPYM.png",
-   "startMs": 7231.382065727487,
+   "startMs": 7214.8657588004735,
    "label": "m",
    "color": null
   },

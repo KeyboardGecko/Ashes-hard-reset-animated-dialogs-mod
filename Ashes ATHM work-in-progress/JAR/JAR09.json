@@ -1,0 +1,49 @@
+{
+ "version": 1,
+ "audio": "audio\\JAR09.ogg",
+ "clips": [
+  {
+   "image": "images\\JARN.png",
+   "startMs": 195.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\JARA.png",
+   "startMs": 278.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 366.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARU.png",
+   "startMs": 500.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\JARE.png",
+   "startMs": 579.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\JARS.png",
+   "startMs": 764.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\JARDEF.png",
+   "startMs": 919.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\JARDEF.png"
+}
