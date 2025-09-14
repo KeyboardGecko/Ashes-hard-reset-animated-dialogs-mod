@@ -1,0 +1,217 @@
+{
+ "version": 1,
+ "audio": "audio\\GN052.ogg",
+ "clips": [
+  {
+   "image": "images\\GNO.png",
+   "startMs": 356.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 454.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 538.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 636.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 712.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 792.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 869.3996876609298,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 958.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 1053.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 1144.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 1212.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 1315.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 1676.0100494434043,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 1758.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 1837.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 1887.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 1942.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 2020.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 2100.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 2157.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 2244.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 2341.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNO.png",
+   "startMs": 2455.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 2557.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 2648.9955335807094,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNO.png",
+   "startMs": 2741.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 2896.9698516697877,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 2961.018982281985,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 3030.893922541843,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 3102.0223320964533,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 3188.9799011131918,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 3318.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 3400.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 3517.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 3694.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\GNDEF.png"
+}

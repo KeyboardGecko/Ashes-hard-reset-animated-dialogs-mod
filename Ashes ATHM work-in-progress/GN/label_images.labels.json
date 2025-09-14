@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "images": {
+    "ee": "images\\GNEI.png",
+    "a": "images\\GNA.png",
+    "f": "images\\GNF.png",
+    "e": "images\\GNE.png",
+    "s": "images\\GNS.png",
+    "u": "images\\GNU.png",
+    "n": "images\\GNN.png",
+    "__NO_LABEL__": "images\\GNDEF.png",
+    "m": "images\\GNM.png",
+    "o": "images\\GNO.png"
+  }
+}

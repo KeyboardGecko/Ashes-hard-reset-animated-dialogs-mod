@@ -1,0 +1,265 @@
+{
+ "version": 1,
+ "audio": "audio\\GN006.ogg",
+ "clips": [
+  {
+   "image": "images\\GNU.png",
+   "startMs": 168.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNO.png",
+   "startMs": 213.78604042264888,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 284.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 398.67682420095406,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 510.17463429345725,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 606.7467151387551,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 719.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 797.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 952.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 1061.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 1145.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 1283.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 1803.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 1915.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 1997.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 2108.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 2258.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 2340.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 2419.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 2505.868977754385,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 2612.1572080845294,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 2709.672444385961,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 2814.5937938181737,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 2949.624359472081,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 3060.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 3220.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 3338.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 3430.7772807926626,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNO.png",
+   "startMs": 3510.8995434082917,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 3616.427919154702,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 3743.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 3834.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 3922.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 4002.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 4063.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 4137.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 4230.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 4310.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 4389.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 4469.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 4598.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 4695.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 4859.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\GNDEF.png"
+}

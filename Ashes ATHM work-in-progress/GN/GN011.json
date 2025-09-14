@@ -1,0 +1,307 @@
+{
+ "version": 1,
+ "audio": "audio\\GN011.ogg",
+ "clips": [
+  {
+   "image": "images\\GNO.png",
+   "startMs": 399.35318838677586,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 534.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 700.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 1473.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 1554.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 1639.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 1726.4476521282622,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 1805.0595651603276,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 1893.577014450907,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 1975.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 2097.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 2246.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 2384.8357390961964,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 2465.223826064131,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 2546.835739096197,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 2750.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 2841.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 2954.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 3035.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 3126.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 3217.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNF.png",
+   "startMs": 3301.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 3404.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 3505.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 3652.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 3799.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 3986.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 4436.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 4515.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 4718.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 4824.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 4906.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 5003.164260903804,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 5118.587246452897,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 5322.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNEI.png",
+   "startMs": 5673.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "images\\GNM.png",
+   "startMs": 5776.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 5882.094463741486,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNE.png",
+   "startMs": 5988.482550709419,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 6098.422985549092,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 6167.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 6277.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 6361.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 6502.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 6995.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNU.png",
+   "startMs": 7073.080029164306,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "images\\GNS.png",
+   "startMs": 7167.20939148695,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "images\\GNA.png",
+   "startMs": 7254.7761739358675,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "images\\GNN.png",
+   "startMs": 7408.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\GNDEF.png",
+   "startMs": 7533.0,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "images\\GNDEF.png"
+}
