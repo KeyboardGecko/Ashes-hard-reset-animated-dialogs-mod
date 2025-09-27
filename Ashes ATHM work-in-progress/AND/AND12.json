@@ -1,0 +1,415 @@
+{
+ "version": 1,
+ "audio": "audio\\AND12.ogg",
+ "clips": [
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 81.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 201.02343459251762,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 372.6934099619053,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 588.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 656.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 742.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 805.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 896.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNF.png",
+   "startMs": 988.0,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 1070.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNE.png",
+   "startMs": 1154.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 1256.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNF.png",
+   "startMs": 1373.7899096877547,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 1493.4493300297959,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 1578.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 1658.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 1750.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 1844.0518506912529,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 1903.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 1970.5615952947126,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 2045.9395677904688,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 2155.855355614881,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 2596.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 2707.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 3065.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 3360.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 3650.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNE.png",
+   "startMs": 3779.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 3966.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNF.png",
+   "startMs": 4199.227691210543,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 4326.552407915821,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 4469.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 4578.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 4707.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 4774.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 4935.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 5032.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNF.png",
+   "startMs": 5292.119934318367,
+   "label": "f",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 5330.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 5382.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 5468.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 5570.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 5672.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 5849.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 5971.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 6064.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 6147.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 6241.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNM.png",
+   "startMs": 6314.0,
+   "label": "m",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNA.png",
+   "startMs": 6386.0,
+   "label": "a",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 6488.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 6646.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 7367.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 7430.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 7509.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 7575.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNE.png",
+   "startMs": 7668.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 7752.541806406237,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 7861.0,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNEI.png",
+   "startMs": 8601.0,
+   "label": "ee",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNU.png",
+   "startMs": 8664.0,
+   "label": "u",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 8728.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNS.png",
+   "startMs": 8788.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNE.png",
+   "startMs": 8882.0,
+   "label": "e",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 8963.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNO.png",
+   "startMs": 9076.0,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNN.png",
+   "startMs": 9192.10008210204,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png",
+   "startMs": 9334.396746031973,
+   "label": "",
+   "color": null
+  }
+ ],
+ "defaultImage": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\GN\\images\\GNDEF.png"
+}
