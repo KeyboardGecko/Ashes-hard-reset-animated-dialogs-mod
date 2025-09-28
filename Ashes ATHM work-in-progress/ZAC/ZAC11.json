@@ -57,9 +57,9 @@
    "color": null
   },
   {
-   "image": "images\\ZACu.png",
+   "image": "images\\ZACA.png",
    "startMs": 1571.0,
-   "label": "u",
+   "label": "a",
    "color": null
   },
   {
@@ -177,14 +177,14 @@
    "color": null
   },
   {
-   "image": "images\\ZACA.png",
+   "image": "images\\ZACs.png",
    "startMs": 4086.550623313715,
-   "label": "a",
+   "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACo.png",
-   "startMs": 4149.548842417388,
+   "startMs": 4150.747052988367,
    "label": "o",
    "color": null
   },
@@ -214,13 +214,13 @@
   },
   {
    "image": "images\\ZACn.png",
-   "startMs": 4548.0,
+   "startMs": 4567.171369135668,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\ZACe.png",
-   "startMs": 4684.0,
+   "startMs": 4667.22505200629,
    "label": "e",
    "color": null
   },
@@ -232,13 +232,13 @@
   },
   {
    "image": "images\\ZACEI.png",
-   "startMs": 4886.0,
+   "startMs": 4875.216104861187,
    "label": "ei",
    "color": null
   },
   {
    "image": "images\\ZACu.png",
-   "startMs": 4964.0,
+   "startMs": 4942.432209722374,
    "label": "u",
    "color": null
   },

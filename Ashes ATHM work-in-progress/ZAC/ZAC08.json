@@ -16,25 +16,25 @@
   },
   {
    "image": "images\\ZACu.png",
-   "startMs": 208.68062048588666,
+   "startMs": 270.5495982402707,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\ZACs.png",
-   "startMs": 337.0,
+   "startMs": 355.2716684988902,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACe.png",
-   "startMs": 457.4943205126763,
+   "startMs": 451.4037643463796,
    "label": "e",
    "color": null
   },
   {
    "image": "images\\ZACn.png",
-   "startMs": 587.5866853346769,
+   "startMs": 584.448215500508,
    "label": "n",
    "color": null
   },
@@ -46,13 +46,13 @@
   },
   {
    "image": "images\\ZACs.png",
-   "startMs": 841.0,
+   "startMs": 848.0305656539074,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACEI.png",
-   "startMs": 972.0,
+   "startMs": 961.5590465720629,
    "label": "ei",
    "color": null
   },
@@ -64,13 +64,13 @@
   },
   {
    "image": "images\\ZACn.png",
-   "startMs": 1320.6430464254026,
+   "startMs": 1342.6770906547779,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\ZACa.png",
-   "startMs": 1385.3800280020155,
+   "startMs": 1402.253385571393,
    "label": "a",
    "color": null
   },
@@ -106,19 +106,19 @@
   },
   {
    "image": "images\\ZACAA.png",
-   "startMs": 2128.0,
+   "startMs": 2137.8427919154697,
    "label": "aa",
    "color": null
   },
   {
    "image": "images\\ZACu.png",
-   "startMs": 2247.2818054536297,
+   "startMs": 2289.3944505233226,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\ZACn.png",
-   "startMs": 2347.0,
+   "startMs": 2373.716149484848,
    "label": "n",
    "color": null
   },
@@ -130,13 +130,13 @@
   },
   {
    "image": "images\\ZACs.png",
-   "startMs": 2822.793342667339,
+   "startMs": 2844.244500249952,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACa.png",
-   "startMs": 2868.0187870302416,
+   "startMs": 2893.816775212378,
    "label": "a",
    "color": null
   },
@@ -159,14 +159,20 @@
    "color": null
   },
   {
+   "image": "images\\ZACs.png",
+   "startMs": 3279.650089044816,
+   "label": "s",
+   "color": null
+  },
+  {
    "image": "images\\ZACo.png",
-   "startMs": 3364.252806187498,
+   "startMs": 3369.203073321947,
    "label": "o",
    "color": null
   },
   {
    "image": "images\\ZACn.png",
-   "startMs": 3550.3236669112894,
+   "startMs": 3589.925803986883,
    "label": "n",
    "color": null
   },
@@ -189,20 +195,32 @@
    "color": null
   },
   {
+   "image": "images\\ZACs.png",
+   "startMs": 4467.0,
+   "label": "s",
+   "color": null
+  },
+  {
    "image": "images\\ZACf.png",
-   "startMs": 4494.0,
+   "startMs": 4554.462864623602,
    "label": "f",
    "color": null
   },
   {
    "image": "images\\ZACEI.png",
-   "startMs": 4687.0,
+   "startMs": 4677.15720808453,
    "label": "ei",
    "color": null
   },
   {
+   "image": "images\\ZACn.png",
+   "startMs": 4789.0,
+   "label": "n",
+   "color": null
+  },
+  {
    "image": "images\\ZACs.png",
-   "startMs": 4796.0,
+   "startMs": 4926.768521162676,
    "label": "s",
    "color": null
   },
@@ -250,7 +268,7 @@
   },
   {
    "image": "images\\ZACm.png",
-   "startMs": 5793.758501957046,
+   "startMs": 5814.850198918769,
    "label": "m",
    "color": null
   },
@@ -261,26 +279,32 @@
    "color": null
   },
   {
+   "image": "images\\ZACn.png",
+   "startMs": 6008.502189907496,
+   "label": "n",
+   "color": null
+  },
+  {
    "image": "images\\ZACs.png",
-   "startMs": 6070.0,
+   "startMs": 6096.716149484847,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACu.png",
-   "startMs": 6313.0,
+   "startMs": 6296.358525362185,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\ZACEI.png",
-   "startMs": 6398.0,
+   "startMs": 6413.467244438597,
    "label": "ei",
    "color": null
   },
   {
    "image": "images\\ZACs.png",
-   "startMs": 6478.0,
+   "startMs": 6511.7467151387555,
    "label": "s",
    "color": null
   },

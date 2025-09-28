@@ -10,55 +10,55 @@
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 210.35318838677586,
+   "startMs": 259.7499344187489,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACM.png",
-   "startMs": 287.44765212826206,
+   "startMs": 328.4234503729767,
    "label": "m",
    "color": null
   },
   {
    "image": "images\\ZACA.png",
-   "startMs": 392.0,
+   "startMs": 415.2237960420896,
    "label": "a",
    "color": null
   },
   {
    "image": "images\\ZACN.png",
-   "startMs": 514.0,
+   "startMs": 544.6600492612247,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\ZACU.png",
-   "startMs": 598.0,
+   "startMs": 618.4400328408163,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 695.1659055636311,
+   "startMs": 711.1322653425678,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACE.png",
-   "startMs": 903.7830104753375,
+   "startMs": 905.0738254836031,
    "label": "e",
    "color": null
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 1026.652577200239,
+   "startMs": 1067.0204476919637,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACU.png",
-   "startMs": 1254.7577050989307,
+   "startMs": 1225.6785452813547,
    "label": "u",
    "color": null
   },
@@ -70,73 +70,79 @@
   },
   {
    "image": "images\\ZACM.png",
-   "startMs": 1448.4303623246378,
+   "startMs": 1498.2215895701775,
    "label": "m",
    "color": null
   },
   {
    "image": "images\\ZACA.png",
-   "startMs": 1557.6105077472891,
+   "startMs": 1551.638564944239,
    "label": "a",
    "color": null
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 1659.1491985966522,
+   "startMs": 1649.1181077957622,
    "label": "s",
    "color": null
   },
   {
    "image": "images\\ZACM.png",
-   "startMs": 1760.5853560739013,
+   "startMs": 1733.391584604807,
    "label": "m",
    "color": null
   },
   {
    "image": "images\\ZACEI.png",
-   "startMs": 1835.491178863704,
+   "startMs": 1806.6274276036195,
    "label": "ei",
    "color": null
   },
   {
    "image": "images\\ZACDEF.png",
-   "startMs": 1942.8209325020541,
+   "startMs": 1986.365550080972,
    "label": "",
    "color": null
   },
   {
    "image": "images\\ZACBLK.png",
-   "startMs": 2230.0060944113047,
+   "startMs": 2238.895555010758,
    "label": "blink",
    "color": null
   },
   {
-   "image": "images\\ZACWTF.png",
-   "startMs": 2348.294011860013,
-   "label": "oh",
+   "image": "images\\ZACDEB.png",
+   "startMs": 2357.1834724594664,
+   "label": "defi",
    "color": null
   },
   {
-   "image": "images\\ZACOI.png",
+   "image": "images\\ZACDEF.png",
+   "startMs": 2804.98124334849,
+   "label": "",
+   "color": null
+  },
+  {
+   "image": "images\\ZACO.png",
    "startMs": 2877.7150286908445,
-   "label": "oi",
+   "label": "o",
    "color": null
   },
   {
    "image": "images\\ZACU.png",
-   "startMs": 2995.630491251536,
+   "startMs": 2995.0437807971143,
    "label": "u",
    "color": null
   },
   {
    "image": "images\\ZACDEF.png",
-   "startMs": 3080.8743413740726,
+   "startMs": 3128.5677513359783,
    "label": "",
    "color": null
   },
   {
    "image": "images\\ZACU.png",
-   "startMs": 3696.919544051869,
+   "startMs": 3710.9117278181106,
    "label": "u",
    "color": null
   },
@@ -154,8 +160,14 @@
   },
   {
    "image": "images\\ZACCHD.png",
-   "startMs": 4262.771397796783,
+   "startMs": 4276.104731130116,
    "label": "chad",
+   "color": null
+  },
+  {
+   "image": "images\\ZACDEF.png",
+   "startMs": 4917.0,
+   "label": "",
    "color": null
   },
   {
@@ -178,19 +190,25 @@
   },
   {
    "image": "images\\ZACDEF.png",
-   "startMs": 5310.804940277543,
+   "startMs": 5355.37345676517,
    "label": "",
    "color": null
   },
   {
-   "image": "images\\ZACO.png",
-   "startMs": 5760.315019221075,
-   "label": "o",
+   "image": "images\\ZACN.png",
+   "startMs": 5751.0,
+   "label": "n",
+   "color": null
+  },
+  {
+   "image": "images\\ZACAA.png",
+   "startMs": 5815.118486759937,
+   "label": "aa",
    "color": null
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 5842.084919415065,
+   "startMs": 5895.586542637907,
    "label": "s",
    "color": null
   },
@@ -202,13 +220,13 @@
   },
   {
    "image": "images\\ZACN.png",
-   "startMs": 6212.711681277508,
+   "startMs": 6230.701631834105,
    "label": "n",
    "color": null
   },
   {
    "image": "images\\ZACS.png",
-   "startMs": 6322.7116812775075,
+   "startMs": 6356.692698995522,
    "label": "s",
    "color": null
   },

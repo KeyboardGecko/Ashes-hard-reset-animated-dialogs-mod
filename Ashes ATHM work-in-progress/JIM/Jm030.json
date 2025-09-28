@@ -1,6 +1,6 @@
 {
  "version": 1,
- "audio": "C:\\Games\\gzdoom-4-12-2-windows\\AshesHardReset_092\\dialog images\\audio\\JM030.wav",
+ "audio": "audio\\JM030.ogg",
  "clips": [
   {
    "image": "clear faces\\JME.png",
@@ -130,25 +130,25 @@
   },
   {
    "image": "clear faces\\JME.png",
-   "startMs": 3839.0,
+   "startMs": 3818.5485490648107,
    "label": "oo",
    "color": null
   },
   {
    "image": "clear faces\\JMEE.png",
-   "startMs": 3960.3709360935854,
+   "startMs": 3989.9119207777467,
    "label": "ee",
    "color": null
   },
   {
    "image": "clear faces\\JMS.png",
-   "startMs": 4073.0,
+   "startMs": 4107.085751558649,
    "label": "n",
    "color": null
   },
   {
    "image": "clear faces\\JMR.png",
-   "startMs": 4189.335653923874,
+   "startMs": 4230.238555794252,
    "label": "aa",
    "color": null
   },
@@ -190,7 +190,7 @@
   },
   {
    "image": "clear faces\\JMR.png",
-   "startMs": 5212.482550709421,
+   "startMs": 5226.11685133288,
    "label": "aa",
    "color": null
   },
@@ -274,37 +274,55 @@
   },
   {
    "image": "clear faces\\JMR.png",
-   "startMs": 7785.499109551837,
+   "startMs": 7667.3351708151895,
    "label": "aa",
    "color": null
   },
   {
    "image": "clear faces\\JMM.png",
-   "startMs": 7933.0,
+   "startMs": 7733.030257522597,
    "label": "m",
    "color": null
   },
   {
+   "image": "clear faces\\JMO.png",
+   "startMs": 7828.0,
+   "label": "o",
+   "color": null
+  },
+  {
    "image": "clear faces\\JMEE.png",
-   "startMs": 8013.747773879591,
+   "startMs": 7934.214353576078,
    "label": "ee",
    "color": null
   },
   {
    "image": "clear faces\\JME.png",
-   "startMs": 8172.30195898596,
+   "startMs": 8026.869419002392,
    "label": "oo",
    "color": null
   },
   {
    "image": "clear faces\\JMO.png",
-   "startMs": 8280.54706152106,
+   "startMs": 8127.0,
    "label": "o",
    "color": null
   },
   {
    "image": "clear faces\\JMSS.png",
-   "startMs": 8467.0,
+   "startMs": 8212.0,
+   "label": "s",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMO.png",
+   "startMs": 8332.811880577654,
+   "label": "o",
+   "color": null
+  },
+  {
+   "image": "clear faces\\JMSS.png",
+   "startMs": 8448.820932502054,
    "label": "s",
    "color": null
   },
@@ -328,13 +346,13 @@
   },
   {
    "image": "clear faces\\JMEEE.png",
-   "startMs": 9060.0,
+   "startMs": 9084.996217809676,
    "label": "e",
    "color": null
   },
   {
    "image": "clear faces\\JMO.png",
-   "startMs": 9146.0,
+   "startMs": 9232.350570615245,
    "label": "o",
    "color": null
   },

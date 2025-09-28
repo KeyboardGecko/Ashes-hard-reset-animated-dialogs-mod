@@ -58,7 +58,7 @@
   },
   {
    "image": "clear faces\\JMM.png",
-   "startMs": 1584.0,
+   "startMs": 1540.90468260819,
    "label": "m",
    "color": null
   },
@@ -129,9 +129,9 @@
    "color": null
   },
   {
-   "image": "clear faces\\JMSS.png",
+   "image": "clear faces\\JMO.png",
    "startMs": 4028.0,
-   "label": "s",
+   "label": "o",
    "color": null
   },
   {
@@ -256,19 +256,19 @@
   },
   {
    "image": "clear faces\\JMEEE.png",
-   "startMs": 6533.853083313892,
+   "startMs": 6548.418217698374,
    "label": "e",
    "color": null
   },
   {
    "image": "clear faces\\JMM.png",
-   "startMs": 6607.0,
+   "startMs": 6634.568287790207,
    "label": "m",
    "color": null
   },
   {
    "image": "clear faces\\JMO.png",
-   "startMs": 6663.0,
+   "startMs": 6705.884003229213,
    "label": "o",
    "color": null
   },
