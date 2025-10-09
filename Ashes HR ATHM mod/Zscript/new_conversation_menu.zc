@@ -69,6 +69,7 @@ class NewConversationMenu : ConversationMenu
 
         if (n.SpeakerVoice != 0)
         {
+
             return getAnimationName(n.SpeakerVoice);
         }
         return "idle";
@@ -100,7 +101,8 @@ class NewConversationMenu : ConversationMenu
         if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
 
         if (n.SpeakerVoice == "" || n.SpeakerVoice == "none") return;
-		
+// 		Console.Printf("anim:, %s", n.SpeakerVoice);
+
 		let pl = players[consoleplayer];
 		if (pl && pl.mo)
 		{
