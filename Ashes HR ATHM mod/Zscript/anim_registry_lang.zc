@@ -159,35 +159,72 @@ class AnimRegistryLang : Object
 
     // Register all animations for character (who).
     // prefix=true - "JM.idle", "JM.JM001"...
-    static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
-    {
-        Array<String> clips;
-        SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
+//     static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
+//     {
+//         Array<String> clips;
+//         SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
 
-        for (int ci = 0; ci < clips.Size(); ci++)
-        {
-            String clip = clips[ci];
-            String base = "$ANIMS_" .. who .. "_" .. clip;
+//         for (int ci = 0; ci < clips.Size(); ci++)
+//         {
+//             String clip = clips[ci];
+//             String base = "$ANIMS_" .. who .. "_" .. clip;
 
-            String sF = L(base .. "_FRAMES");
-            String sD = L(base .. "_DURS");
-            if (sF.Length() == 0 || sD.Length() == 0) continue;
+//             String sF = L(base .. "_FRAMES");
+//             String sD = L(base .. "_DURS");
+//             if (sF.Length() == 0 || sD.Length() == 0) continue;
 
-            Array<String> f;
-			Array<double> d;
-			SplitCSVNames(sF, f);
-			SplitCSVFloats(sD, d);
+//             Array<String> f;
+// 			Array<double> d;
+// 			SplitCSVNames(sF, f);
+// 			SplitCSVFloats(sD, d);
 
-            int n = min(f.Size(), d.Size());
-            if (n <= 0) continue;
-            while (f.Size() > n) f.Pop();
-            while (d.Size() > n) d.Pop();
+//             int n = min(f.Size(), d.Size());
+//             if (n <= 0) continue;
+//             while (f.Size() > n) f.Pop();
+//             while (d.Size() > n) d.Pop();
 
-            bool   loopFlag = ParseBool(L(base .. "_LOOP"));
-            bool   stopFlag = ParseBool(L(base .. "_STOP"));
-            String regName  = prefix ? (who .. "." .. clip) : clip;
+//             bool   loopFlag = ParseBool(L(base .. "_LOOP"));
+//             bool   stopFlag = ParseBool(L(base .. "_STOP"));
+//             String regName  = prefix ? (who .. "." .. clip) : clip;
 
-            p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
-        }
-    }
+//             p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
+//         }
+//     }
+
+	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
+	{
+		Array<String> clips;
+		SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
+
+		for (int ci = 0; ci < clips.Size(); ci++)
+		{
+			String clip = clips[ci];
+			String base = "$ANIMS_" .. who .. "_" .. clip;
+
+			String sF = L(base .. "_FRAMES");
+			String sD = L(base .. "_DURS");
+			if (sF.Length() == 0 || sD.Length() == 0) continue;
+
+			bool   loopFlag = ParseBool(L(base .. "_LOOP"));
+			bool   stopFlag = ParseBool(L(base .. "_STOP"));
+			String regName  = prefix ? (who .. "." .. clip) : clip;
+
+			bool hasGroups = (sF.IndexOf("(") >= 0) || (sD.IndexOf("(") >= 0);
+
+			if (hasGroups)
+			{
+				p.DefineAnimationTemplate(regName, sF, sD, loopFlag, stopFlag);
+			}
+			else
+			{
+				Array<String> f; SplitCSVNames(sF, f);
+				Array<double> d; SplitCSVFloats(sD, d);
+				int n = min(f.Size(), d.Size());
+				while (f.Size() > n) f.Pop();
+				while (d.Size() > n) d.Pop();
+				p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
+			}
+		}
+	}
+
 }

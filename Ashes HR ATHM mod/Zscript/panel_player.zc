@@ -27,6 +27,21 @@ class PanelPlayer : Object
 
     String fallbackTex;  
 
+    Array<bool>     clipIsTemplate;      // по индексу клипа: true если хранит шаблон
+    Array<String>   clipTplFrames;       // сырой LANGUAGE-стринг FRAMES
+    Array<String>   clipTplDurs;         // сырой LANGUAGE-стринг DURS
+
+	struct ChoiceStr { Array<String> alts; };   // для FRAMES
+	struct ChoiceFlt { Array<double> alts; };   // для DURS
+
+
+    // Временная развёртка для текущего активного шаблонного клипа
+    bool            useTempSeq;
+    Array<int>      tempFrames;
+    Array<double>   tempDurMs;
+    int             tempCount;
+
+
 	// for random delay at the start of every idle animation
 	static bool IsIdleName(String n) {
 		return n == "IDLE" || StringEndsWith(n, ".IDLE");
@@ -256,6 +271,9 @@ class PanelPlayer : Object
     ui void PreloadOnce()
     {
         if (ready) return;
+		// new stuff
+		useTempSeq = false;
+		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
 
         curClip = -1; seqPos = 0; timeLeftMs = 0.0;
         active = false; lastFrameIdx = 0;
@@ -292,6 +310,47 @@ class PanelPlayer : Object
 		}
 	}
 
+	ui void DefineAnimationTemplate(String name, String framesCsv, String dursCsv, bool loop=false, bool stopLast=true)
+	{
+		int idx = FindAnim(name);
+		if (idx >= 0)
+		{
+			clipOffset[idx]   = 0;
+			clipCount[idx]    = 0;
+			clipLoop[idx]     = loop;
+			clipStopLast[idx] = stopLast;
+
+			// ENSURE SIZE ≥ idx+1
+			while (clipIsTemplate.Size() <= idx) clipIsTemplate.Push(false);
+			while (clipTplFrames.Size() <= idx)  clipTplFrames.Push("");
+			while (clipTplDurs.Size() <= idx)    clipTplDurs.Push("");
+
+			clipIsTemplate[idx] = true;
+			clipTplFrames[idx]  = framesCsv;
+			clipTplDurs[idx]    = dursCsv;
+		}
+		else
+		{
+			animNames.Push(name);
+			clipOffset.Push(0);
+			clipCount.Push(0);
+			clipLoop.Push(loop);
+			clipStopLast.Push(stopLast);
+
+			int newIdx = animNames.Size() - 1;
+
+			// ENSURE SIZE ≥ newIdx+1
+			while (clipIsTemplate.Size() <= newIdx) clipIsTemplate.Push(false);
+			while (clipTplFrames.Size() <= newIdx)  clipTplFrames.Push("");
+			while (clipTplDurs.Size() <= newIdx)    clipTplDurs.Push("");
+
+			clipIsTemplate[newIdx] = true;
+			clipTplFrames[newIdx]  = framesCsv;
+			clipTplDurs[newIdx]    = dursCsv;
+		}
+	}
+
+
     void DefineAnimationByNames(String name, Array<String> fNames, Array<double> durMs, bool loop=false, bool stopLast=true)
     {
 
@@ -314,31 +373,194 @@ class PanelPlayer : Object
 		return (pos >= 0) ? path.Mid(pos + 1) : path;
 	}
 
+	// (A,B,C),X,(Y,Z),W  →  alts=["A","B","C","X","Y","Z","W"]
+	// posStart=[0,3,4,6], posLen=[3,1,2,1]
+	static void ParseChoiceGroupsNames(String src,
+		Array<String> alts, Array<int> posStart, Array<int> posLen)
+	{
+		alts.Clear(); posStart.Clear(); posLen.Clear();
 
-    ui bool PlayAnim(String name)
-    {
-        PreloadOnce();
-        int idx = FindAnim(GetAnimationName(name));
+		String cur = "";
+		bool inGroup = false;
+		Array<String> group;
+
+		int len = int(src.Length());
+		for (int i = 0; i < len; i++)
+		{
+			String ch = src.Mid(i, 1);
+
+			if (ch == "(")
+			{
+				// завершить одиночный токен перед группой
+				if (cur.Length() > 0)
+				{
+					int start = alts.Size();
+					alts.Push(cur);
+					posStart.Push(start);
+					posLen.Push(1);
+					cur = "";
+				}
+				inGroup = true;
+				group.Clear();
+			}
+			else if (ch == ")")
+			{
+				if (inGroup)
+				{
+					if (cur.Length() > 0) { group.Push(cur); cur = ""; }
+					if (group.Size() > 0)
+					{
+						int start = alts.Size();
+						for (int g = 0; g < group.Size(); g++) alts.Push(group[g]);
+						posStart.Push(start);
+						posLen.Push(group.Size());
+					}
+					inGroup = false;
+				}
+				else
+				{
+					// лишняя ) — считаем частью токена
+					cur = cur .. ch;
+				}
+			}
+			else if (ch == "," || ch == ";")
+			{
+				if (inGroup)
+				{
+					if (cur.Length() > 0) { group.Push(cur); cur = ""; }
+				}
+				else
+				{
+					if (cur.Length() > 0)
+					{
+						int start = alts.Size();
+						alts.Push(cur);
+						posStart.Push(start);
+						posLen.Push(1);
+						cur = "";
+					}
+				}
+			}
+			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n")
+			{
+				// игнор пробелов
+			}
+			else
+			{
+				cur = cur .. ch;
+			}
+		}
+
+		if (inGroup)
+		{
+			if (cur.Length() > 0) group.Push(cur);
+			if (group.Size() > 0)
+			{
+				int start = alts.Size();
+				for (int g = 0; g < group.Size(); g++) alts.Push(group[g]);
+				posStart.Push(start);
+				posLen.Push(group.Size());
+			}
+		}
+		else
+		{
+			if (cur.Length() > 0)
+			{
+				int start = alts.Size();
+				alts.Push(cur);
+				posStart.Push(start);
+				posLen.Push(1);
+			}
+		}
+	}
+
+	static void ParseChoiceGroupsFloats(String src,
+		Array<double> alts, Array<int> posStart, Array<int> posLen)
+	{
+		alts.Clear(); posStart.Clear(); posLen.Clear();
+
+		// Парсим как имена, затем преобразуем в числа
+		Array<String> altsS;
+		Array<int>    sStart, sLen;
+
+		ParseChoiceGroupsNames(src, altsS, sStart, sLen);
+
+		for (int i = 0; i < altsS.Size(); i++)
+			alts.Push(altsS[i].ToDouble());
+
+		for (int i = 0; i < sStart.Size(); i++)
+		{
+			posStart.Push(sStart[i]);
+			posLen.Push(sLen[i]);
+		}
+	}
+
+//     ui bool PlayAnim(String name)
+//     {
+//         PreloadOnce();
+//         int idx = FindAnim(GetAnimationName(name));
 	
-		if (idx < 0) return false; 
-		if (clipCount[idx] <= 0)  return false; 
+// 		if (idx < 0) return false;
+// 		if (clipCount[idx] <= 0)  return false;
 
-        if (idx < 0 || clipCount[idx] <= 0) return false;
+//         if (idx < 0 || clipCount[idx] <= 0) return false;
 
-        curClip = idx; active = true; seqPos = 0;
+//         curClip = idx; active = true; seqPos = 0;
 
-        int base = clipOffset[idx];
-        timeLeftMs = flatDurMs[base];          // ← миллисекунды
-        if (timeLeftMs <= 0) timeLeftMs = 1;
+//         int base = clipOffset[idx];
+//         timeLeftMs = flatDurMs[base];          // ← миллисекунды
+//         if (timeLeftMs <= 0) timeLeftMs = 1;
 
-	    if (IsIdleName(GetAnimationName(name))) {
+// 	    if (IsIdleName(GetAnimationName(name))) {
+// 			timeLeftMs += RandomIdleHoldMs();
+// 		}
+
+
+//         lastFrameIdx = flatFrames[base];
+//         return true;
+//     }
+
+	ui bool PlayAnim(String name)
+	{
+		PreloadOnce();
+		int idx = FindAnim(GetAnimationName(name));
+		if (idx < 0) return false;
+
+		// --- ШАБЛОННЫЙ КЛИП ---
+		if (clipIsTemplate.Size()>idx && clipIsTemplate[idx])
+		{
+			if (!ResolveTemplateOnce(idx)) return false;
+
+			curClip = idx; active = true; seqPos = 0; useTempSeq = true;
+
+			timeLeftMs = tempDurMs[0];
+			if (timeLeftMs <= 0) timeLeftMs = 1;
+
+			if (IsIdleName(GetAnimationName(name))) {
+				timeLeftMs += RandomIdleHoldMs();
+			}
+
+			lastFrameIdx = tempFrames[0];
+			return true;
+		}
+
+		// --- Обычный клип ---
+		if (clipCount[idx] <= 0) return false;
+
+		curClip = idx; active = true; seqPos = 0; useTempSeq = false;
+
+		int base = clipOffset[idx];
+		timeLeftMs = flatDurMs[base];
+		if (timeLeftMs <= 0) timeLeftMs = 1;
+
+		if (IsIdleName(GetAnimationName(name))) {
 			timeLeftMs += RandomIdleHoldMs();
 		}
 
+		lastFrameIdx = flatFrames[base];
+		return true;
+	}
 
-        lastFrameIdx = flatFrames[base];
-        return true;
-    }
 
 	ui bool PlayAnimChar(String name)
     {
@@ -365,10 +587,144 @@ class PanelPlayer : Object
 	}
 
 
+// 	ui void Tick()
+// 	{
+// 		if (!active || curClip < 0) return;
+// 		int cnt = clipCount[curClip];
+// 		if (cnt <= 0) { active = false; return; }
+
+// 		double dt = 1000.0 / TICRATE;
+// 		timeLeftMs -= dt;
+
+// 		while (timeLeftMs <= 0.0)
+// 		{
+// 			seqPos++;
+// 			if (seqPos >= cnt)
+// 			{
+// 				if (clipLoop[curClip])
+// 				{
+// 					seqPos = 0;
+// 				}
+// 				else
+// 				{
+// 					String curName = animNames[curClip];
+// 					bool wasIdle = (curName == "IDLE") ||
+// 								   (character.Length()>0 && curName == character .. ".IDLE");
+// 					bool wasFallback = (curName == "FALLBACK") ||
+// 									   StringEndsWith(curName, ".FALLBACK");
+
+// 					active = false;
+
+// 					if (clipStopLast[curClip])
+// 					{
+// 						int last = clipOffset[curClip] + (cnt - 1);
+// 						lastFrameIdx = flatFrames[last];
+// 					}
+// 					else lastFrameIdx = -1;
+
+// 					if (!wasIdle && !wasFallback)
+// 					{
+// 						if (TryStartIdle()) return;
+// 					}
+// 					return;
+// 				}
+// 			}
+
+// 			int base = clipOffset[curClip] + seqPos;
+// 			timeLeftMs += flatDurMs[base];
+// 			lastFrameIdx = flatFrames[base];
+// 		}
+// 	}
+
+//     ui void Draw()
+//     {
+//         int drawIdx = lastFrameIdx;
+//         if (active && curClip >= 0)
+//         {
+//             int cnt = clipCount[curClip];
+//             if (cnt > 0 && seqPos >= 0 && seqPos < cnt)
+//             {
+//                 int base = clipOffset[curClip] + seqPos;
+//                 drawIdx = flatFrames[base];
+//             }
+//         }
+//         if (drawIdx < 0 || drawIdx >= frames.Size()) return;
+
+//         TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
+//         Vector2 sz = TexMan.GetScaledSize(tex);
+//         double x = (vW - sz.x) * 0.5;
+//         double y = (vH - sz.y) * 0.25;
+//  //       double y = topMargin;
+
+//         Screen.DrawTexture(tex, false, x, y,
+//             DTA_VirtualWidth, vW,
+//             DTA_VirtualHeight, vH,
+//             DTA_KeepRatio, true,
+// 			DTA_TopLeft,       true
+//         );
+//     }
+
+	ui bool ResolveTemplateOnce(int clipIdx)
+	{
+		if (clipIdx < 0 || clipIdx >= animNames.Size()) return false;
+		if (!(clipIsTemplate.Size() > clipIdx && clipIsTemplate[clipIdx])) return false;
+
+		String sF = clipTplFrames[clipIdx];
+		String sD = clipTplDurs[clipIdx];
+
+		Array<String> fAlts; Array<int> fStart; Array<int> fLen;
+		ParseChoiceGroupsNames(sF, fAlts, fStart, fLen);
+
+		Array<double> dAlts; Array<int> dStart; Array<int> dLen;
+		ParseChoiceGroupsFloats(sD, dAlts, dStart, dLen);
+
+		int positions = min(fStart.Size(), dStart.Size());
+		if (positions <= 0) return false;
+
+		tempFrames.Clear();
+		tempDurMs.Clear();
+		tempCount = 0;
+
+		for (int i = 0; i < positions; i++)
+		{
+			int fs = fStart[i], fl = fLen[i];
+			int ds = dStart[i], dl = dLen[i];
+
+			// случайный кадр
+			int pickF = (fl > 1) ? (fs + int(FRandom(0.0, 1.0) * fl)) : fs;
+			if (pickF >= fs + fl) pickF = fs + fl - 1;
+
+			// длительность: одна → бродкаст, иначе — случайно независимо
+			int pickD;
+			if (dl <= 1) pickD = ds;
+			else {
+				pickD = ds + int(FRandom(0.0, 1.0) * dl);
+				if (pickD >= ds + dl) pickD = ds + dl - 1;
+			}
+
+			String fName = fAlts[pickF];
+			double dur   = dAlts[pickD];
+
+			int fi = EnsureFrameIndexByName(fName);
+			if (fi < 0) continue;
+
+			if (dur <= 0.0) dur = 0.001;
+
+			tempFrames.Push(fi);
+			tempDurMs.Push(dur);
+			tempCount++;
+		}
+
+		return tempCount > 0;
+	}
+
+
+
 	ui void Tick()
 	{
 		if (!active || curClip < 0) return;
-		int cnt = clipCount[curClip];
+
+		int cnt = useTempSeq ? tempCount : clipCount[curClip];
 		if (cnt <= 0) { active = false; return; }
 
 		double dt = 1000.0 / TICRATE;
@@ -381,6 +737,11 @@ class PanelPlayer : Object
 			{
 				if (clipLoop[curClip])
 				{
+					// При лупе для шаблонного клипа можно:
+					// 1) проигрывать ту же развёртку (проще)
+					// 2) или каждый цикл заново пере-рандомить (интереснее)
+					// Вариант 2:
+					if (useTempSeq) ResolveTemplateOnce(curClip);
 					seqPos = 0;
 				}
 				else
@@ -395,8 +756,8 @@ class PanelPlayer : Object
 
 					if (clipStopLast[curClip])
 					{
-						int last = clipOffset[curClip] + (cnt - 1);
-						lastFrameIdx = flatFrames[last];
+						int last = (useTempSeq ? (cnt - 1) : (clipOffset[curClip] + (cnt - 1)));
+						lastFrameIdx = useTempSeq ? tempFrames[last] : flatFrames[last];
 					}
 					else lastFrameIdx = -1;
 
@@ -408,39 +769,51 @@ class PanelPlayer : Object
 				}
 			}
 
-			int base = clipOffset[curClip] + seqPos;
-			timeLeftMs += flatDurMs[base];
-			lastFrameIdx = flatFrames[base];
+			if (useTempSeq)
+			{
+				timeLeftMs += tempDurMs[seqPos];
+				lastFrameIdx = tempFrames[seqPos];
+			}
+			else
+			{
+				int base = clipOffset[curClip] + seqPos;
+				timeLeftMs += flatDurMs[base];
+				lastFrameIdx = flatFrames[base];
+			}
 		}
 	}
 
-    ui void Draw()
-    {
-        int drawIdx = lastFrameIdx;
-        if (active && curClip >= 0)
-        {
-            int cnt = clipCount[curClip];
-            if (cnt > 0 && seqPos >= 0 && seqPos < cnt)
-            {
-                int base = clipOffset[curClip] + seqPos;
-                drawIdx = flatFrames[base];
-            }
-        }
-        if (drawIdx < 0 || drawIdx >= frames.Size()) return;
+	ui void Draw()
+	{
+		int drawIdx = lastFrameIdx;
+		if (active && curClip >= 0)
+		{
+			int cnt = useTempSeq ? tempCount : clipCount[curClip];
+			if (cnt > 0 && seqPos >= 0 && seqPos < cnt)
+			{
+				if (useTempSeq) {
+					drawIdx = tempFrames[seqPos];
+				} else {
+					int base = clipOffset[curClip] + seqPos;
+					drawIdx = flatFrames[base];
+				}
+			}
+		}
+		if (drawIdx < 0 || drawIdx >= frames.Size()) return;
 
-        TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
-        Vector2 sz = TexMan.GetScaledSize(tex);
-        double x = (vW - sz.x) * 0.5;
-        double y = (vH - sz.y) * 0.25;
-//         double y = topMargin;
+		TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
+		Vector2 sz = TexMan.GetScaledSize(tex);
+		double x = (vW - sz.x) * 0.5;
+		double y = (vH - sz.y) * 0.25;
 
-        Screen.DrawTexture(tex, false, x, y,
-            DTA_VirtualWidth, vW,
-            DTA_VirtualHeight, vH,
-            DTA_KeepRatio, true,
-			DTA_TopLeft,       true
-        );
-    }
+		Screen.DrawTexture(tex, false, x, y,
+			DTA_VirtualWidth, vW,
+			DTA_VirtualHeight, vH,
+			DTA_KeepRatio, true,
+			DTA_TopLeft, true
+		);
+	}
+
 
     int FindAnim(String n)
     {
