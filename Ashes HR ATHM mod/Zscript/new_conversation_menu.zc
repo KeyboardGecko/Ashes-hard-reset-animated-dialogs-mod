@@ -18,6 +18,7 @@ class NewConversationMenu : ConversationMenu
 		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
 
 		o.ShowVoiceStatic(CurNode.SpeakerVoice);
+
 		PlayNodeVoice(CurNode);
 
 		_prev = CurNode;

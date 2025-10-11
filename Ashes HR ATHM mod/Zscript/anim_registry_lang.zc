@@ -157,39 +157,117 @@ class AnimRegistryLang : Object
 
 	}
 
-    // Register all animations for character (who).
-    // prefix=true - "JM.idle", "JM.JM001"...
-//     static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
-//     {
-//         Array<String> clips;
-//         SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
+	static bool ParseLeadingLettersAndNumber(String s, String &letters, int &num)
+	{
+		letters = "";
+		num = -1;
 
-//         for (int ci = 0; ci < clips.Size(); ci++)
-//         {
-//             String clip = clips[ci];
-//             String base = "$ANIMS_" .. who .. "_" .. clip;
+		int n = s.Length();
+		int i = 0;
 
-//             String sF = L(base .. "_FRAMES");
-//             String sD = L(base .. "_DURS");
-//             if (sF.Length() == 0 || sD.Length() == 0) continue;
+		// Собираем начальные буквы [A-Za-z]
+		while (i < n)
+		{
+			int c = s.ByteAt(i);
+			bool isAlpha = ((c >= 65 && c <= 90) || (c >= 97 && c <= 122)); // 'A'..'Z' / 'a'..'z'
+			if (!isAlpha) break;
 
-//             Array<String> f;
-// 			Array<double> d;
-// 			SplitCSVNames(sF, f);
-// 			SplitCSVFloats(sD, d);
+			letters = letters .. s.Mid(i, 1);
+			i++;
+		}
 
-//             int n = min(f.Size(), d.Size());
-//             if (n <= 0) continue;
-//             while (f.Size() > n) f.Pop();
-//             while (d.Size() > n) d.Pop();
+		// Далее — цифры [0-9]
+		String digits = "";
+		while (i < n)
+		{
+			int c = s.ByteAt(i);
+			if (c < 48 || c > 57) break; // '0'..'9' = 48..57
 
-//             bool   loopFlag = ParseBool(L(base .. "_LOOP"));
-//             bool   stopFlag = ParseBool(L(base .. "_STOP"));
-//             String regName  = prefix ? (who .. "." .. clip) : clip;
+			digits = digits .. s.Mid(i, 1);
+			i++;
+		}
 
-//             p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
-//         }
-//     }
+		if (digits.Length() == 0) return false;
+
+		num = digits.ToInt();
+		return true;
+	}
+
+	// ANIMS_RANGE_MAP_LIST = "GN"
+	// ANIMS_RANGE_MAP_GN   = "1-50:GN1,51-100:GN2,101-150:GN3,151-200:GN4"
+	static String ResolveCharFromVoiceByRanges(String clear)
+	{
+		String letters; int number;
+		if (!ParseLeadingLettersAndNumber(clear, letters, number)) return "";
+
+		Array<String> series;
+		SplitCSVNames(L("$ANIMS_RANGE_MAP_LIST"), series);
+		// ищем нужную серию по буквенной части
+		bool listed = false;
+		for (int i=0;i<series.Size();i++) { if (series[i] == letters) { listed = true; break; } }
+		if (!listed) return "";
+
+		String spec = L("$ANIMS_RANGE_MAP_" .. letters);
+		if (spec.Length() == 0) return "";
+
+		// spec: "1-50:GN1,51-100:GN2,..." — разобрать вручную
+		String cur = "";
+		int len = spec.Length();
+		Array<String> items;
+		for (int i=0;i<len;i++)
+		{
+			String ch = spec.Mid(i,1);
+			if (ch == ",") { if (cur.Length()>0) { items.Push(cur); cur=""; } }
+			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n") { /*skip*/ }
+			else cur = cur .. ch;
+		}
+		if (cur.Length()>0) items.Push(cur);
+
+		for (int k=0;k<items.Size();k++)
+		{
+			String it = items[k]; // "1-50:GN1"
+			int colon = it.IndexOf(":");
+			if (colon < 0) continue;
+			String left = it.Left(colon);       // "1-50"
+			String who  = it.Mid(colon+1);      // "GN1"
+
+			int dash = left.IndexOf("-");
+			if (dash < 0) continue;
+			int a = left.Left(dash).ToInt();
+			int b = left.Mid(dash+1).ToInt();
+			if (a > b) { int t=a; a=b; b=t; }
+
+			if (number >= a && number <= b) return who;
+		}
+
+		return "";
+	}
+
+	static String ResolveCharFromVoiceExact(String clear)
+	{
+		Array<String> names; SplitCSVNames(L("$ANIMS_NAME_MAP_LIST"), names);
+		for (int i=0;i<names.Size();i++)
+		{
+			String key = names[i];
+			if (key == clear)
+			{
+				String who = L("$ANIMS_NAME_MAP_" .. key);
+				if (who.Length() > 0) return who;
+			}
+		}
+		return "";
+	}
+
+	static String ResolveCharFromVoiceSmart(String clear)
+	{
+		String who = ResolveCharFromVoiceExact(clear);
+		if (who.Length() > 0) return who;
+
+		who = ResolveCharFromVoiceByRanges(clear);
+		if (who.Length() > 0) return who;
+
+		return ResolveCharFromVoice(clear); // префиксная (как у тебя была)
+	}
 
 	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
 	{

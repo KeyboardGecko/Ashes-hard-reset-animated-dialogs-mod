@@ -212,7 +212,7 @@ class PanelPlayer : Object
 	ui void EnsureCharacterForVoice(String voiceName)
 	{
 		String clear = (voiceName.RightIndexOf("/") >= 0) ? voiceName.Mid(voiceName.RightIndexOf("/") + 1) : voiceName;
-		String who = AnimRegistryLang.ResolveCharFromVoice(clear);
+		String who = AnimRegistryLang.ResolveCharFromVoiceSmart(clear);
 
 		if (who.Length() == 0)
 		{
@@ -231,6 +231,7 @@ class PanelPlayer : Object
 			AnimRegistryLang.RegisterFor(self, who, true);
 			loadedChars.Push(who);
 		}
+// 		Console.Printf("voice=%s clear=%s who=%s", voiceName, clear, who);
 	}
 
 
@@ -282,7 +283,36 @@ class PanelPlayer : Object
     }
 
     // --- helpers ---
+		
+	int PlaceholderFrameIndex()
+	// Вернуть индекс кадра-плейсхолдера, чтобы сохранить тайминг.
+	// Порядок приоритетов:
+	// 1) последний успешно выбранный кадр в текущей temp-последовательности,
+	// 2) fallbackTex (если задан и валиден),
+	// 3) специальная картинка "ANIM_MISSING" (если положите её в WAD/PK3),
+	// 4) иначе -1 (ничего не рисуем, но длительность сохраняем).
+	{
+		// 1) последний успешный temp-кадр
+		if (useTempSeq && tempFrames.Size() > 0) {
+			int k = tempFrames[tempFrames.Size() - 1];
+			if (k >= 0) return k;
+		}
+
+		// 2) fallbackTex
+		if (fallbackTex.Length() > 0) {
+			int fi = EnsureFrameIndexByName(fallbackTex);
+			if (fi >= 0) return fi;
+		}
+
+		// 3) специальная текстура (добавьте в ресурс при желании)
+		int mi = EnsureFrameIndexByName("ANIM_MISSING");
+		if (mi >= 0) return mi;
+
+		// 4) пусто — позволим рендеру ничего не рисовать, но время останется
+		return -1;
+	}
 	
+
 	void DefineAnimation(String name, Array<int> fIdx, Array<double> durMs, bool loop=false, bool stopLast=true)
 	{
 		int n = min(fIdx.Size(), durMs.Size());
@@ -291,9 +321,10 @@ class PanelPlayer : Object
 		int off = flatFrames.Size();
 		for (int i = 0; i < n; i++)
 		{
-			int fi = fIdx[i]; if (fi < 0 || fi >= frames.Size()) continue;
+			int fi = fIdx[i];
+			// кладём как есть; отрисовка проверит валидность позже
 			flatFrames.Push(fi);
-			double ms = durMs[i]; if (ms <= 0) ms = 0.001; // крошечный минимум
+			double ms = durMs[i]; if (ms <= 0) ms = 0.001;
 			flatDurMs.Push(ms);
 		}
 		int cnt = flatFrames.Size() - off;
@@ -351,21 +382,29 @@ class PanelPlayer : Object
 	}
 
 
-    void DefineAnimationByNames(String name, Array<String> fNames, Array<double> durMs, bool loop=false, bool stopLast=true)
-    {
+	void DefineAnimationByNames(String name, Array<String> fNames, Array<double> durMs, bool loop=false, bool stopLast=true)
+	{
+		Array<int> idx;
+		Array<double> durs;
+		int n = min(fNames.Size(), durMs.Size());
 
-        Array<int> idx;
-        int n = min(fNames.Size(), durMs.Size());
-        for (int i = 0; i < n; i++)
-        {
-            int fi = EnsureFrameIndexByName(fNames[i]);
-            if (fi >= 0) idx.Push(fi);
-        }
-        if (idx.Size() == 0) return;
-		
+		for (int i = 0; i < n; i++)
+		{
+			int fi = EnsureFrameIndexByName(fNames[i]);
+			double ms = durMs[i]; if (ms <= 0) ms = 0.001;
 
-        DefineAnimation(name, idx, durMs, loop, stopLast);
-    }
+			if (fi < 0) {
+				fi = PlaceholderFrameIndex();   // <-- берём плейсхолдер
+			}
+			// КЛАДЁМ ВСЕГДА, даже если fi == -1: тайминг сохраняется
+			idx.Push(fi);
+			durs.Push(ms);
+		}
+
+		if (idx.Size() == 0) return;
+		DefineAnimation(name, idx, durs, loop, stopLast);
+	}
+
 
 	static String GetAnimationName(String path, String separator = "/")
 	{
@@ -706,13 +745,16 @@ class PanelPlayer : Object
 			double dur   = dAlts[pickD];
 
 			int fi = EnsureFrameIndexByName(fName);
-			if (fi < 0) continue;
-
 			if (dur <= 0.0) dur = 0.001;
 
+			if (fi < 0) {
+				fi = PlaceholderFrameIndex();   // <-- ключевая строка
+			}
+			
 			tempFrames.Push(fi);
 			tempDurMs.Push(dur);
 			tempCount++;
+			
 		}
 
 		return tempCount > 0;
