@@ -213,6 +213,7 @@ class PanelPlayer : Object
 	{
 		String clear = (voiceName.RightIndexOf("/") >= 0) ? voiceName.Mid(voiceName.RightIndexOf("/") + 1) : voiceName;
 		String who = AnimRegistryLang.ResolveCharFromVoiceSmart(clear);
+// 		Console.Printf("voice=%s", voiceName);
 
 		if (who.Length() == 0)
 		{
