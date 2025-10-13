@@ -1,0 +1,500 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// Токен-индикатор «готов к бэкстабу» (должен быть объявлен ДО использования)
+class BackstabReady : Inventory
+{
+  Default
+  {
+    Inventory.MaxAmount 1;
+    Inventory.InterHubAmount 1;
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Хелпер-логика бэкстаба. Вешается на игрока в MyPlayer.PostBeginPlay().
+class BackstabHelper : Inventory
+{
+  Actor  TargetRef;
+  int    CooldownTics;
+	Actor LastRef; int StickTics;
+int DebugQuota; 
+
+  bool   DEBUG;
+  int    debugTicker;
+
+  double AttackRange;   // максимальная дистанция для нанесения удара
+
+  double MaxRange;        // радиус захвата
+  double AimHalfFovDeg;   // половина конуса прицела (в градусах)
+  bool   RequireUnseen;   // требовать, чтобы цель не видела игрока
+
+  bool   inited;
+
+// ВРЕМЕННЫЙ ПРОСТОЙ ПОИСК: ближайший живой, стрелябельный актор в радиусе
+Actor FindNearestShootable(PlayerPawn p, double maxRange)
+{
+  ThinkerIterator it;
+  Actor a, best;
+  double bestDist, dx, dy, dist;
+
+  best = null;
+  bestDist = 1e30;
+
+  it = ThinkerIterator.Create("Actor");
+  while ((a = Actor(it.Next())) != null)
+  {
+    if (a == p) continue;
+    if (a.health <= 0) continue;
+
+    // отсекаем декор/траву/дружественных
+    if (!a.bSHOOTABLE) continue;
+    if (a.bFRIENDLY) continue;
+
+    // ключевое условие: НЕ агрится на игрока
+    if (a.target == p) continue;
+
+    // радиус
+    dx = a.Pos.x - p.Pos.x;
+    dy = a.Pos.y - p.Pos.y;
+    dist = sqrt(dx*dx + dy*dy);
+    if (dist > maxRange) continue;
+
+    if (dist < bestDist)
+    {
+      best = a;
+      bestDist = dist;
+    }
+  }
+  return best;
+}
+
+override void Tick()
+{
+  PlayerPawn p;
+  int        btn, oldbtn;
+  bool       useNow;
+  Inventory  tok;
+
+  double dx, dy, dist;
+  double fx, fy, vx, vy, vlen, dott;
+  bool   sees;
+
+  Actor bestNow;
+
+  super.Tick();
+  if (Owner == null) return;
+
+  p = PlayerPawn(Owner);
+  if (p == null || p.player == null) return;
+
+  // Одноразовая инициализация параметров (SAFE MODE)
+  if (!inited)
+  {
+    DEBUG         = true;
+    debugTicker   = 0;
+	AttackRange =256;
+    MaxRange      = 256.0;   // побольше радиус на диагностику
+    AimHalfFovDeg = 10.0;    // сейчас не используется, но оставим
+    RequireUnseen = false;   // отключаем запрет «видит» на время проверки
+
+    LastRef   = null;
+    StickTics = 0;
+
+    inited = true;
+    Console.Printf("[Backstab] Helper init (SAFE MODE).");
+  }
+
+  if (CooldownTics > 0) CooldownTics--;
+
+  // ── Выбор цели (SAFE MODE): ближайшая стрелябельная + «липучка»
+
+  bestNow = FindNearestShootable(p, MaxRange);
+  if (bestNow != null)
+  {
+    TargetRef = bestNow;
+    LastRef   = bestNow;
+    StickTics = 1; // держим цель ~8 тиков
+  }
+  else
+  {
+    if (LastRef != null && StickTics > 0)
+    {
+      TargetRef = LastRef;
+      StickTics--;
+    }
+    else
+    {
+      TargetRef = null;
+      LastRef   = null;
+      StickTics = 0;
+    }
+  }
+
+  // ── Токен-индикатор готовности
+  if (TargetRef != null && CooldownTics == 0)
+  {
+    if (p.FindInventory("BackstabReady") == null) p.GiveInventory("BackstabReady", 1);
+  }
+  else
+  {
+    tok = p.FindInventory("BackstabReady");
+    if (tok != null) tok.Destroy();
+  }
+
+  // ── DEBUG-лог раз в ~1 сек
+  if (DEBUG)
+  {
+    debugTicker++;
+    if (debugTicker >= 35)
+    {
+      debugTicker = 0;
+      if (TargetRef != null)
+      {
+        dx = TargetRef.Pos.x - p.Pos.x;
+        dy = TargetRef.Pos.y - p.Pos.y;
+        dist = sqrt(dx*dx + dy*dy);
+
+        // dott: -1 строго за спиной цели (для справки)
+        fx = cos(TargetRef.Angle * (3.141592653589793 / 180.0));
+        fy = sin(TargetRef.Angle * (3.141592653589793 / 180.0));
+        vx = p.Pos.x - TargetRef.Pos.x;
+        vy = p.Pos.y - TargetRef.Pos.y;
+        vlen = sqrt(vx*vx + vy*vy);
+        if (vlen < 1.0) vlen = 1.0;
+        vx /= vlen; vy /= vlen;
+        dott = fx*vx + fy*vy;
+
+        sees = TargetRef.CheckSight(p);
+
+        Console.Printf("[Backstab] READY: %s dist=%.1f dot=%.3f sees=%d stick=%d cd=%d",
+          TargetRef.GetClassName(), dist, dott, (sees ? 1 : 0), StickTics, CooldownTics);
+      }
+      else
+      {
+        Console.Printf("[Backstab] no target. cd=%d", CooldownTics);
+      }
+    }
+  }
+
+  // ── Нажатие USE именно в этот тик
+  btn    = p.player.buttons;
+  oldbtn = p.player.oldbuttons;
+  useNow = false;
+  if ((btn & BT_USE) != 0 && (oldbtn & BT_USE) == 0) useNow = true;
+
+  if (DEBUG && useNow)
+  {
+    Console.Printf("[Backstab] USE pressed. HasTarget=%d  Cooldown=%d",
+      (TargetRef != null ? 1 : 0), CooldownTics);
+  }
+
+  // ── Запуск бэкстаба
+  if (CooldownTics == 0 && TargetRef != null && useNow)
+  {
+    bool ok;
+    ok = DoBackstab(p, TargetRef);
+    if (ok)
+    {
+      CooldownTics = 35; // ~1 сек
+    }
+    else if (DEBUG)
+    {
+      Console.Printf("[Backstab] DoBackstab returned false.");
+    }
+  }
+}
+
+
+
+  // Поиск цели: ближайший «враг» внутри узкого конуса прицела и в радиусе
+Actor FindBackstabTarget(PlayerPawn p, double maxRange, double halfFovDeg)
+{
+  Actor best, a;
+  double bestDist;
+  ThinkerIterator it;
+  double dx, dy, dist;
+
+  best = null;
+  bestDist = 1e30;
+
+  it = ThinkerIterator.Create("Actor");
+  while ((a = Actor(it.Next())) != null)
+  {
+    if (!IsValidTargetNow(p, a, maxRange, halfFovDeg)) continue;
+
+    dx = a.Pos.x - p.Pos.x;
+    dy = a.Pos.y - p.Pos.y;
+    dist = sqrt(dx*dx + dy*dy);
+
+    if (dist < bestDist)
+    {
+      best = a;
+      bestDist = dist;
+    }
+  }
+  return best;
+}
+
+bool IsValidTargetNow(PlayerPawn p, Actor a, double maxRange, double halfFovDeg)
+{
+  double dx, dy, dist;
+  double yawRad, ax, ay, cosAim;
+  double fx, fy, vx, vy, vlen, dott;
+  bool   sees, looksLikeMonster;
+  name   cname;
+
+  if (a == null) return false;
+  if (a == p) return false;
+  if (a.health <= 0) return false;
+
+  cname = a.GetClassName();
+  looksLikeMonster = a.bISMONSTER || (cname != 'PlayerPawn' && cname != 'MyPlayer');
+  if (!looksLikeMonster) return false;
+  if (!a.bSHOOTABLE) return false;
+  if (a.bFRIENDLY) return false;
+
+  dx = a.Pos.x - p.Pos.x;
+  dy = a.Pos.y - p.Pos.y;
+  dist = sqrt(dx*dx + dy*dy);
+  if (dist > maxRange) return false;
+
+  // 1) "за спиной" относительно направления врага
+  fx = cos(a.Angle * (3.141592653589793 / 180.0));
+  fy = sin(a.Angle * (3.141592653589793 / 180.0));
+  vx = p.Pos.x - a.Pos.x; vy = p.Pos.y - a.Pos.y;
+  vlen = sqrt(vx*vx + vy*vy); if (vlen < 1.0) vlen = 1.0; vx /= vlen; vy /= vlen;
+  dott = fx*vx + fy*vy; // -1 строго сзади
+
+  // конус "спины": ~160° (±80°), чуть шире в упор
+  double backHalf = 80.0;
+  double cosBack  = cos(backHalf * (3.141592653589793 / 180.0));
+  double cosBackClose = cos((backHalf + 10.0) * (3.141592653589793 / 180.0));
+  if (dist <= 64.0)
+  { if (dott > -cosBackClose) return false; }
+  else
+  { if (dott > -cosBack) return false; }
+
+  // 2) прицел игрока: игрок должен хоть немного смотреть на цель
+  yawRad = p.Angle * (3.141592653589793 / 180.0);
+  ax = cos(yawRad); ay = sin(yawRad);
+  double vx2 = dx, vy2 = dy;
+  double vlen2 = sqrt(vx2*vx2 + vy2*vy2); if (vlen2 < 1.0) vlen2 = 1.0; vx2 /= vlen2; vy2 /= vlen2;
+  cosAim = cos(halfFovDeg * (3.141592653589793 / 180.0));
+  double dottAim = ax*vx2 + ay*vy2;        // ~1.0 когда по прицелу
+  if (dottAim < cosAim) return false;
+
+  // 3) "не агро" (мягко)
+	if (target.target == p && dist > 64.0)
+	{
+	  if (DEBUG) Console.Printf("[Backstab] blocked: aggro=1 dist=%.1f", dist);
+	  return false;
+	}
+  return true;
+}
+
+bool InAimCone(PlayerPawn p, double dx, double dy, double halfFovDeg)
+{
+  double yaw = p.Angle * (3.141592653589793 / 180.0);
+  double ax = cos(yaw), ay = sin(yaw);
+
+  double vx = dx, vy = dy;
+  double vlen = sqrt(vx*vx + vy*vy);
+  if (vlen < 1.0) vlen = 1.0;
+  vx /= vlen; vy /= vlen;
+
+  double cosHalf = cos(halfFovDeg * (3.141592653589793 / 180.0));
+  double d = ax*vx + ay*vy; // ~1, если ровно по прицелу
+
+  return (d >= cosHalf);
+}
+
+
+// МЯГКАЯ проверка для "липучки": допускаем чуть хуже прицел и спину
+bool IsAlmostValid(PlayerPawn p, Actor a, double maxRange, double halfFovDeg)
+{
+  // разрешим +4° к прицелу и -10° к "спине"
+  double looseAim   = halfFovDeg + 4.0;
+  double looseBack  = 70.0; // вместо 80°
+  double dx, dy, dist;
+  double yawRad, ax, ay, cosAim;
+  double fx, fy, vx, vy, vlen, dott;
+  bool   sees, looksLikeMonster;
+  name   cname;
+
+  if (a == null) return false;
+  if (a == p) return false;
+  if (a.health <= 0) return false;
+
+  cname = a.GetClassName();
+  looksLikeMonster = a.bISMONSTER || (cname != 'PlayerPawn' && cname != 'MyPlayer');
+  if (!looksLikeMonster) return false;
+  if (!a.bSHOOTABLE) return false;
+  if (a.bFRIENDLY) return false;
+
+  dx = a.Pos.x - p.Pos.x;
+  dy = a.Pos.y - p.Pos.y;
+  dist = sqrt(dx*dx + dy*dy);
+  if (dist > maxRange + 16.0) return false; // чуть шире радиус
+
+  fx = cos(a.Angle * (3.141592653589793 / 180.0));
+  fy = sin(a.Angle * (3.141592653589793 / 180.0));
+  vx = p.Pos.x - a.Pos.x; vy = p.Pos.y - a.Pos.y;
+  vlen = sqrt(vx*vx + vy*vy); if (vlen < 1.0) vlen = 1.0; vx /= vlen; vy /= vlen;
+  dott = fx*vx + fy*vy; // -1 строго сзади
+
+  double cosBackLoose     = cos(looseBack * (3.141592653589793 / 180.0));
+  double cosBackLooseNear = cos((looseBack + 10.0) * (3.141592653589793 / 180.0));
+
+  if (dist <= 64.0)
+  { if (dott > -cosBackLooseNear) return false; }
+  else
+  { if (dott > -cosBackLoose) return false; }
+
+  yawRad = p.Angle * (3.141592653589793 / 180.0);
+  ax = cos(yawRad); ay = sin(yawRad);
+  double vx2 = dx, vy2 = dy;
+  double vlen2 = sqrt(vx2*vx2 + vy2*vy2); if (vlen2 < 1.0) vlen2 = 1.0; vx2 /= vlen2; vy2 /= vlen2;
+  cosAim = cos(looseAim * (3.141592653589793 / 180.0));
+  double dottAim = ax*vx2 + ay*vy2;
+  if (dottAim < cosAim) return false;
+
+  if (RequireUnseen)
+  {
+    sees = a.CheckSight(p);
+    bool unaware = (a.target != p) || !sees; // липучка мягче
+    if (!unaware) return false;
+  }
+
+  return true;
+}
+
+//   bool DoBackstab(PlayerPawn p, Actor target)
+//   {
+//     double dx, dy, dist, len, dash;
+//     int    baseDmg, dmg;
+//     Inventory tok;
+
+//     if (target == null) return false;
+//     if (target.health <= 0) return false;
+
+//     dx = target.Pos.x - p.Pos.x;
+//     dy = target.Pos.y - p.Pos.y;
+//     dist = sqrt(dx*dx + dy*dy);
+
+//     if (RequireUnseen)
+//     {
+//      {
+// 	  bool aggro = (target.target == p);
+// 	  if (aggro && dist > 64.0)
+// 	  {
+// 		if (DEBUG) Console.Printf("[Backstab] blocked: aggro=1 dist=%.1f", dist);
+// 		return false;
+// 	  }
+// 	}
+//     }
+
+//     // Повернуть игрока на цель
+//     p.Angle = p.AngleTo(target);
+
+//     // Нормализация
+//     len = dist;
+//     if (len < 1.0) len = 1.0;
+//     dx /= len;
+//     dy /= len;
+
+//     // Рывок
+//     dash = (dist <= 64.0) ? 10.0 : 18.0;
+//     p.Vel.x += dx * dash;
+//     p.Vel.y += dy * dash;
+
+//     // Удар x2
+//     baseDmg = 20; // подставь свой
+//     dmg = baseDmg * 2;
+//     target.DamageMobj(p, p, dmg, 'Backstab');
+
+//     // Эффекты
+//     A_StartSound("backstab/hit", CHAN_WEAPON, 1.0, false, ATTN_NORM);
+//     Spawn("Blood", target.Pos, ALLOW_REPLACE);
+
+//     // Алёрт цели
+//     target.target = p;
+
+//     // Убрать индикатор
+//     tok = p.FindInventory("BackstabReady");
+//     if (tok != null) tok.Destroy();
+
+//     return true;
+//   }
+
+bool DoBackstab(PlayerPawn p, Actor target)
+{
+  double dx, dy, dist, len, dash;
+  int    baseDmg, dmg;
+  Inventory tok;
+
+  if (target == null) return false;
+  if (target.health <= 0) return false;
+
+  dx = target.Pos.x - p.Pos.x;
+  dy = target.Pos.y - p.Pos.y;
+  dist = sqrt(dx*dx + dy*dy);
+
+  // Блок только по агро и только если не в упор (можно убрать вовсе, если не нужен)
+  if (target.target == p && dist > 64.0)
+  {
+    if (DEBUG) Console.Printf("[Backstab] blocked: aggro=1 dist=%.1f", dist);
+    return false;
+  }
+
+  // Повернуть игрока на цель
+  p.Angle = p.AngleTo(target);
+
+  // Нормализация
+  len = dist; if (len < 1.0) len = 1.0;
+  dx /= len; dy /= len;
+
+  // Если далеко — только рывок ближе к цели, БЕЗ урона
+  if (dist > AttackRange)
+  {
+    // подвинемся так, чтобы подойти примерно к границе удара
+    double want = dist - (AttackRange - 8.0);
+    if (want < 0) want = 0;
+    // ограничим импульс, чтобы не “перелетать”
+    if (want > 18.0) want = 18.0;
+    p.Vel.x += dx * want;
+    p.Vel.y += dy * want;
+
+    // раз урон не нанесли — возвращаем false (КД не включится)
+    return false;
+  }
+
+  // Здесь уже в пределах удара — наносим урон ×2
+  dash = (dist <= 64.0) ? 8.0 : 12.0; // небольшой рывок для ощущения
+  p.Vel.x += dx * dash;
+  p.Vel.y += dy * dash;
+
+  baseDmg = 20; // твоя базовая величина
+  dmg = baseDmg * 2;
+  target.DamageMobj(p, p, dmg, 'Backstab');
+
+  A_StartSound("backstab/hit", CHAN_WEAPON, 1.0, false, ATTN_NORM);
+  Spawn("Blood", target.Pos, ALLOW_REPLACE);
+
+  target.target = p;
+
+  tok = p.FindInventory("BackstabReady");
+  if (tok != null) tok.Destroy();
+
+  return true; // только при нанесении удара возвращаем true → включится КД
+}
+}
+// ─────────────────────────────────────────────────────────────────────────────
+// Класс игрока, чтобы выдать помощник при старте
+class MyPlayer : DoomPlayer
+{
+  override void PostBeginPlay()
+  {
+    super.PostBeginPlay();
+    Console.Printf("[Backstab] MyPlayer alive");
+    if (FindInventory("BackstabHelper") == null) GiveInventory("BackstabHelper", 1);
+  }
+}

@@ -3,4 +3,7 @@ GameInfo {
     AddEventHandlers = "DialogUIOverlay"
 	AddEventHandlers = "VoiceHijack"
 // 	AddEventHandlers = "DuckBridge"
+	PlayerClasses = "MyPlayer" // класс из примера
+
 }
+
