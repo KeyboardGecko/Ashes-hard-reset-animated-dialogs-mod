@@ -4,6 +4,5 @@ GameInfo {
 	AddEventHandlers = "VoiceHijack"
 // 	AddEventHandlers = "DuckBridge"
 	PlayerClasses = "MyPlayer" // класс из примера
-
 }
 
