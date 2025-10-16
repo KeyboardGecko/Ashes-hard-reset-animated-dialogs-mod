@@ -19,6 +19,22 @@ class NewConversationMenu : ConversationMenu
 
 		o.ShowVoiceStatic(CurNode.SpeakerVoice);
 
+		// готовим анимацию+звук к синхронному старту
+		let pl = players[consoleplayer];
+		if (pl && pl.mo)
+		{
+			let npc = (pl ? pl.ConversationNPC : null);
+			if (npc)
+			{
+				// громкость как в твоём PlayNodeVoice
+				double vol = 1.0;
+				let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+				if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+				DialogUIOverlay.ScheduleSyncStartStatic(npc, CurNode.SpeakerVoice, vol, CHAN_5);
+			}
+		}
+
 		PlayNodeVoice(CurNode);
 
 		_prev = CurNode;

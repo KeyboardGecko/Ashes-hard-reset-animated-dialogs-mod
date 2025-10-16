@@ -15,6 +15,7 @@ class PanelPlayer : Object
 
     int vW, vH;
     double topMargin;
+	int    cachedScaleIdx;  
 
     double timeLeftMs;  
 
@@ -273,18 +274,70 @@ class PanelPlayer : Object
 
     bool HasAnim(String n) { return FindAnim(n) >= 0; }
 
+	static double ScaleFromIdx(int idx)
+	{
+		switch (idx)
+		{
+			case 0: return 1.0; // BIG
+			case 1: return 1.2; // NORMAL
+			case 2: return 1.4; // SMALL
+			case 3: return 2.0; // TINY
+			default: return 1.2;
+		}
+	}
+
+    void ApplyScaleFromCVar()
+    {
+        int idx = 1;
+        // user CVar можно читать и без PlayerInfo
+        let cv = CVar.FindCVar('jm_anim_scale');
+        if (cv) idx = clamp(cv.GetInt(), 0, 3);
+
+        if (idx != cachedScaleIdx || vW == 0 || vH == 0)
+        {
+            double s = ScaleFromIdx(idx);
+            vW = int(320 * s + 0.5);
+            vH = int(200 * s + 0.5);
+            topMargin = 0.0;
+            cachedScaleIdx = idx;
+
+// 			Console.Printf("\cg[SIZE] jm_anim_scale=%d -> %dx%d", idx, vW, vH);
+
+        }
+    }
+
+
     ui void PreloadOnce()
     {
         if (ready) return;
-		// new stuff
-		useTempSeq = false;
-		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
+
+        useTempSeq = false;
+        tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
 
         curClip = -1; seqPos = 0; timeLeftMs = 0.0;
         active = false; lastFrameIdx = 0;
-        vW = 320; vH = 200; topMargin = 0.0;
+
+        cachedScaleIdx = -1;
+        ApplyScaleFromCVar();   // <-- выставляем vW/vH тут
+
         ready = true;
     }
+
+    ui void EnsureLiveScale() { ApplyScaleFromCVar(); }
+
+//     ui void PreloadOnce()
+//     {
+//         if (ready) return;
+// 		// new stuff
+// 		useTempSeq = false;
+// 		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
+
+//         curClip = -1; seqPos = 0; timeLeftMs = 0.0;
+//         active = false; lastFrameIdx = 0;
+//         vW = 320; vH = 200; topMargin = 0.0;
+
+// 		ready = true;
+//     }
 
     // --- helpers ---
 		

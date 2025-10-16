@@ -5,6 +5,11 @@ JM_OPT_ANIM_SUBMENU = "Dialogue Settings";
 JM_OPT_ANIM_PLAY = "Play animation";
 JM_VOICE_PLAY = "Voiceover enabled";
 JM_VOICE_VOL = "Voice volume";
+JM_SIZE_TINY = "Tiny";
+JM_SIZE_SMALL = "Small";
+JM_SIZE_NORMAL = "Normal";
+JM_SIZE_BIG = "Big";
+JM_OPT_WIN_SIZE = "Dialogue window size";
 
 // [ru default]
 // JM_OPT_ANIM_TITLE   = "Настройки диалогов";
@@ -13,3 +18,8 @@ JM_VOICE_VOL = "Voice volume";
 // JM_OPT_ANIM_PLAY = "Проигрывать анимации";
 // JM_VOICE_PLAY = "Озвучка в диалогах";
 // JM_VOICE_VOL = "Громкость озвучки";
+// JM_SIZE_TINY = "Крошечный";
+// JM_SIZE_SMALL = "Мелкий";
+// JM_SIZE_NORMAL = "Нормальный";
+// JM_SIZE_BIG = "Большой";
+// JM_OPT_WIN_SIZE = "Размер окна в диалоге";

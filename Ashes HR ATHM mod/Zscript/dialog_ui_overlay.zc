@@ -1,5 +1,14 @@
 class DialogUIOverlay : StaticEventHandler
 {
+	//for syncing animation and audio
+    ui Actor  pendingNpc;
+    ui String pendingVoice;
+    ui double pendingVol;
+    ui int    pendingChan;
+    ui int    pendingStartTic;
+    ui bool   hasPending;
+	
+	//other stuff
     ui PanelPlayer panel;
     ui bool   bShow, inConversation;
     ui int    fadeOutTics;
@@ -66,20 +75,72 @@ class DialogUIOverlay : StaticEventHandler
 		bShow = false;
 	}
 
+    ui static int SyncDelayTics()
+    {
+        let cv = CVar.GetCVar('jm_anim_sync_tics', players[consoleplayer]);
+        int t = (cv ? max(0, cv.GetInt()) : 1);
+        return clamp(t, 0, 8); // 0..8 тиков достаточно
+    }
+
+    ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
+    {
+        Ensure();
+        pendingNpc  = npc;
+        pendingVoice= voice;
+        pendingVol  = clamp(vol, 0.0, 1.0);
+        pendingChan = chan;
+        pendingStartTic = level.time + SyncDelayTics();
+        hasPending = (npc != null) && (voice.Length() > 0);
+    }
+    ui static void ScheduleSyncStartStatic(Actor npc, String voice, double vol, int chan = CHAN_5)
+    {
+        let o = Get(); if (o) o.ScheduleSyncStart(npc, voice, vol, chan);
+    }
+
     override void UiTick()
-	{
-		if (hb > 0) hb--;
-		if (inConversation && hb == 0) EndConversation(120);
+    {
+        if (hb > 0) hb--;
+        if (inConversation && hb == 0) EndConversation(120);
 
-		if (!jm_anim_enabled) { bShow = false; inConversation = false; fadeOutTics = 0; return; }
+        if (!jm_anim_enabled) { bShow = false; inConversation = false; fadeOutTics = 0; hasPending = false; return; }
 
-		Ensure();
-		if (panel && jm_anim_play) panel.Tick();
+        Ensure();
 
-		if (panel && !panel.CanDraw()) bShow = false;
+        // --- Единая точка запуска звука+анимации ---
+        if (hasPending && level.time >= pendingStartTic)
+        {
+            // 1) звук в этот же тик
+            if (pendingNpc)
+            {
+                int sflags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
+                pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);
+            }
 
-		if (!inConversation && fadeOutTics > 0) fadeOutTics--;
-	}
+            // 2) анимация в этот же тик
+            ShowVoiceInst(pendingVoice); // внутри Ensure()+CanDraw+Heartbeat
+
+            hasPending = false;
+        }
+
+        if (panel && jm_anim_play) panel.Tick();
+        if (panel && !panel.CanDraw()) bShow = false;
+        if (!inConversation && fadeOutTics > 0) fadeOutTics--;
+    }
+
+//     override void UiTick()
+// 	{
+// 		if (hb > 0) hb--;
+// 		if (inConversation && hb == 0) EndConversation(120);
+
+// 		if (!jm_anim_enabled) { bShow = false; inConversation = false; fadeOutTics = 0; return; }
+
+// 		Ensure();
+// 		if (panel && jm_anim_play) panel.Tick();
+
+// 		if (panel && !panel.CanDraw()) bShow = false;
+
+// 		if (!inConversation && fadeOutTics > 0) fadeOutTics--;
+// 	}
 	
 
 //     // ---- Rendering the panel ----
@@ -106,20 +167,37 @@ class DialogUIOverlay : StaticEventHandler
 		let o = Get(); if (o) o.SetFallbackBackdropInst(tex);
 	}
 
+// 	ui void ShowVoiceInst(String voice)
+// 	{
+// 		Ensure();
+// 		if (!panel) { bShow = false; return; }
+//  		panel.EnsureLiveScale();
+
+// 		bool ok = panel.PlayForVoice(voice);
+// 		bShow = ok && panel.CanDraw();
+
+// 		if (bShow) { inConversation = true; Heartbeat();
+		
+// 		}
+
+// 	}
+
 	ui void ShowVoiceInst(String voice)
 	{
-// 		Console.Printf("\cg[VOX] voice='%s'", voice);
 		Ensure();
 		if (!panel) { bShow = false; return; }
 
 		bool ok = panel.PlayForVoice(voice);
+
+		// если не получилось ничего (нет клипа/idle/voice) — запускаем fallback
+		if (!ok) ok = panel.PlayFallback();
+		panel.EnsureLiveScale();
+
 		bShow = ok && panel.CanDraw();
-
-		if (bShow) { inConversation = true; Heartbeat(); 
-		
-		}
-
+		if (bShow) { inConversation = true; Heartbeat(); }
+		else if (panel) { panel.Reset(); bShow = false; }
 	}
+
 
     ui void ShowIdleInst()
     {
