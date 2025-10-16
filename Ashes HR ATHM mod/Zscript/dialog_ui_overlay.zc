@@ -108,6 +108,7 @@ class DialogUIOverlay : StaticEventHandler
 
 	ui void ShowVoiceInst(String voice)
 	{
+// 		Console.Printf("\cg[VOX] voice='%s'", voice);
 		Ensure();
 		if (!panel) { bShow = false; return; }
 

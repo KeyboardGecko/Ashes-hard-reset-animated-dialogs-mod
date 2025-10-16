@@ -1,12 +1,13 @@
 // Helper class to read LANGUAGE_ANIM.txt and register clips
 
 class AnimRegistryLang : Object
-{
-    static String L(String key)
-    {
-        let s = StringTable.Localize(key);
-        return s ? s : "";
-    }
+{	
+	static String L(String key)
+	{
+		let s = StringTable.Localize(key);
+		return (s && s != key) ? s : "";  // <— ключ не найден → пусто
+	}
+
 
     static void SplitCSVNames(String src, Array<String> outArr)
     {
@@ -149,68 +150,82 @@ class AnimRegistryLang : Object
 			{
 				p.frames.Push(id);
 			}
-// 			else
-// 			{
-// 				Console.Printf("  MISSING: %s", texName);
-// 			}
 		}
 
 	}
 
+	static int ParseDecimalDigits(String digits)
+	{
+		int val = 0;
+		for (int i = 0; i < digits.Length(); i++)
+		{
+			int c = digits.ByteAt(i);
+			if (c < 48 || c > 57) break; // safety, но сюда не попадём — digits уже фильтрованы
+			val = val * 10 + (c - 48);
+		}
+		return val;
+	}
+	//new
 	static bool ParseLeadingLettersAndNumber(String s, String &letters, int &num)
 	{
-		letters = "";
-		num = -1;
+		letters = ""; num = -1;
 
 		int n = s.Length();
 		int i = 0;
 
-		// Собираем начальные буквы [A-Za-z]
+		// Буквенный префикс [A-Za-z]
 		while (i < n)
 		{
 			int c = s.ByteAt(i);
-			bool isAlpha = ((c >= 65 && c <= 90) || (c >= 97 && c <= 122)); // 'A'..'Z' / 'a'..'z'
+			bool isAlpha = ((c >= 65 && c <= 90) || (c >= 97 && c <= 122));
 			if (!isAlpha) break;
-
 			letters = letters .. s.Mid(i, 1);
 			i++;
 		}
 
-		// Далее — цифры [0-9]
+		// Цифры (всегда десятичные)
 		String digits = "";
 		while (i < n)
 		{
 			int c = s.ByteAt(i);
-			if (c < 48 || c > 57) break; // '0'..'9' = 48..57
-
+			if (c < 48 || c > 57) break;
 			digits = digits .. s.Mid(i, 1);
 			i++;
 		}
-
 		if (digits.Length() == 0) return false;
 
-		num = digits.ToInt();
+		// ВАЖНО: не ToInt(), а наш десятичный парсер
+		num = ParseDecimalDigits(digits);
 		return true;
 	}
+
 
 	// ANIMS_RANGE_MAP_LIST = "GN"
 	// ANIMS_RANGE_MAP_GN   = "1-50:GN1,51-100:GN2,101-150:GN3,151-200:GN4"
 	static String ResolveCharFromVoiceByRanges(String clear)
 	{
 		String letters; int number;
-		if (!ParseLeadingLettersAndNumber(clear, letters, number)) return "";
+		bool ok = ParseLeadingLettersAndNumber(clear, letters, number);
+		String lettersU = letters.MakeUpper();
+
+		// --- ключевые логи ввода/языка ---
+		String listStr = L("$ANIMS_RANGE_MAP_LIST");
+		String specStr = L("$ANIMS_RANGE_MAP_" .. lettersU);
+
+		if (!ok) return "";
 
 		Array<String> series;
-		SplitCSVNames(L("$ANIMS_RANGE_MAP_LIST"), series);
-		// ищем нужную серию по буквенной части
+		SplitCSVNames(listStr, series);
 		bool listed = false;
-		for (int i=0;i<series.Size();i++) { if (series[i] == letters) { listed = true; break; } }
-		if (!listed) return "";
+		for (int i=0;i<series.Size();i++)
+			if (series[i].MakeUpper() == lettersU) { listed = true; break; }
 
-		String spec = L("$ANIMS_RANGE_MAP_" .. letters);
-		if (spec.Length() == 0) return "";
+		if (!listed) {return ""; }
 
-		// spec: "1-50:GN1,51-100:GN2,..." — разобрать вручную
+		String spec = specStr;
+		if (spec.Length() == 0) {return ""; }
+
+		// разбор "1-5:GN1,6-8:GN2,..."
 		String cur = "";
 		int len = spec.Length();
 		Array<String> items;
@@ -218,29 +233,31 @@ class AnimRegistryLang : Object
 		{
 			String ch = spec.Mid(i,1);
 			if (ch == ",") { if (cur.Length()>0) { items.Push(cur); cur=""; } }
-			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n") { /*skip*/ }
+			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n") { /* skip */ }
 			else cur = cur .. ch;
 		}
 		if (cur.Length()>0) items.Push(cur);
 
+		String picked = "";
 		for (int k=0;k<items.Size();k++)
 		{
-			String it = items[k]; // "1-50:GN1"
+			String it = items[k]; // "1-5:GN1"
 			int colon = it.IndexOf(":");
-			if (colon < 0) continue;
-			String left = it.Left(colon);       // "1-50"
-			String who  = it.Mid(colon+1);      // "GN1"
+			if (colon < 0) {continue; }
+			String left = it.Left(colon);   // "1-5"
+			String who  = it.Mid(colon+1);  // "GN1"
 
 			int dash = left.IndexOf("-");
-			if (dash < 0) continue;
+			if (dash < 0) {continue; }
 			int a = left.Left(dash).ToInt();
 			int b = left.Mid(dash+1).ToInt();
 			if (a > b) { int t=a; a=b; b=t; }
 
-			if (number >= a && number <= b) return who;
-		}
+			bool hit = (number >= a && number <= b);
 
-		return "";
+			if (hit) { picked = who; break; }
+		}
+		return picked;
 	}
 
 	static String ResolveCharFromVoiceExact(String clear)
@@ -260,14 +277,17 @@ class AnimRegistryLang : Object
 
 	static String ResolveCharFromVoiceSmart(String clear)
 	{
-		String who = ResolveCharFromVoiceExact(clear);
+		String u = clear.MakeUpper();
+		String who = ResolveCharFromVoiceByRanges(u);
 		if (who.Length() > 0) return who;
 
-		who = ResolveCharFromVoiceByRanges(clear);
+		who = ResolveCharFromVoiceExact(u);
 		if (who.Length() > 0) return who;
 
-		return ResolveCharFromVoice(clear); // префиксная (как у тебя была)
+		who = ResolveCharFromVoice(u);
+		return who;
 	}
+
 
 	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
 	{
@@ -276,7 +296,7 @@ class AnimRegistryLang : Object
 
 		for (int ci = 0; ci < clips.Size(); ci++)
 		{
-			String clip = clips[ci];
+			String clip = clips[ci].MakeUpper();
 			String base = "$ANIMS_" .. who .. "_" .. clip;
 
 			String sF = L(base .. "_FRAMES");

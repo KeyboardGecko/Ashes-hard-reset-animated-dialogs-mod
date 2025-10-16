@@ -211,9 +211,11 @@ class PanelPlayer : Object
 
 	ui void EnsureCharacterForVoice(String voiceName)
 	{
+
 		String clear = (voiceName.RightIndexOf("/") >= 0) ? voiceName.Mid(voiceName.RightIndexOf("/") + 1) : voiceName;
 		String who = AnimRegistryLang.ResolveCharFromVoiceSmart(clear);
-// 		Console.Printf("voice=%s", voiceName);
+// 		Console.Printf("\cg[MAP] clear='%s' -> who='%s'", clear, who);
+
 
 		if (who.Length() == 0)
 		{
@@ -230,6 +232,7 @@ class PanelPlayer : Object
 		{
 			AnimRegistryLang.PreloadFor(self, who);
 			AnimRegistryLang.RegisterFor(self, who, true);
+// 			Console.Printf("\cg[REG] who='%s' Has('%s')=%d", who, who..".GN010", HasAnim(who..".GN010"));
 			loadedChars.Push(who);
 		}
 // 		Console.Printf("voice=%s clear=%s who=%s", voiceName, clear, who);
