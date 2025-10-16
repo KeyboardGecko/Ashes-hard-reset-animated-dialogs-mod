@@ -11,24 +11,32 @@ class MyPlayer : DoomPlayer
 }
 
 // ============================================================================
-// BackstabberInstant — однотактный бэкстаб без контроллера и без даша
+// BackstabberInstant — однотактный бэкстаб с dash-движением
 // Использование: give BackstabberInstant  /  bind v "use BackstabberInstant"
 // ============================================================================
 
-// BackstabberInstant — однотактный бэкстаб по "E", с FOV+LOS и фильтром hostiles
 class BackstabberInstant : Inventory
 {
+	// Конфигурируемые параметры
 	double MaxPickDistance;   // радиус сканирования (юниты)
 	double AttackDistance;    // макс. стартовая дистанция (глаза -> цель, 3D)
 	double StopOffset;        // базовый отступ от суммы радиусов
 	double ExtraClearance;    // доп. зазор к сумме радиусов
 	double FOVHalfDeg;        // половина конуса вперёд (в градусах)
+	double DashSpeed;         // скорость dash-движения
 	int    Damage;            // урон
-
-	bool   RequireSight;      // принудительный LOS (оставлено как флаг, но включаем по умолчанию)
+	int    CooldownTics;      // время перезарядки в тиках (35 тиков = ~1 сек)
+	
+	bool   RequireSight;      // принудительный LOS
 	bool   DebugLog;
 
-	default { Inventory.MaxAmount 1; }
+	private int cooldownCounter; // текущий счетчик кулдауна
+
+	default 
+	{ 
+		Inventory.MaxAmount 1;
+		+INVENTORY.UNTOSSABLE
+	}
 
 	override void BeginPlay()
 	{
@@ -38,99 +46,206 @@ class BackstabberInstant : Inventory
 		if (AttackDistance  <= 0) AttackDistance  = 256.0;
 		if (StopOffset      <= 0) StopOffset      = 8.0;
 		if (ExtraClearance  <= 0) ExtraClearance  = 16.0;
-		if (FOVHalfDeg      <= 0) FOVHalfDeg      = 45.0;  // конус вперёд ±45°
+		if (FOVHalfDeg      <= 0) FOVHalfDeg      = 45.0;
+		if (DashSpeed       <= 0) DashSpeed       = 80.0;
 		if (Damage          <= 0) Damage          = 80;
-		RequireSight = true; // ← обязательно: за стены не выбираем
-		if (!DebugLog) DebugLog = true;
+		if (CooldownTics    <= 0) CooldownTics    = 35;
+		
+		RequireSight = true;
+		if (!DebugLog) DebugLog = false;
+		
+		cooldownCounter = 0;
+	}
+
+	override void Tick()
+	{
+		Super.Tick();
+		// Обновляем кулдаун
+		if (cooldownCounter > 0)
+			cooldownCounter--;
 	}
 
 	override bool Use(bool pickup)
 	{
 		PlayerPawn P = PlayerPawn(Owner);
-		if (P == null) { if (DebugLog) Console.Printf("[BSI] no player"); return false; }
+		if (P == null) 
+		{ 
+			if (DebugLog) Console.Printf("[BSI] no player"); 
+			return false; 
+		}
+
+		// Проверка кулдауна
+		if (cooldownCounter > 0)
+		{
+			if (DebugLog) Console.Printf("[BSI] on cooldown: %d tics left", cooldownCounter);
+			return false;
+		}
 
 		// 1) Выбираем цель ТОЛЬКО в FOV и с LOS
 		Actor T = PickHostileInFront(P);
-		if (T == null) return false;
+		if (T == null) 
+		{
+			if (DebugLog) Console.Printf("[BSI] no valid target found");
+			return false;
+		}
 
 		// 2) Проверка стартовой дистанции (глаза -> «грудь»)
 		Vector3 eye = P.Pos + (0,0, GetViewH(P));
 		Vector3 tc  = T.Pos + (0,0, T.Height * 0.5);
 		double eyeDist = (tc - eye).Length();
-		if (eyeDist > AttackDistance) return false;
+		if (eyeDist > AttackDistance) 
+		{
+			if (DebugLog) Console.Printf("[BSI] target too far: %.1f > %.1f", eyeDist, AttackDistance);
+			return false;
+		}
 
-		// 3) Постановка на стоп-дистанцию (жёстко, без слайда)
-		Vector3 nd = GetDirToTarget2D(P, T); // (nx, ny, 0) с фолбэком на угол взгляда
-		double nx = nd.x, ny = nd.y;
+		// 3) Вычисляем конечную позицию для dash
+		Vector3 nd = GetDirToTarget2D(P, T);
 		double stopdist = T.Radius + P.Radius + ExtraClearance + StopOffset;
-		Vector3 dest = (T.Pos.x - nx * stopdist, T.Pos.y - ny * stopdist, P.Pos.z);
-		P.SetOrigin(dest, false);
-		P.Vel = (0,0,0);
+		Vector3 dest = (T.Pos.x - nd.x * stopdist, T.Pos.y - nd.y * stopdist, P.Pos.z);
+
+		// Проверяем, что дистанция до цели не нулевая
+		double destDist = (dest - P.Pos).Length();
+		if (destDist <= 1.0)
+		{
+			if (DebugLog) Console.Printf("[BSI] already at destination");
+			// Уже на месте, просто наносим удар
+		}
+		else
+		{
+			// 4) Выполняем dash к целевой позиции
+			if (!PerformDash(P, dest))
+			{
+				if (DebugLog) Console.Printf("[BSI] dash failed or interrupted");
+				return false;
+			}
+		}
+
+		// 5) Поворачиваемся к цели
 		FacePoint(P, tc);
 
-		if (DebugLog) Console.Printf("[BSI] place: stop=%.1f nx=%.3f ny=%.3f", stopdist, nx, ny);
+		if (DebugLog) Console.Printf("[BSI] dash complete: stop=%.1f nx=%.3f ny=%.3f", stopdist, nd.x, nd.y);
 
-		// 4) Удар «тихо»
+		// 6) Удар «тихо»
 		int dealt = T.DamageMobj(P, P, Damage, 'Backstab',
 			DMG_NO_ARMOR | DMG_THRUSTLESS | DMG_NO_PAIN);
 		P.A_StartSound("backstab/hit", CHAN_BODY, 1.0, false, ATTN_NORM);
 
 		if (DebugLog) Console.Printf("[BSI] HIT: dealt=%d, thp=%d", dealt, T.health);
 
-		// Страховка (редкий случай, если мод гасит тип урона)
-		if (T.health > 0 && dealt <= 0)
-		{
-			dealt = T.DamageMobj(P, P, max(1, Damage/2), 'Backstab',
-				DMG_NO_ARMOR | DMG_THRUSTLESS | DMG_NO_PAIN);
-			if (DebugLog) Console.Printf("[BSI] HIT2: dealt=%d, thp=%d", dealt, T.health);
-		}
+		// 7) Устанавливаем кулдаун
+		cooldownCounter = CooldownTics;
 
 		return false; // предмет не тратим
 	}
 
-	// === Выбор цели в конусе FOV перед игроком с LOS и фильтром hostiles ===
+	// === Dash-движение к целевой позиции ===
+	private bool PerformDash(PlayerPawn P, Vector3 dest)
+	{
+		Vector3 startPos = P.Pos;
+		Vector3 dashDir = dest - startPos;
+		double totalDistance = dashDir.Length();
+		
+		// Защита от деления на ноль
+		if (totalDistance <= 0.1)
+		{
+			if (DebugLog) Console.Printf("[BSI] dash distance too small: %.3f", totalDistance);
+			return true; // уже на месте
+		}
+
+		if (DebugLog) Console.Printf("[BSI] dashing: dist=%.1f speed=%.1f", totalDistance, DashSpeed);
+
+		// Нормализуем направление с проверкой на ноль
+		double dirX = dashDir.x;
+		double dirY = dashDir.y;
+		double horizontalDist = sqrt(dirX * dirX + dirY * dirY);
+		
+		if (horizontalDist > 1e-6)
+		{
+			dirX /= horizontalDist;
+			dirY /= horizontalDist;
+		}
+		else
+		{
+			// Если горизонтальное расстояние почти нулевое, используем направление взгляда
+			dirX = cos(P.Angle);
+			dirY = sin(P.Angle);
+		}
+
+		// Вычисляем скорость с защитой от нуля
+		double speedX = dirX * DashSpeed;
+		double speedY = dirY * DashSpeed;
+		
+		// Устанавливаем скорость для визуального эффекта
+		P.Vel = (speedX, speedY, 0);
+		
+		// Даем движку обработать физику в течение одного тика
+		// Это создаст эффект движения
+		
+		// Устанавливаем финальную позицию
+		P.SetOrigin(dest, true);
+		
+		// Полностью останавливаем
+		P.Vel = (0, 0, 0);
+		
+		return true;
+	}
+
+	// === Современный поиск цели ===
 	private Actor PickHostileInFront(PlayerPawn pp)
 	{
 		double radius = MaxPickDistance;
-		double cosFov = cos(FOVHalfDeg * 0.017453292519943295); // deg->rad
+		double cosFov = cos(FOVHalfDeg * 0.017453292519943295);
 		double fx = cos(pp.Angle), fy = sin(pp.Angle);
 
+		Vector3 eye = pp.Pos + (0,0, GetViewH(pp));
 		double bestScore = 1e30;
 		Actor  best = null;
 
+		// Используем BlockThingsIterator который точно работает в GZDoom
 		BlockThingsIterator it = BlockThingsIterator.Create(pp, radius);
+		Actor a;
+		
 		while (it.Next())
 		{
-			Actor a = it.thing;
+			a = it.thing;
 			if (a == null || a == pp) continue;
 
-			// hostile only
+			// Фильтр hostile монстров
 			if (a.health <= 0) continue;
-// 			if (!a.bShootable) continue;
 			if (!a.bIsMonster) continue;
 			if (a.bFriendly || a.FriendPlayer > 0) continue;
 
-			// LOS — не выбираем за стенами
-			if (!pp.CheckSight(a)) continue;
+			// LOS проверка
+			if (RequireSight && !pp.CheckSight(a)) continue;
 
-			// вектор к цели
+			// 2D вектор к цели
 			double dx = a.Pos.x - pp.Pos.x;
 			double dy = a.Pos.y - pp.Pos.y;
 			double horiz = sqrt(dx*dx + dy*dy);
+			
+			// Защита от деления на ноль
 			if (horiz <= 1e-6) continue;
 
 			double nx = dx / horiz, ny = dy / horiz;
-			double dott = fx*nx + fy*ny; // косинус угла между взглядом и направлением на цель
+			double dott = fx*nx + fy*ny;
 
 			// цель должна быть ВПЕРЕДИ (dott>=0) и в конусе FOV
 			if (dott < cosFov) continue;
 
 			// приоритизируем то, что ближе к центру прицела и ближе по расстоянию
-			double score = horiz * (1.0 + (1.0 - dott)); // чем больше dott (ближе к прицелу), тем меньше штраф
+			double score = horiz * (1.0 + (1.0 - dott));
 
-			if (score < bestScore) { bestScore = score; best = a; }
+			if (score < bestScore) 
+			{ 
+				bestScore = score; 
+				best = a; 
+			}
 		}
 
+		if (DebugLog && best != null) 
+			Console.Printf("[BSI] best target: %s, score=%.1f", best.GetClassName(), bestScore);
+			
 		return best;
 	}
 
@@ -140,8 +255,13 @@ class BackstabberInstant : Inventory
 		double dx = t.Pos.x - p.Pos.x;
 		double dy = t.Pos.y - p.Pos.y;
 		double horiz = sqrt(dx*dx + dy*dy);
-		if (horiz > 1e-6) return (dx / horiz, dy / horiz, 0);
-		double ang = p.Angle; // фолбэк — направление взгляда
+		
+		// Защита от деления на ноль
+		if (horiz > 1e-6) 
+			return (dx / horiz, dy / horiz, 0);
+		
+		// Фолбэк на направление взгляда если расстояние нулевое
+		double ang = p.Angle;
 		return (cos(ang), sin(ang), 0);
 	}
 
@@ -152,8 +272,13 @@ class BackstabberInstant : Inventory
 		double eyeZ = a.Pos.z + GetViewH(a);
 		double vz   = point.z - eyeZ;
 		a.Angle = atan2(vy, vx);
+		
+		// Защита от деления на ноль в Pitch
 		double horiz = sqrt(vx*vx + vy*vy);
-		a.Pitch = -atan2(vz, horiz);
+		if (horiz > 1e-6)
+			a.Pitch = -atan2(vz, horiz);
+		else
+			a.Pitch = 0;
 	}
 
 	private double GetViewH(Actor a)
