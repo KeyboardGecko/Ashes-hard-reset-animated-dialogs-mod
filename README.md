@@ -1,6 +1,6 @@
 # [**Ashes: Hard Reset**](https://www.moddb.com/mods/ashes-2063) talking heads mod
 
-An enhancemed mod expanding the standard Strife dialogue system for **GZDoom**.
+An enhancement mod expanding the standard Strife dialogue system of **GZDoom** for Ashes:HR.
 
 ## ✨ Mod features
 - Animations for all dialogue portraits, similar to fallout 1 and 2.
