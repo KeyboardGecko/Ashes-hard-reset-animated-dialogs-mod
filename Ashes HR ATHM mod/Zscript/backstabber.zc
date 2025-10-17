@@ -32,6 +32,12 @@ class BackstabberInstant : Inventory
 	bool   RequireBackPosition; // требовать позицию сзади цели
 	bool   DebugLog;
 
+	private bool    isDashing;
+	private Actor   dashTarget;
+	private Vector3 dashDest;
+	private int     dashTicksLeft;   // защита от застревания
+	private Vector3 lastPos;         // чтобы понимать, двигаемся ли
+
 	private int cooldownCounter; // текущий счетчик кулдауна
 
 	default 
@@ -45,13 +51,13 @@ class BackstabberInstant : Inventory
 	{
 		Super.BeginPlay();
 		// дефолты
-		if (MaxPickDistance <= 0) MaxPickDistance = 384.0;
-		if (AttackDistance  <= 0) AttackDistance  = 256.0;
+		if (MaxPickDistance <= 0) MaxPickDistance = 128.0;
+		if (AttackDistance  <= 0) AttackDistance  = 64.0;
 		if (StopOffset      <= 0) StopOffset      = 8.0;
 		if (ExtraClearance  <= 0) ExtraClearance  = 16.0;
 		if (FOVHalfDeg      <= 0) FOVHalfDeg      = 60.0;
 		if (BackConeHalfDeg <= 0) BackConeHalfDeg = 45.0;
-		if (DashSpeed       <= 0) DashSpeed       = 80.0;
+		if (DashSpeed       <= 0) DashSpeed       = 60.0;
 		if (Damage          <= 0) Damage          = 80;
 		if (CooldownTics    <= 0) CooldownTics    = 300;
 		
@@ -63,14 +69,80 @@ class BackstabberInstant : Inventory
 		
 	}
 
-	// ЗАМЕНИ Tick() на DoEffect():
-	override void DoEffect()
+	override void Tick()
 	{
-		Super.DoEffect();
-		// Обновляем кулдаун
-		if (cooldownCounter > 0)
-			cooldownCounter--;
+		Super.Tick();
+
+		// кулдаун
+		if (cooldownCounter > 0) cooldownCounter--;
+
+		// ведём даш
+		if (!isDashing) return;
+
+		PlayerPawn P = PlayerPawn(Owner);
+		if (P == null) { isDashing = false; return; }
+
+		// цель жива?
+		if (dashTarget == null || dashTarget.health <= 0)
+		{
+			P.Vel = (0,0,0);
+			isDashing = false;
+			return;
+		}
+
+		// обновим целевую точку относительно текущего положения цели (держим стоп-дистанцию)
+		double dx = dashTarget.Pos.x - P.Pos.x;
+		double dy = dashTarget.Pos.y - P.Pos.y;
+		double horiz = sqrt(dx*dx + dy*dy);
+		double nx = (horiz > 1e-6) ? dx/horiz : cos(P.Angle);
+		double ny = (horiz > 1e-6) ? dy/horiz : sin(P.Angle);
+
+		double stopdist = dashTarget.Radius + P.Radius + ExtraClearance + StopOffset;
+		dashDest = (dashTarget.Pos.x - nx*stopdist, dashTarget.Pos.y - ny*stopdist, P.Pos.z);
+
+		// насколько осталось по XY
+		double rdx = dashDest.x - P.Pos.x;
+		double rdy = dashDest.y - P.Pos.y;
+		double remain = sqrt(rdx*rdx + rdy*rdy);
+
+		bool almostStationary = ((P.Pos - lastPos).Length() < 0.2);
+
+		// финиш даша -> постановка + удар
+		if (remain <= max(2.0, DashSpeed*0.5) || dashTicksLeft <= 0 || almostStationary)
+		{
+			// финальная постановка со слайдом
+			P.SetOrigin(dashDest, true);
+			P.Vel = (0,0,0);
+
+			// удар
+			Vector3 chest = dashTarget.Pos + (0,0, dashTarget.Height * 0.5);
+			FacePoint(P, chest);
+			int dealt = dashTarget.DamageMobj(P, P, Damage, 'Backstab',
+				DMG_NO_ARMOR | DMG_THRUSTLESS | DMG_NO_PAIN);
+			P.A_StartSound("backstab/hit", CHAN_BODY, 1.0, false, ATTN_NORM);
+
+			if (DebugLog) Console.Printf("[BSI] dash hit: dealt=%d, thp=%d", dealt, dashTarget.health);
+
+			cooldownCounter = CooldownTics;
+			isDashing = false;
+			return;
+		}
+
+		// продолжаем скользить к точке
+		double dirx = rdx / remain;
+		double diry = rdy / remain;
+		P.Vel = (dirx * DashSpeed, diry * DashSpeed, 0);
+
+		lastPos = P.Pos;
+		dashTicksLeft--;
 	}
+// 	override void DoEffect()
+// 	{
+// 		Super.DoEffect();
+// 		// Обновляем кулдаун
+// 		if (cooldownCounter > 0)
+// 			cooldownCounter--;
+// 	}
 
 	override bool Use(bool pickup)
 	{
@@ -80,6 +152,8 @@ class BackstabberInstant : Inventory
 			if (DebugLog) Console.Printf("[BSI] no player"); 
 			return false; 
 		}
+		
+		Console.Printf("[BSI] activate: cd=%d", cooldownCounter);
 
 		// Проверка кулдауна
 		if (cooldownCounter > 0)
@@ -125,11 +199,19 @@ class BackstabberInstant : Inventory
 		else
 		{
 			// 5) Выполняем dash к целевой позиции
-			if (!PerformDash(P, dest))
+// 			if (!PerformDash(P, dest))
+// 			{
+// 				if (DebugLog) Console.Printf("[BSI] dash failed or interrupted");
+// 				return false;
+// 			}
+			if (!PerformDash(P, T, dest))
 			{
 				if (DebugLog) Console.Printf("[BSI] dash failed or interrupted");
 				return false;
 			}
+			return false; // дальше Tick() дослайдит и ударит
+
+
 		}
 
 		// 6) Поворачиваемся к цели
@@ -319,51 +401,78 @@ class BackstabberInstant : Inventory
 	}
 
 	// === Dash-движение к целевой позиции ===
-	private bool PerformDash(PlayerPawn P, Vector3 dest)
+// 	private bool PerformDash(PlayerPawn P, Vector3 dest)
+// 	{
+// 		Vector3 startPos = P.Pos;
+// 		Vector3 dashDir = dest - startPos;
+// 		double totalDistance = dashDir.Length();
+		
+// 		// Защита от деления на ноль
+// 		if (totalDistance <= 0.1)
+// 		{
+// 			if (DebugLog) Console.Printf("[BSI] dash distance too small: %.3f", totalDistance);
+// 			return true; // уже на месте
+// 		}
+
+// 		if (DebugLog) Console.Printf("[BSI] dashing: dist=%.1f speed=%.1f", totalDistance, DashSpeed);
+
+// 		// Нормализуем направление с проверкой на ноль
+// 		double dirX = dashDir.x;
+// 		double dirY = dashDir.y;
+// 		double horizontalDist = sqrt(dirX * dirX + dirY * dirY);
+		
+// 		if (horizontalDist > 1e-6)
+// 		{
+// 			dirX /= horizontalDist;
+// 			dirY /= horizontalDist;
+// 		}
+// 		else
+// 		{
+// 			// Если горизонтальное расстояние почти нулевое, используем направление взгляда
+// 			dirX = cos(P.Angle);
+// 			dirY = sin(P.Angle);
+// 		}
+
+// 		// Вычисляем скорость с защитой от нуля
+// 		double speedX = dirX * DashSpeed;
+// 		double speedY = dirY * DashSpeed;
+		
+// 		// Устанавливаем скорость для визуального эффекта
+// 		P.Vel = (speedX, speedY, 0);
+		
+// 		// Устанавливаем финальную позицию
+// 		P.SetOrigin(dest, true);
+		
+// 		// Полностью останавливаем
+// 		P.Vel = (0, 0, 0);
+		
+// 		return true;
+// 	}
+// Запускает даш с реальным слайдом; удар выполнится в DoEffect при финише.
+	private bool PerformDash(PlayerPawn P, Actor T, Vector3 dest)
 	{
-		Vector3 startPos = P.Pos;
-		Vector3 dashDir = dest - startPos;
-		double totalDistance = dashDir.Length();
-		
-		// Защита от деления на ноль
-		if (totalDistance <= 0.1)
-		{
-			if (DebugLog) Console.Printf("[BSI] dash distance too small: %.3f", totalDistance);
-			return true; // уже на месте
-		}
+		if (P == null || T == null || T.health <= 0) return false;
 
-		if (DebugLog) Console.Printf("[BSI] dashing: dist=%.1f speed=%.1f", totalDistance, DashSpeed);
+		isDashing  = true;
+		dashTarget = T;
+		dashDest   = dest;
+		lastPos    = P.Pos;
 
-		// Нормализуем направление с проверкой на ноль
-		double dirX = dashDir.x;
-		double dirY = dashDir.y;
-		double horizontalDist = sqrt(dirX * dirX + dirY * dirY);
-		
-		if (horizontalDist > 1e-6)
-		{
-			dirX /= horizontalDist;
-			dirY /= horizontalDist;
-		}
-		else
-		{
-			// Если горизонтальное расстояние почти нулевое, используем направление взгляда
-			dirX = cos(P.Angle);
-			dirY = sin(P.Angle);
-		}
+		// таймаут ~ расстояние/скорость + запас
+		Vector3 dv = dest - P.Pos;
+		double d2d = sqrt(dv.x*dv.x + dv.y*dv.y);
+		int est    = int(ceil(d2d / max(1.0, DashSpeed))) + 6;
+		dashTicksLeft = min(35, max(6, est));
 
-		// Вычисляем скорость с защитой от нуля
-		double speedX = dirX * DashSpeed;
-		double speedY = dirY * DashSpeed;
-		
-		// Устанавливаем скорость для визуального эффекта
-		P.Vel = (speedX, speedY, 0);
-		
-		// Устанавливаем финальную позицию
-		P.SetOrigin(dest, true);
-		
-		// Полностью останавливаем
-		P.Vel = (0, 0, 0);
-		
+		// стартовая скорость по XY
+		double dx = dest.x - P.Pos.x;
+		double dy = dest.y - P.Pos.y;
+		double horiz = sqrt(dx*dx + dy*dy);
+		double vx = (horiz > 1e-6) ? (dx/horiz) * DashSpeed : cos(P.Angle) * DashSpeed;
+		double vy = (horiz > 1e-6) ? (dy/horiz) * DashSpeed : sin(P.Angle) * DashSpeed;
+		P.Vel = (vx, vy, 0);
+
+		if (DebugLog) Console.Printf("[BSI] dash start: dist=%.1f ticks=%d", d2d, dashTicksLeft);
 		return true;
 	}
 
