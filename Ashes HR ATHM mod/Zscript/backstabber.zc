@@ -2,7 +2,7 @@
 // zscript/backstabber.zc — Silent takedown / dash backstab
 // ============================================================================
 
-class MyPlayer : DoomPlayer
+class PlayerWithBackstab : DoomPlayer
 {
 	default
 	{
