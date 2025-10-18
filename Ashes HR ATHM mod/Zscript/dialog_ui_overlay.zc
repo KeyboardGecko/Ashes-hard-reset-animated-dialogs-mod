@@ -109,8 +109,13 @@ class DialogUIOverlay : StaticEventHandler
         // --- Единая точка запуска звука+анимации ---
         if (hasPending && level.time >= pendingStartTic)
         {
+			bool allowVoice = true;
+			let cvOn = CVar.FindCVar('jm_voice_enable');
+			if (cvOn) {
+				allowVoice = cvOn.GetBool();
+			}
             // 1) звук в этот же тик
-            if (pendingNpc)
+            if (allowVoice && pendingNpc)
             {
                 int sflags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
                 pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);

@@ -1,15 +1,15 @@
 [enu default]
 JM_OPT_ANIM_TITLE   = "Dialogue Settings";
-JM_OPT_ANIM_ENABLE  = "Show animation panel";
+JM_OPT_ANIM_ENABLE  = "Talking heads panel";
 JM_OPT_ANIM_SUBMENU = "Dialogue Settings";
-JM_OPT_ANIM_PLAY = "Play animation";
-JM_VOICE_PLAY = "Voiceover enabled";
+JM_OPT_ANIM_PLAY = "Animations";
+JM_VOICE_PLAY = "Voiceover";
 JM_VOICE_VOL = "Voice volume";
 JM_SIZE_TINY = "Tiny";
 JM_SIZE_SMALL = "Small";
 JM_SIZE_NORMAL = "Normal";
 JM_SIZE_BIG = "Big";
-JM_OPT_WIN_SIZE = "Dialogue window size";
+JM_OPT_WIN_SIZE = "Panel size";
 
 // [ru default]
 // JM_OPT_ANIM_TITLE   = "Настройки диалогов";
