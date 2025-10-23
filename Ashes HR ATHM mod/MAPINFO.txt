@@ -2,7 +2,5 @@ GameInfo {
     DefaultConversationMenuClass = "NewConversationMenu"
     AddEventHandlers = "DialogUIOverlay"
 	AddEventHandlers = "VoiceHijack"
-// 	AddEventHandlers = "DuckBridge"
-// 	PlayerClasses = "PlayerWithBackstab"
+// 	PlayerClasses = "Walker_BS"
 }
-

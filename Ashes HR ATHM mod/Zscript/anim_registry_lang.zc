@@ -156,15 +156,26 @@ class AnimRegistryLang : Object
 
 	static int ParseDecimalDigits(String digits)
 	{
-		int val = 0;
-		for (int i = 0; i < digits.Length(); i++)
+		int val = 0.0;
+		for (int i = 0; i < int(digits.Length()); i++)
 		{
 			int c = digits.ByteAt(i);
-			if (c < 48 || c > 57) break; // safety, но сюда не попадём — digits уже фильтрованы
+			if (c < 48.0 || c > 57.0) break; // safety, но сюда не попадём — digits уже фильтрованы
 			val = val * 10 + (c - 48);
 		}
 		return val;
 	}
+// 	static int ParseDecimalDigits(String digits)
+// 	{
+// 		int val = 0.0;
+// 		for (int i = 0; i < digits.Length(); i++)
+// 		{
+// 			int c = digits.ByteAt(i);
+// 			if (c < 48.0 || c > 57.0) break; // safety, но сюда не попадём — digits уже фильтрованы
+// 			val = val * 10 + (c - 48);
+// 		}
+// 		return val;
+// 	}
 	//new
 	static bool ParseLeadingLettersAndNumber(String s, String &letters, int &num)
 	{

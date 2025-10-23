@@ -1,0 +1,24 @@
+// actors/walker_bs.txt
+ACTOR Walker_BS : Walker replaces Walker
+{
+  Player.DisplayName "Walker [BS]"  // временно для проверки
+  Player.StartItem "LeverAction"
+  Player.StartItem "PolicePistol"
+  Player.StartItem "Crowbar_BS"
+  Player.StartItem "Holsterweapon"
+  Player.StartItem "NineMilammo", 30
+  Player.StartItem "Pistolloaded", 11
+  Player.StartItem "crossbowloaded", 1
+  Player.StartItem "Doubleloaded", 1
+  Player.StartItem "Mgloaded", 30
+  Player.StartItem "Shotgunammo", 12
+  Player.StartItem "grizzlyfired", 7
+  Player.StartItem "Hunterchambered", 2
+  Player.StartItem "Hunterloaded", 2
+  Player.StartItem "batteries", 300
+  Player.StartItem "BatteryReload", 2
+  // backstab:
+  Player.StartItem "Backstabber"
+  Player.StartItem "BackstabberBinder"
+
+}
