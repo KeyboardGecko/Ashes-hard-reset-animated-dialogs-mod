@@ -2,5 +2,4 @@ GameInfo {
     DefaultConversationMenuClass = "NewConversationMenu"
     AddEventHandlers = "DialogUIOverlay"
 	AddEventHandlers = "VoiceHijack"
-// 	PlayerClasses = "Walker_BS"
 }

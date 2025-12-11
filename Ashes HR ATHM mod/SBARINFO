@@ -1,4 +1,0 @@
-// StatusBar Normal
-{
-	DrawImage "BSICON", (160, 110), Center, WhenInvItem "BackstabberReady";
-}
