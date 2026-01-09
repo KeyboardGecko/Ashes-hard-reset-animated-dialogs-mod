@@ -12,7 +12,7 @@ An enhancement mod expanding the standard Strife dialogue system of **GZDoom/UZD
 
 ## 👀 In this repo you'll find
 - .PK3-file to use with latest Ashes: HR.
-- Animation track files and frames.
+- The same exact .pk3, but unpacked.
 - Animation making tool.
 
 ---
