@@ -317,13 +317,21 @@ class DialogUIOverlay : StaticEventHandler
 	ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
 	{
 		Ensure();
-		pendingNpc  = npc;
-		pendingVoice= voice;
-		pendingVol  = clamp(vol, 0.0, 1.0);
-		pendingChan = chan;
-		pendingStartTic = level.time + SyncDelayTics();
+		pendingNpc   = npc;
+		pendingVoice = voice;
+		pendingVol   = clamp(vol, 0.0, 1.0);
+		pendingChan  = chan;
+
 		hasPending = (npc != null) && (voice.Length() > 0);
+		pendingStartTic = level.time + SyncDelayTics();
+
+		// PREWARM
+		if (hasPending && panel)
+		{
+			panel.EnsureCharacterForVoice(voice); 
+		}
 	}
+
 	
 	ui static void ScheduleSyncStartStatic(Actor npc, String voice, double vol, int chan = CHAN_5)
 	{
@@ -353,13 +361,13 @@ class DialogUIOverlay : StaticEventHandler
 			let cvOn = CVar.FindCVar('jm_voice_enable');
 			if (cvOn) allowVoice = cvOn.GetBool();
 
+			ShowVoiceInst(pendingVoice);
+
 			if (allowVoice && pendingNpc)
 			{
-				int sflags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
 				pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);
 			}
 
-			ShowVoiceInst(pendingVoice);
 			hasPending = false;
 		}
 
