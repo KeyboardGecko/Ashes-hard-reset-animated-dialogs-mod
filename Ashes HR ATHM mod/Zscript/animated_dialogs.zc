@@ -1,77 +1,104 @@
-// Helper class to read LANGUAGE_ANIM.txt and register clips
+// ============================================================
+//  Dialog animation system for GZDoom (ZScript)
+// ============================================================
 
+
+// Helper class: parsing + LANGUAGE access + register
 class AnimRegistryLang : Object
-{	
+{
+	// Localization helper
 	static String L(String key)
 	{
 		let s = StringTable.Localize(key);
-		return (s && s != key) ? s : "";  // <— ключ не найден → пусто
+		return (s && s != key) ? s : "";
 	}
 
+	// ---------------------------
+	// Fast token splitters (CSV/space/;/\t etc)
+	// Avoids cur = cur .. ch (O(n^2))
+	// ---------------------------
+	static bool IsSepByte(int c)
+	{
+		return (c == 44 /*,*/ || c == 59 /*;*/ ||
+				c == 32 /*space*/ || c == 9 /*\t*/ ||
+				c == 13 /*\r*/ || c == 10 /*\n*/);
+	}
 
-    static void SplitCSVNames(String src, Array<String> outArr)
-    {
-        outArr.Clear();
-        String cur = "";
-        int len = int(src.Length());
-        for (int i = 0; i < len; i++)
-        {
-            String ch = src.Mid(i, 1);  // I KNOW IT'S DEPRECATED SHUT UP
-            bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
-            if (sep)
-            {
-                if (cur.Length() > 0) { outArr.Push(cur); cur = ""; }
-            }
-            else
-            {
-                cur = cur .. ch; 
-            }
-        }
-        if (cur.Length() > 0) outArr.Push(cur);
-    }
+	static void SplitCSVNames(String src, Array<String> outArr)
+	{
+		outArr.Clear();
+		int len = src.Length();
+		int start = -1;
 
-    static int ParseIntSafe(String s, int def)
-    {
-        int sign = 1, i = 0, val = 0;
-        if (s.Length() == 0) return def;
+		for (int i = 0; i <= len; i++)
+		{
+			bool end = (i == len);
+			int c = end ? 0 : src.ByteAt(i);
+			bool sep = end || IsSepByte(c);
 
-        String first = s.Mid(0,1); 
-        if (first == "-" || first == "+")
-        {
-            sign = (first == "-") ? -1 : 1;
-            i = 1;
-        }
+			if (!sep)
+			{
+				if (start < 0) start = i;
+			}
+			else
+			{
+				if (start >= 0)
+				{
+					outArr.Push(src.Mid(start, i - start));
+					start = -1;
+				}
+			}
+		}
+	}
 
-        int len = int(s.Length());
-        for (; i < len; i++)
-        {
-            int c = int(s.ByteAt(i));  
-            if (c < 48 || c > 57) return def;
-            val = val * 10 + (c - 48);
-        }
-        return sign * val;
-    }
+	static int ParseIntSafe(String s, int def)
+	{
+		int sign = 1, i = 0, val = 0;
+		if (s.Length() == 0) return def;
 
-    static void SplitCSVInts(String src, Array<int> outArr)
-    {
-        outArr.Clear();
-        String cur = "";
-        int len = int(src.Length());
-        for (int i = 0; i < len; i++)
-        {
-            String ch = src.Mid(i, 1);
-            bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
-            if (sep)
-            {
-                if (cur.Length() > 0) { outArr.Push(ParseIntSafe(cur, 0)); cur = ""; }
-            }
-            else
-            {
-                cur = cur .. ch;
-            }
-        }
-        if (cur.Length() > 0) outArr.Push(ParseIntSafe(cur, 0));
-    }
+		int c0 = s.ByteAt(0);
+		if (c0 == 45 /*-*/ || c0 == 43 /*+*/)
+		{
+			sign = (c0 == 45) ? -1 : 1;
+			i = 1;
+		}
+
+		int len = s.Length();
+		for (; i < len; i++)
+		{
+			int c = s.ByteAt(i);
+			if (c < 48 || c > 57) return def;
+			val = val * 10 + (c - 48);
+		}
+		return sign * val;
+	}
+
+	static void SplitCSVInts(String src, Array<int> outArr)
+	{
+		outArr.Clear();
+		int len = src.Length();
+		int start = -1;
+
+		for (int i = 0; i <= len; i++)
+		{
+			bool end = (i == len);
+			int c = end ? 0 : src.ByteAt(i);
+			bool sep = end || IsSepByte(c);
+
+			if (!sep)
+			{
+				if (start < 0) start = i;
+			}
+			else
+			{
+				if (start >= 0)
+				{
+					outArr.Push(ParseIntSafe(src.Mid(start, i - start), 0));
+					start = -1;
+				}
+			}
+		}
+	}
 
 	static double ParseFloatSafe(String s, double def)
 	{
@@ -82,83 +109,51 @@ class AnimRegistryLang : Object
 	static void SplitCSVFloats(String src, Array<double> outArr)
 	{
 		outArr.Clear();
-		String cur = "";
-		int len = int(src.Length());
-		for (int i = 0; i < len; i++)
+		int len = src.Length();
+		int start = -1;
+
+		for (int i = 0; i <= len; i++)
 		{
-			String ch = src.Mid(i, 1);
-			bool sep = (ch == "," || ch == " " || ch == "\t" || ch == ";");
-			if (sep)
+			bool end = (i == len);
+			int c = end ? 0 : src.ByteAt(i);
+			bool sep = end || IsSepByte(c);
+
+			if (!sep)
 			{
-				if (cur.Length() > 0) 
+				if (start < 0) start = i;
+			}
+			else
+			{
+				if (start >= 0)
 				{
-					outArr.Push(ParseFloatSafe(cur, 0.0));
-					cur = "";
+					outArr.Push(ParseFloatSafe(src.Mid(start, i - start), 0.0));
+					start = -1;
 				}
 			}
-			else cur = cur .. ch;
 		}
-		if (cur.Length() > 0) outArr.Push(ParseFloatSafe(cur, 0.0));
 	}
 
-    static bool ParseBool(String s)
-    {
-        s = s.MakeLower();
-        return (s == "1" || s == "true" || s == "yes" || s == "on");
-    }
-
-    static bool StartsWithIgnoreCase(String s, String pref)
-    {
-        String su = s.MakeUpper();
-        String pu = pref.MakeUpper();
-        if (pu.Length() > su.Length()) return false;
-        return su.Left(pu.Length()) == pu;
-    }
-
-    static String ResolveCharFromVoice(String voiceName)
-    {
-        Array<String> prefs;
-        SplitCSVNames(L("$ANIMS_MAP_LIST"), prefs);
-        for (int i = 0; i < prefs.Size(); i++)
-        {
-            String pref = prefs[i];
-            if (StartsWithIgnoreCase(voiceName, pref))
-            {
-                String who = L("$ANIMS_MAP_" .. pref);
-                if (who.Length() > 0) return who;
-            }
-        }
-        return "";
-    }
-
-    // --- UI context methods---
-
-    // character preload
-	static ui void PreloadFor(PanelPlayer p, String who)
+	static bool ParseBool(String s)
 	{
-		Array<String> names;
-		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
+		s = s.MakeLower();
+		return (s == "1" || s == "true" || s == "yes" || s == "on");
+	}
 
-		for (int i = 0; i < names.Size(); i++)
-		{
-			String texName = names[i];
-			TextureID id = TexMan.CheckForTexture(texName);
-
-			if (id.IsValid())
-			{
-				p.frames.Push(id);
-			}
-		}
-
+	static bool StartsWithIgnoreCase(String s, String pref)
+	{
+		String su = s.MakeUpper();
+		String pu = pref.MakeUpper();
+		if (pu.Length() > su.Length()) return false;
+		return su.Left(pu.Length()) == pu;
 	}
 
 	static int ParseDecimalDigits(String digits)
 	{
-		int val = 0.0;
+		int val = 0;
 		for (int i = 0; i < int(digits.Length()); i++)
 		{
 			int c = digits.ByteAt(i);
-			if (c < 48.0 || c > 57.0) break; // for safety
+			if (c < 48 || c > 57) break;
 			val = val * 10 + (c - 48);
 		}
 		return val;
@@ -194,96 +189,28 @@ class AnimRegistryLang : Object
 		return true;
 	}
 
-
-	// ANIMS_RANGE_MAP_LIST = "GN"
-	// ANIMS_RANGE_MAP_GN   = "1-50:GN1,51-100:GN2,101-150:GN3,151-200:GN4"
-	static String ResolveCharFromVoiceByRanges(String clear)
+	// character preload
+	static ui void PreloadFor(PanelPlayer p, String who)
 	{
-		String letters; int number;
-		bool ok = ParseLeadingLettersAndNumber(clear, letters, number);
-		String lettersU = letters.MakeUpper();
+		Array<String> names;
+		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
 
-		// --- ключевые логи ввода/языка ---
-		String listStr = L("$ANIMS_RANGE_MAP_LIST");
-		String specStr = L("$ANIMS_RANGE_MAP_" .. lettersU);
-
-		if (!ok) return "";
-
-		Array<String> series;
-		SplitCSVNames(listStr, series);
-		bool listed = false;
-		for (int i=0;i<series.Size();i++)
-			if (series[i].MakeUpper() == lettersU) { listed = true; break; }
-
-		if (!listed) {return ""; }
-
-		String spec = specStr;
-		if (spec.Length() == 0) {return ""; }
-
-		// разбор "1-5:GN1,6-8:GN2,..."
-		String cur = "";
-		int len = spec.Length();
-		Array<String> items;
-		for (int i=0;i<len;i++)
+		for (int i = 0; i < names.Size(); i++)
 		{
-			String ch = spec.Mid(i,1);
-			if (ch == ",") { if (cur.Length()>0) { items.Push(cur); cur=""; } }
-			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n") { /* skip */ }
-			else cur = cur .. ch;
-		}
-		if (cur.Length()>0) items.Push(cur);
+			String texName = names[i];
+			TextureID id = TexMan.CheckForTexture(texName);
 
-		String picked = "";
-		for (int k=0;k<items.Size();k++)
-		{
-			String it = items[k]; // "1-5:GN1"
-			int colon = it.IndexOf(":");
-			if (colon < 0) {continue; }
-			String left = it.Left(colon);   // "1-5"
-			String who  = it.Mid(colon+1);  // "GN1"
-
-			int dash = left.IndexOf("-");
-			if (dash < 0) {continue; }
-			int a = left.Left(dash).ToInt();
-			int b = left.Mid(dash+1).ToInt();
-			if (a > b) { int t=a; a=b; b=t; }
-
-			bool hit = (number >= a && number <= b);
-
-			if (hit) { picked = who; break; }
-		}
-		return picked;
-	}
-
-	static String ResolveCharFromVoiceExact(String clear)
-	{
-		Array<String> names; SplitCSVNames(L("$ANIMS_NAME_MAP_LIST"), names);
-		for (int i=0;i<names.Size();i++)
-		{
-			String key = names[i];
-			if (key == clear)
+			if (id.IsValid())
 			{
-				String who = L("$ANIMS_NAME_MAP_" .. key);
-				if (who.Length() > 0) return who;
+				p.frames.Push(id);
+				// keep cache in sync
+				p.frameNamesLower.Push(TexMan.GetName(id).MakeLower());
 			}
 		}
-		return "";
 	}
 
-	static String ResolveCharFromVoiceSmart(String clear)
-	{
-		String u = clear.MakeUpper();
-		String who = ResolveCharFromVoiceByRanges(u);
-		if (who.Length() > 0) return who;
-
-		who = ResolveCharFromVoiceExact(u);
-		if (who.Length() > 0) return who;
-
-		who = ResolveCharFromVoice(u);
-		return who;
-	}
-
-
+	// Register clips for character
+	// STOP removed completely -> stopLast ALWAYS true
 	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
 	{
 		Array<String> clips;
@@ -298,9 +225,10 @@ class AnimRegistryLang : Object
 			String sD = L(base .. "_DURS");
 			if (sF.Length() == 0 || sD.Length() == 0) continue;
 
-			bool   loopFlag = ParseBool(L(base .. "_LOOP"));
-			bool   stopFlag = ParseBool(L(base .. "_STOP"));
-			String regName  = prefix ? (who .. "." .. clip) : clip;
+			bool loopFlag = ParseBool(L(base .. "_LOOP"));
+			bool stopFlag = true; // ALWAYS TRUE now
+
+			String regName = prefix ? (who .. "." .. clip) : clip;
 
 			bool hasGroups = (sF.IndexOf("(") >= 0) || (sD.IndexOf("(") >= 0);
 
@@ -312,174 +240,147 @@ class AnimRegistryLang : Object
 			{
 				Array<String> f; SplitCSVNames(sF, f);
 				Array<double> d; SplitCSVFloats(sD, d);
+
 				int n = min(f.Size(), d.Size());
 				while (f.Size() > n) f.Pop();
 				while (d.Size() > n) d.Pop();
+
 				p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
 			}
 		}
 	}
-
 }
 
+
+// ============================================================
+// Overlay EventHandler
+// ============================================================
 class DialogUIOverlay : StaticEventHandler
 {
-	//for syncing animation and audio
-    ui Actor  pendingNpc;
-    ui String pendingVoice;
-    ui double pendingVol;
-    ui int    pendingChan;
-    ui int    pendingStartTic;
-    ui bool   hasPending;
-	
-	//other stuff
-    ui PanelPlayer panel;
-    ui bool   bShow, inConversation;
-    ui int    fadeOutTics;
+	// for syncing animation and audio
+	ui Actor  pendingNpc;
+	ui String pendingVoice;
+	ui double pendingVol;
+	ui int    pendingChan;
+	ui int    pendingStartTic;
+	ui bool   hasPending;
 
-    ui int hb;
-    ui int hbTimeout;     
+	// other stuff
+	ui PanelPlayer panel;
+	ui bool   bShow, inConversation;
 
-	//this for making music quieter in dialogs
-	ui bool musicDuckApplied; 
-	ui double musicMult;
-	
-	
-    ui void Heartbeat() { hb = hbTimeout; }
-    ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
+	ui int hb;
+	ui int hbTimeout;
 
-    ui int MsToTics(int ms) { return (ms * TICRATE + 999) / 1000; }
+	// for making music quieter in dialogs
+	ui bool musicDuckApplied;
 
-    ui void Ensure()
-    {
-        if (hbTimeout == 0) hbTimeout = 2;
+	ui void Heartbeat() { hb = hbTimeout; }
+	ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
 
-        if (panel == null)
-        {
-            panel = new("PanelPlayer");
-            panel.PreloadOnce();
-        }
-    }
+	ui void Ensure()
+	{
+		if (hbTimeout == 0) hbTimeout = 2;
 
-    ui void BeginConversation() { 
-		MakeMusicQuieter();
-		
-		inConversation = true; 
+		if (panel == null)
+		{
+			panel = new("PanelPlayer");
+			panel.PreloadOnce();
+		}
 	}
 
-    ui void EndConversation(int fadeMs = 10)
-    {
+	ui void BeginConversation()
+	{
+		MakeMusicQuieter();
+		inConversation = true;
+	}
+
+	ui void EndConversation()
+	{
 		TurnMusicBack();
 
-        inConversation = false;
-        fadeOutTics = MsToTics(fadeMs);
-        bShow = false;
- 		panel.OnConversationEnd();
-    }
+		inConversation = false;
 
-	ui void ShowAnimInst(String clip)
-	{
-		Ensure();
-		bool ok = panel && panel.PlayAnimChar(clip);
-		bShow = ok && panel.CanDraw();
-		if (bShow) 
-		{ 
-			inConversation = true; 
-			Heartbeat(); 
-		}
-		else if (panel) 
-		{ 
-			panel.Reset(); 
-			bShow = false;
-		}
-	}
+		if (panel) panel.OnConversationEnd(); // <- оставь
+		if (panel) panel.Reset();
 
-    ui void HideInst()                 
-	{ 
 		bShow = false;
 	}
 
-    ui static int SyncDelayTics()
-    {
-        let cv = CVar.GetCVar('jm_anim_sync_tics', players[consoleplayer]);
-        int t = (cv ? max(0, cv.GetInt()) : 1);
-        return clamp(t, 0, 8); // 0..8 тиков достаточно
-    }
+	ui static int SyncDelayTics()
+	{
+		let cv = CVar.GetCVar('jm_anim_sync_tics', players[consoleplayer]);
+		int t = (cv ? max(0, cv.GetInt()) : 1);
+		return clamp(t, 0, 8);
+	}
 
-    ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
-    {
-        Ensure();
-        pendingNpc  = npc;
-        pendingVoice= voice;
-        pendingVol  = clamp(vol, 0.0, 1.0);
-        pendingChan = chan;
-        pendingStartTic = level.time + SyncDelayTics();
-        hasPending = (npc != null) && (voice.Length() > 0);
-    }
-    ui static void ScheduleSyncStartStatic(Actor npc, String voice, double vol, int chan = CHAN_5)
-    {
-        let o = Get(); if (o) o.ScheduleSyncStart(npc, voice, vol, chan);
-    }
+	ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
+	{
+		Ensure();
+		pendingNpc  = npc;
+		pendingVoice= voice;
+		pendingVol  = clamp(vol, 0.0, 1.0);
+		pendingChan = chan;
+		pendingStartTic = level.time + SyncDelayTics();
+		hasPending = (npc != null) && (voice.Length() > 0);
+	}
+	
+	ui static void ScheduleSyncStartStatic(Actor npc, String voice, double vol, int chan = CHAN_5)
+	{
+		let o = Get(); if (o) o.ScheduleSyncStart(npc, voice, vol, chan);
+	}
 
-    override void UiTick()
-    {
-        if (hb > 0) hb--;
-        if (inConversation && hb == 0) EndConversation(120);
+	override void UiTick()
+	{
+		if (hb > 0) hb--;
+		if (inConversation && hb == 0) EndConversation();
 
-        if (!jm_anim_enabled) { bShow = false; inConversation = false; fadeOutTics = 0; hasPending = false; return; }
+		if (!jm_anim_enabled)
+		{
+			bShow = false;
+			inConversation = false;
+			hasPending = false;
+			if (panel) panel.Reset();
+			return;
+		}
 
-        Ensure();
+		Ensure();
 
-        // --- Единая точка запуска звука+анимации ---
-        if (hasPending && level.time >= pendingStartTic)
-        {
+		// Single unified point: start voice+anim in same tick
+		if (hasPending && level.time >= pendingStartTic)
+		{
 			bool allowVoice = true;
 			let cvOn = CVar.FindCVar('jm_voice_enable');
-			if (cvOn) {
-				allowVoice = cvOn.GetBool();
+			if (cvOn) allowVoice = cvOn.GetBool();
+
+			if (allowVoice && pendingNpc)
+			{
+				int sflags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
+				pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);
 			}
-            // 1) звук в этот же тик
-            if (allowVoice && pendingNpc)
-            {
-                int sflags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
-                pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);
-            }
 
-            // 2) анимация в этот же тик
-            ShowVoiceInst(pendingVoice); // внутри Ensure()+CanDraw+Heartbeat
+			ShowVoiceInst(pendingVoice);
+			hasPending = false;
+		}
 
-            hasPending = false;
-        }
+		if (panel && jm_anim_play) panel.Tick();
+		if (panel && !panel.CanDraw()) bShow = false;
+	}
 
-        if (panel && jm_anim_play) panel.Tick();
-        if (panel && !panel.CanDraw()) bShow = false;
-        if (!inConversation && fadeOutTics > 0) fadeOutTics--;
-    }
+	override void RenderOverlay(RenderEvent e)
+	{
+		if (!jm_anim_enabled) return;
+		if (!panel) return;
 
-//     // ---- Rendering the panel ----
+		if (!bShow || !inConversation) return;
+		panel.Draw();
+	}
 
-    override void RenderOverlay(RenderEvent e)
-    {
-        if (!jm_anim_enabled) return;
-        if (!panel) return;
-        bool visible = bShow && (inConversation || (fadeOutTics > 0));
-        if (!visible) return;
-        panel.Draw();
-    }
-	
 	ui void SetFallbackBackdropInst(String tex)
 	{
 		Ensure();
-		if (panel) {
-		panel.SetFallbackTexture(tex);
-		}
+		if (panel) panel.SetFallbackTexture(tex);
 	}
-
-	ui static void SetFallbackBackdropStatic(String tex)
-	{
-		let o = Get(); if (o) o.SetFallbackBackdropInst(tex);
-	}
-
 
 	ui void ShowVoiceInst(String voice)
 	{
@@ -487,9 +388,8 @@ class DialogUIOverlay : StaticEventHandler
 		if (!panel) { bShow = false; return; }
 
 		bool ok = panel.PlayForVoice(voice);
-
-		// если не получилось ничего (нет клипа/idle/voice) — запускаем fallback
 		if (!ok) ok = panel.PlayFallback();
+
 		panel.EnsureLiveScale();
 
 		bShow = ok && panel.CanDraw();
@@ -497,89 +397,60 @@ class DialogUIOverlay : StaticEventHandler
 		else if (panel) { panel.Reset(); bShow = false; }
 	}
 
+	ui static DialogUIOverlay Get()                      { return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay")); }
+	ui static void BeginConversationStatic()             { let o = Get(); if (o) o.BeginConversation(); }
+	ui static void EndConversationStatic()     			 { let o = Get(); if (o) o.EndConversation(); }
+	ui static void EnsureStatic()                        { let o = Get(); if (o) o.Ensure(); }
+	ui static void ShowVoiceStatic(String voice)         { let o = Get(); if (o) o.ShowVoiceInst(voice); }
+	ui static void SetFallbackBackdropStatic(String tex) { let o = Get(); if (o) o.SetFallbackBackdropInst(tex); }
 
-    ui void ShowIdleInst()
-    {
-        Ensure();
-        if (panel)
-        {
-            panel.PlayAnimChar("idle");
-			if (panel.CanDraw()) { inConversation = true; Heartbeat(); }
-		}
-    }
-
-    // ---- Static wrappers (UI) ----
-    ui static DialogUIOverlay Get()                      { return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay")); }
-    ui static void BeginConversationStatic()         { let o = Get(); if (o) o.BeginConversation(); }
-    ui static void EndConversationStatic(int ms=120) { let o = Get(); if (o) o.EndConversation(ms); }
-    ui static void ShowAnimStatic(String clip)       { let o = Get(); if (o) o.ShowAnimInst(clip); }
-    ui static void HideStatic()                      { let o = Get(); if (o) o.HideInst(); }
-    ui static void EnsureStatic()                      { let o = Get(); if (o) o.Ensure(); }
-
-    ui static void ShowVoiceStatic(String voice)  { let o = Get(); if (o) o.ShowVoiceInst(voice); }
-    ui static void ShowIdleStatic()             { let o = Get(); if (o) o.ShowIdleInst(); }
-
-/////////////////////////////////////////////////////////
-// -- this part is for making music in dialogs go to
-// --  30% and back. If not already quiet.
-// -- It's all relative. Argh, I dunno, look at the code
-/////////////////////////////////////////////////////////
-
-	ui void makeMusicQuieter(){
-
+	// Music ducking (fixed naming)
+	// works only if dlgduck.acs +dlduck.o is present
+	// because crutches and bicycles
+	ui void MakeMusicQuieter()
+	{
 		double targetAbs = 0.25;
 		double user = 1.0;
-		
+
 		let cv = CVar.GetCVar('snd_musicvolume', players[consoleplayer]);
 		if (cv) user = clamp(cv.GetFloat(), 0.0, 1.0);
 
-		double absNow = user * 1.0;
-
 		musicDuckApplied = false;
 
-		// If already quiet, do nothing
-		if (absNow > targetAbs && user > 0.0)
+		if (user > targetAbs && user > 0.0)
 		{
 			double mult = clamp(targetAbs / user, 0.0, 2.0);
 			int mult16  = int(mult * 65536.0 + 0.5);
-
 			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', mult16);
-
 			musicDuckApplied = true;
-// 			Console.Printf("Dialog duck: user=%.2f, mult=%.2f → abs=%.2f",
-// 				user, mult, user * mult);
-
 		}
-	
 	}
-	
-	ui void TurnMusicBack(){
-	    if (musicDuckApplied)
+
+	ui void TurnMusicBack()
+	{
+		if (musicDuckApplied)
 		{
-			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536); // 1.0 в fixed 16.16
+			ACS_NamedExecuteWithResult('Dlg_SetMusicVol', 65536);
 			musicDuckApplied = false;
-// 			Console.Printf("Dialog duck: restore music to 1.00x");
 		}
 	}
 }
 
 
-/////////////////////////////////////////////////////////////////////////
-// ---- New conversation menu ----
-/////////////////////////////////////////////////////////////////////////
-
+// ============================================================
+// Conversation menu (NO double voice playback)
+// ============================================================
 class NewConversationMenu : ConversationMenu
 {
-    StrifeDialogueNode _prev;
+	StrifeDialogueNode _prev;
 	DialogUIOverlay o;
-	String curAnim;
-	
- 	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
+
+	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
 	{
-        int r = Super.Init(CurNode, player, activereply);
+		int r = Super.Init(CurNode, player, activereply);
 
 		o = DialogUIOverlay.Get();
- 		if (!o) return r;
+		if (!o) return r;
 
 		o.EnsureStatic();
 		o.BeginConversationStatic();
@@ -587,14 +458,11 @@ class NewConversationMenu : ConversationMenu
 
 		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
 
-		o.ShowVoiceStatic(CurNode.SpeakerVoice);
-
-		// this should launch animation and sound at the same time
-		// doesn't work currently, will refactor someday
+		// No PlayNodeVoice here. Only schedule unified start.
 		let pl = players[consoleplayer];
-		if (pl && pl.mo)
+		if (pl && pl.mo && CurNode)
 		{
-			let npc = (pl ? pl.ConversationNPC : null);
+			let npc = pl.ConversationNPC;
 			if (npc)
 			{
 				double vol = 1.0;
@@ -603,9 +471,15 @@ class NewConversationMenu : ConversationMenu
 
 				DialogUIOverlay.ScheduleSyncStartStatic(npc, CurNode.SpeakerVoice, vol, CHAN_5);
 			}
+			else
+			{
+				o.ShowVoiceStatic(CurNode.SpeakerVoice);
+			}
 		}
-
-		PlayNodeVoice(CurNode);
+		else if (CurNode)
+		{
+			o.ShowVoiceStatic(CurNode.SpeakerVoice);
+		}
 
 		_prev = CurNode;
 		return r;
@@ -613,297 +487,251 @@ class NewConversationMenu : ConversationMenu
 
 	override void Ticker()
 	{
-		String voice;
-
 		Super.Ticker();
 		o.HeartbeatStatic();
 
 		if (mCurNode != _prev)
 		{
-			o.SetFallbackBackdropStatic(mCurNode ? mCurNode.Backdrop : "");
+			String voice = ""; 
+			String backdrop = ""; 
 
-			if (mCurNode != null) voice = mCurNode.SpeakerVoice;
-			else voice = "";			
-			o.ShowVoiceStatic(voice);
+			if (mCurNode != null) {
+				voice = mCurNode.SpeakerVoice; 
+				backdrop = mCurNode.Backdrop;
+			}
+			o.SetFallbackBackdropStatic(backdrop);
 
-			PlayNodeVoice(mCurNode);
+			let pl = players[consoleplayer];
+			if (pl && pl.mo && mCurNode)
+			{
+				let npc = pl.ConversationNPC;
+				if (npc)
+				{
+					double vol = 1.0;
+					let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+					if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+					DialogUIOverlay.ScheduleSyncStartStatic(npc, voice, vol, CHAN_5);
+				}
+				else
+				{
+					o.ShowVoiceStatic(voice);
+				}
+			}
+			else
+			{
+				o.ShowVoiceStatic(voice);
+			}
+
 			_prev = mCurNode;
 		}
 
 		if (mCurNode == null)
 		{
-			o.EndConversationStatic(60);
+			o.EndConversationStatic();
 		}
 	}
 
-	
-    override void Drawer()
-    {
-
-        Super.Drawer();
-    }
-
-    override bool DrawBackdrop()
-    {
-        return true;
-    }
-
-
-    // animation file should have the same name as audiofile. For consistency.
-    ui String ResolveAnimForNode(StrifeDialogueNode n)
-    {
-        if (n == null) return "idle";
-
-        if (n.SpeakerVoice != 0)
-        {
-
-            return getAnimationName(n.SpeakerVoice);
-        }
-        return "idle";
-    }
-	
-	String getAnimationName(String path){
-		int slashPos = path.RightIndexOf("/");
-		String justName;
-		if (slashPos >= 0)
-		{
-			justName = path.Mid(slashPos + 1);
-		}
-		else
-		{
-			justName = path;
-		}
-		return justName;
-	}
-	
-    ui void PlayNodeVoice(StrifeDialogueNode n)
-    {
-        if (n == null) return;
-
-        let cvOn  = CVar.GetCVar('jm_voice_enable', players[consoleplayer]);
-        if (cvOn && !cvOn.GetBool()) return;
-
-        double vol = 1.0;
-        let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
-        if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
-
-        if (n.SpeakerVoice == "" || n.SpeakerVoice == "none") return;
-// 		Console.Printf("anim:, %s", n.SpeakerVoice);
-
-		let pl = players[consoleplayer];
-		if (pl && pl.mo)
-		{
-		    let npc = (pl ? pl.ConversationNPC : null); 
-			if (!npc) return;
-			
-			int flags = CHANF_UI | CHANF_LOCAL | CHANF_OVERLAP | CHANF_NOPAUSE;
-			
-			npc.A_StartSound(n.SpeakerVoice, CHAN_5, 0, vol, ATTN_NORM);
-
-		}
-    }
-		
+	override bool DrawBackdrop() { return true; }
 }
 
-/////////////////////////////////////////////////////////////////////////
-// ---- SILENCING THE ORIGINAL STRIFE DIALOG AUDIO PLAYING METHOD ----
-// ---- (which sucked)----
-/////////////////////////////////////////////////////////////////////////
+
+// ============================================================
+// Silencing original Strife dialog voice
+// ============================================================
 class VoiceHijack : StaticEventHandler
 {
-    override void WorldTick()
-    {
-        // works only in game with real players
-        let pi = players[consoleplayer];
-        if (!pi) return;
+	override void WorldTick()
+	{
+		let pi = players[consoleplayer];
+		if (!pi) return;
 
-        // choose npc which has a conversation going
-        let npc = pi.ConversationNPC;
-        if (!npc) return;
+		let npc = pi.ConversationNPC;
+		if (!npc) return;
 
-        // clears CHAN_VOICE, silencing that stupid p_conversation.cpp method
-        npc.A_StopSound(CHAN_VOICE);
-  
-  }
+		npc.A_StopSound(CHAN_VOICE);
+	}
 }
 
+
+// ============================================================
+// PanelPlayer (animation playback + LANGUAGE cache stored here)
+// ============================================================
 class PanelPlayer : Object
 {
-    bool ready;
-    Array<TextureID> frames;
+	bool ready;
 
-    Array<String> animNames;
-    Array<int>    clipOffset, clipCount;
-    Array<bool>   clipLoop, clipStopLast;
-    Array<int>    flatFrames;
-    Array<double>    flatDurMs;
+	Array<TextureID> frames;
+	Array<String>    frameNamesLower; // cache tex names in lowercase
 
-    int  curClip, seqPos;
-    bool active;
-    int  lastFrameIdx;
+	Array<String> animNames;
+	Array<int>    clipOffset, clipCount;
+	Array<bool>   clipLoop, clipStopLast;
+	Array<int>    flatFrames;
+	Array<double> flatDurMs;
 
-    int vW, vH;
-    double topMargin;
-	int    cachedScaleIdx;  
+	int  curClip, seqPos;
+	bool active;
+	int  lastFrameIdx;
 
-    double timeLeftMs;  
+	int vW, vH;
+	double topMargin;
+	int cachedScaleIdx;
 
-	String snd;
+	double timeLeftMs;
 
 	String character;
-	String prevCharacter;
-	
-	Array<String> loadedChars; 
+	Array<String> loadedChars;
 
-    String fallbackTex;  
+	String fallbackTex;
 
-    Array<bool>     clipIsTemplate;      // по индексу клипа: true если хранит шаблон
-    Array<String>   clipTplFrames;       // сырой LANGUAGE-стринг FRAMES
-    Array<String>   clipTplDurs;         // сырой LANGUAGE-стринг DURS
+	Array<bool>   clipIsTemplate;
+	Array<String> clipTplFrames;
+	Array<String> clipTplDurs;
 
-	struct ChoiceStr { Array<String> alts; };   // для FRAMES
-	struct ChoiceFlt { Array<double> alts; };   // для DURS
+	// temp resolved sequence for templates
+	bool          useTempSeq;
+	Array<int>    tempFrames;
+	Array<double> tempDurMs;
+	int           tempCount;
 
+	int lastGoodFrameIdx;
 
-    // Временная развёртка для текущего активного шаблонного клипа
-    bool            useTempSeq;
-    Array<int>      tempFrames;
-    Array<double>   tempDurMs;
-    int             tempCount;
+	// -------- LANGUAGE caches (NO static fields) --------
+	bool langCacheInit;
+	Array<String> langMapPrefs;     // $ANIMS_MAP_LIST tokens
+	Array<String> langRangeSeries;  // $ANIMS_RANGE_MAP_LIST tokens
+	Array<String> langNameMapKeys;  // $ANIMS_NAME_MAP_LIST tokens
 
+	void EnsureLangCaches()
+	{
+		if (langCacheInit) return;
 
-	// for random delay at the start of every idle animation
-	static bool IsIdleName(String n) {
+		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_MAP_LIST"),        langMapPrefs);
+		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_RANGE_MAP_LIST"),  langRangeSeries);
+		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_NAME_MAP_LIST"),   langNameMapKeys);
+
+		langCacheInit = true;
+	}
+
+	String ResolveCharFromVoicePrefix(String voiceNameUpper)
+	{
+		EnsureLangCaches();
+
+		for (int i = 0; i < langMapPrefs.Size(); i++)
+		{
+			String pref = langMapPrefs[i];
+			if (AnimRegistryLang.StartsWithIgnoreCase(voiceNameUpper, pref))
+			{
+				String who = AnimRegistryLang.L("$ANIMS_MAP_" .. pref);
+				if (who.Length() > 0) return who;
+			}
+		}
+		return "";
+	}
+
+	String ResolveCharFromVoiceByRanges(String clearUpper)
+	{
+		EnsureLangCaches();
+
+		String letters; int number;
+		bool ok = AnimRegistryLang.ParseLeadingLettersAndNumber(clearUpper, letters, number);
+		if (!ok) return "";
+
+		String lettersU = letters.MakeUpper();
+
+		bool listed = false;
+		for (int i = 0; i < langRangeSeries.Size(); i++)
+		{
+			if (langRangeSeries[i].MakeUpper() == lettersU) { listed = true; break; }
+		}
+		if (!listed) return "";
+
+		String specStr = AnimRegistryLang.L("$ANIMS_RANGE_MAP_" .. lettersU);
+		if (specStr.Length() == 0) return "";
+
+		Array<String> items;
+		AnimRegistryLang.SplitCSVNames(specStr, items);
+
+		for (int k = 0; k < items.Size(); k++)
+		{
+			String it = items[k]; // "1-5:GN1"
+			int colon = it.IndexOf(":");
+			if (colon < 0) continue;
+
+			String left = it.Left(colon);   // "1-5"
+			String who  = it.Mid(colon + 1); // "GN1"
+
+			int dash = left.IndexOf("-");
+			if (dash < 0) continue;
+
+			int a = left.Left(dash).ToInt();
+			int b = left.Mid(dash + 1).ToInt();
+			if (a > b) { int t = a; a = b; b = t; }
+
+			if (number >= a && number <= b) return who;
+		}
+
+		return "";
+	}
+
+	String ResolveCharFromVoiceExact(String clearUpper)
+	{
+		EnsureLangCaches();
+
+		for (int i = 0; i < langNameMapKeys.Size(); i++)
+		{
+			String key = langNameMapKeys[i];
+			if (key == clearUpper)
+			{
+				String who = AnimRegistryLang.L("$ANIMS_NAME_MAP_" .. key);
+				if (who.Length() > 0) return who;
+			}
+		}
+		return "";
+	}
+
+	String ResolveCharFromVoiceSmart(String clear)
+	{
+		String u = clear.MakeUpper();
+
+		String who = ResolveCharFromVoiceByRanges(u);
+		if (who.Length() > 0) return who;
+
+		who = ResolveCharFromVoiceExact(u);
+		if (who.Length() > 0) return who;
+
+		return ResolveCharFromVoicePrefix(u);
+	}
+
+	// --------------------------------------------------
+
+	static bool StringEndsWith(String s, String suffix)
+	{
+		int sl = s.Length();
+		int tl = suffix.Length();
+		if (tl == 0) return true;
+		if (sl < tl) return false;
+		return s.Mid(sl - tl) == suffix;
+	}
+
+	static bool IsIdleName(String n)
+	{
 		return n == "IDLE" || StringEndsWith(n, ".IDLE");
 	}
 
-	bool IsCurrentClipIdle() {
-		if (curClip < 0 || curClip >= animNames.Size()) return false;
-		
-		return IsIdleName(animNames[curClip]);
-	}
+	double RandomIdleHoldMs() { return FRandom(100, 600); }
 
-	double RandomIdleHoldMs() {
-		return FRandom(100, 600);
-	}
-
-    ui bool HasAnimInStringTable(String who, String anim)
-    {
-        String key, s;
-        key = "ANIMS_"..who.."_"..anim.."_FRAMES";
-        s = Stringtable.Localize(key);
-        return s != key;
-    }
-
-    ui bool HasValidTexture(String tex)
-    {
-        TextureID id;
-        id = TexMan.CheckForTexture(tex, TexMan.Type_MiscPatch);
-        return id.isValid();
-    }
-	
-	ui void SetFallbackTexture(String tex)
-	{
-		fallbackTex = tex;
-	}
+	ui void SetFallbackTexture(String tex) { fallbackTex = tex; }
 
 	ui String FallbackAnimName()
 	{
-		return (character.Length()>0) ? (character .. ".FALLBACK") : "FALLBACK";
+		return (character.Length() > 0) ? (character .. ".FALLBACK") : "FALLBACK";
 	}
 
-	ui bool EnsureFallbackAnim()
-	{
-		String fbName = FallbackAnimName();
-		int i = FindAnim(fbName);
-
-		if (fallbackTex.Length() == 0)
-			return (i >= 0 && clipCount[i] > 0); 
-
-		int fi = EnsureFrameIndexByName(fallbackTex);
-		if (fi < 0)
-		{
-			return (i >= 0 && clipCount[i] > 0);
-		}
-
-		int off = flatFrames.Size();
-		flatFrames.Push(fi);
-		flatDurMs.Push(3600000.0); 
-
-		if (i >= 0)
-		{
-			clipOffset[i]   = off;
-			clipCount[i]    = 1;
-			clipLoop[i]     = true;
-			clipStopLast[i] = true;
-		}
-		else
-		{
-			animNames.Push(fbName);
-			clipOffset.Push(off);
-			clipCount.Push(1);
-			clipLoop.Push(true);
-			clipStopLast.Push(true);
-		}
-
-		return true;
-	}
-
-	ui void OnConversationEnd()
-	{
-		InvalidateFallbackClips();
-		loadedChars.Clear();
-
-		character = "";
-		prevCharacter = "";
-
-	}
-
-
-	ui bool PlayFallback()
-	{
-		bool okEnsure = EnsureFallbackAnim();
-		if (!okEnsure)  return false; 
-
-		String fbName = FallbackAnimName();
-		bool ok = PlayAnim(fbName);
-		return ok;
-	}
-
-
-	ui bool PlayForVoice(String voiceName)
-	{
-		EnsureCharacterForVoice(voiceName);
-
-		if (character.Length() > 0)
-		{
-			String clip = GetAnimationName(voiceName).MakeUpper(); // "JM001"
-			if (PlayAnimChar(clip)) return true;
-			if (PlayAnimChar("IDLE")) return true;
-		}
-
-		if (PlayAnim("IDLE")) return true;
-
-		return PlayFallback();
-	}
-
-	ui bool CanDraw()
-	{
-		if (active && curClip >= 0 && clipCount[curClip] > 0) return true;
-
-		if (lastFrameIdx >= 0) return true;
-
-		if (character.Length()>0 && FindAnim(character .. ".IDLE") >= 0) return true;
-		if (FindAnim("IDLE") >= 0) return true;
-
-		int i = FindAnim(FallbackAnimName());
-		return (i >= 0 && clipCount[i] > 0);
-	}
-
-	
 	static int IndexOfStr(Array<String> arr, String s)
 	{
-		for (int i=0;i<arr.Size();i++) if (arr[i] == s) return i;
+		for (int i = 0; i < arr.Size(); i++) if (arr[i] == s) return i;
 		return -1;
 	}
 
@@ -914,60 +742,50 @@ class PanelPlayer : Object
 		seqPos = 0;
 		timeLeftMs = 0;
 		lastFrameIdx = -1;
+		useTempSeq = false;
+		tempCount = 0;
 	}
 
 	int EnsureFrameIndexByName(String name)
 	{
-		String want = name;
-		String wantLC = want.MakeLower();
+		String wantLC = name.MakeLower();
 
 		for (int i = 0; i < frames.Size(); i++)
 		{
-			String have = TexMan.GetName(frames[i]);
-			if (have.MakeLower() == wantLC) return i;
+			if (frameNamesLower[i] == wantLC) return i;
 		}
 
-		TextureID id = TexMan.CheckForTexture(want, TexMan.Type_MiscPatch);
-
-		if (!id.IsValid() && want != wantLC)
+		TextureID id = TexMan.CheckForTexture(name, TexMan.Type_MiscPatch);
+		if (!id.IsValid() && name != wantLC)
 			id = TexMan.CheckForTexture(wantLC, TexMan.Type_MiscPatch);
-
 		if (!id.IsValid()) return -1;
 
 		frames.Push(id);
+		frameNamesLower.Push(TexMan.GetName(id).MakeLower());
 		return frames.Size() - 1;
 	}
 
-
 	ui void EnsureCharacterForVoice(String voiceName)
 	{
+		String clear = (voiceName.RightIndexOf("/") >= 0)
+			? voiceName.Mid(voiceName.RightIndexOf("/") + 1)
+			: voiceName;
 
-		String clear = (voiceName.RightIndexOf("/") >= 0) ? voiceName.Mid(voiceName.RightIndexOf("/") + 1) : voiceName;
-		String who = AnimRegistryLang.ResolveCharFromVoiceSmart(clear);
-// 		Console.Printf("\cg[MAP] clear='%s' -> who='%s'", clear, who);
-
-
-		if (who.Length() == 0)
-		{
-			return;
-		}
+		String who = ResolveCharFromVoiceSmart(clear);
+		if (who.Length() == 0) return;
 
 		bool changed = (character != who);
 		character = who;
 
-		if (changed)
-			InvalidateFallbackClips(); 
+		if (changed) InvalidateFallbackClips();
 
 		if (IndexOfStr(loadedChars, who) < 0)
 		{
 			AnimRegistryLang.PreloadFor(self, who);
 			AnimRegistryLang.RegisterFor(self, who, true);
-// 			Console.Printf("\cg[REG] who='%s' Has('%s')=%d", who, who..".GN010", HasAnim(who..".GN010"));
 			loadedChars.Push(who);
 		}
-// 		Console.Printf("voice=%s clear=%s who=%s", voiceName, clear, who);
 	}
-
 
 	ui void InvalidateFallbackClips()
 	{
@@ -979,7 +797,6 @@ class PanelPlayer : Object
 			int j = FindAnim(fb); if (j >= 0) clipCount[j] = 0;
 		}
 
-		// if old fallback is displayed
 		if (curClip >= 0)
 		{
 			String cur = animNames[curClip];
@@ -990,99 +807,71 @@ class PanelPlayer : Object
 		}
 	}
 
-	static bool StringEndsWith(String s, String suffix)
-	{
-		int sl = s.Length();
-		int tl = suffix.Length();
-		if (tl == 0) return true;
-		if (sl < tl) return false;
-		// хвост строки длиной suffix
-		return s.Mid(sl - tl) == suffix;
-	}
-
-
-    bool HasAnim(String n) { return FindAnim(n) >= 0; }
-
 	static double ScaleFromIdx(int idx)
 	{
 		switch (idx)
 		{
-			case 0: return 1.0; // BIG
-			case 1: return 1.2; // NORMAL
-			case 2: return 1.4; // SMALL
-			case 3: return 2.0; // TINY
+			case 0: return 1.0;
+			case 1: return 1.2;
+			case 2: return 1.4;
+			case 3: return 2.0;
 			default: return 1.2;
 		}
 	}
 
-    void ApplyScaleFromCVar()
-    {
-        int idx = 1;
-        let cv = CVar.FindCVar('jm_anim_scale');
-        if (cv) idx = clamp(cv.GetInt(), 0, 3);
-
-        if (idx != cachedScaleIdx || vW == 0 || vH == 0)
-        {
-            double s = ScaleFromIdx(idx);
-            vW = int(320 * s + 0.5);
-            vH = int(200 * s + 0.5);
-            topMargin = 0.0;
-            cachedScaleIdx = idx;
-
-// 			Console.Printf("\cg[SIZE] jm_anim_scale=%d -> %dx%d", idx, vW, vH);
-
-        }
-    }
-
-
-    ui void PreloadOnce()
-    {
-        if (ready) return;
-
-        useTempSeq = false;
-        tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
-
-        curClip = -1; seqPos = 0; timeLeftMs = 0.0;
-        active = false; lastFrameIdx = 0;
-
-        cachedScaleIdx = -1;
-        ApplyScaleFromCVar();   // vW/vH of dialog panel is set there
-
-        ready = true;
-    }
-
-    ui void EnsureLiveScale() { ApplyScaleFromCVar(); }
-
-    // --- helpers ---
-		
-	int PlaceholderFrameIndex()
-	// How does it work:
-	// if the frame is absent, we take the last successfully loaded frame
-	// and show it again, keeping timing
-	// if the last frame is also absent, we load the default image (fallback)
-	// OR, if we have ANIM_MISSING.png, we instead load it.
-	// else - draw nothing (but keep the timing). So the animation plays anyway
+	void ApplyScaleFromCVar()
 	{
-		// 1)last successfully loaded frame
-		if (useTempSeq && tempFrames.Size() > 0) {
-			int k = tempFrames[tempFrames.Size() - 1];
-			if (k >= 0) return k;
-		}
+		int idx = 1;
+		let cv = CVar.FindCVar('jm_anim_scale');
+		if (cv) idx = clamp(cv.GetInt(), 0, 3);
 
-		// 2) fallback
-		if (fallbackTex.Length() > 0) {
+		if (idx != cachedScaleIdx || vW == 0 || vH == 0)
+		{
+			double s = ScaleFromIdx(idx);
+			vW = int(320 * s + 0.5);
+			vH = int(200 * s + 0.5);
+			topMargin = 0.0;
+			cachedScaleIdx = idx;
+		}
+	}
+
+	ui void PreloadOnce()
+	{
+		if (ready) return;
+
+		useTempSeq = false;
+		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
+
+		curClip = -1; seqPos = 0; timeLeftMs = 0.0;
+		active = false; lastFrameIdx = -1;
+
+		lastGoodFrameIdx = -1;
+
+		cachedScaleIdx = -1;
+		ApplyScaleFromCVar();
+
+		langCacheInit = false;
+
+		ready = true;
+	}
+
+	ui void EnsureLiveScale() { ApplyScaleFromCVar(); }
+
+	int PlaceholderFrameIndex()
+	{
+		if (lastGoodFrameIdx >= 0) return lastGoodFrameIdx;
+
+		if (fallbackTex.Length() > 0)
+		{
 			int fi = EnsureFrameIndexByName(fallbackTex);
 			if (fi >= 0) return fi;
 		}
 
-		// 3) ANIM_MISSING
 		int mi = EnsureFrameIndexByName("ANIM_MISSING");
 		if (mi >= 0) return mi;
 
-		// 4) Draw nothing
 		return -1;
 	}
-	
 
 	void DefineAnimation(String name, Array<int> fIdx, Array<double> durMs, bool loop=false, bool stopLast=true)
 	{
@@ -1092,8 +881,7 @@ class PanelPlayer : Object
 		int off = flatFrames.Size();
 		for (int i = 0; i < n; i++)
 		{
-			int fi = fIdx[i];
-			flatFrames.Push(fi);
+			flatFrames.Push(fIdx[i]);
 			double ms = durMs[i]; if (ms <= 0) ms = 0.001;
 			flatDurMs.Push(ms);
 		}
@@ -1101,10 +889,13 @@ class PanelPlayer : Object
 		if (cnt <= 0) return;
 
 		int idx = FindAnim(name);
-		if (idx >= 0) {
+		if (idx >= 0)
+		{
 			clipOffset[idx] = off; clipCount[idx] = cnt;
 			clipLoop[idx] = loop;  clipStopLast[idx] = stopLast;
-		} else {
+		}
+		else
+		{
 			animNames.Push(name);
 			clipOffset.Push(off); clipCount.Push(cnt);
 			clipLoop.Push(loop);  clipStopLast.Push(stopLast);
@@ -1114,43 +905,31 @@ class PanelPlayer : Object
 	ui void DefineAnimationTemplate(String name, String framesCsv, String dursCsv, bool loop=false, bool stopLast=true)
 	{
 		int idx = FindAnim(name);
-		if (idx >= 0)
-		{
-			clipOffset[idx]   = 0;
-			clipCount[idx]    = 0;
-			clipLoop[idx]     = loop;
-			clipStopLast[idx] = stopLast;
-
-			// ENSURE SIZE ≥ idx+1
-			while (clipIsTemplate.Size() <= idx) clipIsTemplate.Push(false);
-			while (clipTplFrames.Size() <= idx)  clipTplFrames.Push("");
-			while (clipTplDurs.Size() <= idx)    clipTplDurs.Push("");
-
-			clipIsTemplate[idx] = true;
-			clipTplFrames[idx]  = framesCsv;
-			clipTplDurs[idx]    = dursCsv;
-		}
-		else
+		if (idx < 0)
 		{
 			animNames.Push(name);
 			clipOffset.Push(0);
 			clipCount.Push(0);
 			clipLoop.Push(loop);
 			clipStopLast.Push(stopLast);
-
-			int newIdx = animNames.Size() - 1;
-
-			// ENSURE SIZE ≥ newIdx+1
-			while (clipIsTemplate.Size() <= newIdx) clipIsTemplate.Push(false);
-			while (clipTplFrames.Size() <= newIdx)  clipTplFrames.Push("");
-			while (clipTplDurs.Size() <= newIdx)    clipTplDurs.Push("");
-
-			clipIsTemplate[newIdx] = true;
-			clipTplFrames[newIdx]  = framesCsv;
-			clipTplDurs[newIdx]    = dursCsv;
+			idx = animNames.Size() - 1;
 		}
-	}
+		else
+		{
+			clipOffset[idx] = 0;
+			clipCount[idx]  = 0;
+			clipLoop[idx]   = loop;
+			clipStopLast[idx] = stopLast;
+		}
 
+		while (clipIsTemplate.Size() <= idx) clipIsTemplate.Push(false);
+		while (clipTplFrames.Size() <= idx)  clipTplFrames.Push("");
+		while (clipTplDurs.Size() <= idx)    clipTplDurs.Push("");
+
+		clipIsTemplate[idx] = true;
+		clipTplFrames[idx]  = framesCsv;
+		clipTplDurs[idx]    = dursCsv;
+	}
 
 	void DefineAnimationByNames(String name, Array<String> fNames, Array<double> durMs, bool loop=false, bool stopLast=true)
 	{
@@ -1163,9 +942,9 @@ class PanelPlayer : Object
 			int fi = EnsureFrameIndexByName(fNames[i]);
 			double ms = durMs[i]; if (ms <= 0) ms = 0.001;
 
-			if (fi < 0) {
-				fi = PlaceholderFrameIndex();
-			}
+			if (fi < 0) fi = PlaceholderFrameIndex();
+			if (fi >= 0) lastGoodFrameIdx = fi;
+
 			idx.Push(fi);
 			durs.Push(ms);
 		}
@@ -1174,15 +953,13 @@ class PanelPlayer : Object
 		DefineAnimation(name, idx, durs, loop, stopLast);
 	}
 
-
 	static String GetAnimationName(String path, String separator = "/")
 	{
 		int pos = path.RightIndexOf(separator);
 		return (pos >= 0) ? path.Mid(pos + 1) : path;
 	}
 
-	// (A,B,C),X,(Y,Z),W  →  alts=["A","B","C","X","Y","Z","W"]
-	// posStart=[0,3,4,6], posLen=[3,1,2,1]
+	// NOTE: template parser kept as in your version (ok for now)
 	static void ParseChoiceGroupsNames(String src,
 		Array<String> alts, Array<int> posStart, Array<int> posLen)
 	{
@@ -1224,10 +1001,7 @@ class PanelPlayer : Object
 					}
 					inGroup = false;
 				}
-				else
-				{
-					cur = cur .. ch;
-				}
+				else cur = cur .. ch;
 			}
 			else if (ch == "," || ch == ";")
 			{
@@ -1249,12 +1023,8 @@ class PanelPlayer : Object
 			}
 			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n")
 			{
-				// ignoring spaces? Why did I do this
 			}
-			else
-			{
-				cur = cur .. ch;
-			}
+			else cur = cur .. ch;
 		}
 
 		if (inGroup)
@@ -1300,69 +1070,6 @@ class PanelPlayer : Object
 		}
 	}
 
-	ui bool PlayAnim(String name)
-	{
-		PreloadOnce();
-		int idx = FindAnim(GetAnimationName(name));
-		if (idx < 0) return false;
-
-		if (clipIsTemplate.Size()>idx && clipIsTemplate[idx])
-		{
-			if (!ResolveTemplateOnce(idx)) return false;
-
-			curClip = idx; active = true; seqPos = 0; useTempSeq = true;
-
-			timeLeftMs = tempDurMs[0];
-			if (timeLeftMs <= 0) timeLeftMs = 1;
-
-			if (IsIdleName(GetAnimationName(name))) {
-				timeLeftMs += RandomIdleHoldMs();
-			}
-
-			lastFrameIdx = tempFrames[0];
-			return true;
-		}
-
-		if (clipCount[idx] <= 0) return false;
-
-		curClip = idx; active = true; seqPos = 0; useTempSeq = false;
-
-		int base = clipOffset[idx];
-		timeLeftMs = flatDurMs[base];
-		if (timeLeftMs <= 0) timeLeftMs = 1;
-
-		if (IsIdleName(GetAnimationName(name))) {
-			timeLeftMs += RandomIdleHoldMs();
-		}
-
-		lastFrameIdx = flatFrames[base];
-		return true;
-	}
-
-
-	ui bool PlayAnimChar(String name)
-    {
-		String realName = GetAnimationName(name);
-		String full;
-        PreloadOnce(); 
-		
-        if (character.Length()>0)
-        {
-            full = character .. "." .. realName;
-            if (FindAnim(full) >= 0) return PlayAnim(full);
-        }
-        return PlayAnim(realName);
-    }
-
-	ui bool TryStartIdle()
-	{
-		if (character.Length()>0 && FindAnim(character .. ".IDLE") >= 0)
-			return PlayAnimChar("IDLE");
-		if (FindAnim("IDLE") >= 0)
-			return PlayAnim("IDLE");
-		return false;
-	}
-
 	ui bool ResolveTemplateOnce(int clipIdx)
 	{
 		if (clipIdx < 0 || clipIdx >= animNames.Size()) return false;
@@ -1392,30 +1099,168 @@ class PanelPlayer : Object
 			int pickF = (fl > 1) ? (fs + int(FRandom(0.0, 1.0) * fl)) : fs;
 			if (pickF >= fs + fl) pickF = fs + fl - 1;
 
-			int pickD;
-			if (dl <= 1) pickD = ds;
-			else {
+			int pickD = ds;
+			if (dl > 1)
+			{
 				pickD = ds + int(FRandom(0.0, 1.0) * dl);
 				if (pickD >= ds + dl) pickD = ds + dl - 1;
 			}
 
 			String fName = fAlts[pickF];
 			double dur   = dAlts[pickD];
-
-			int fi = EnsureFrameIndexByName(fName);
 			if (dur <= 0.0) dur = 0.001;
 
-			if (fi < 0) {
-				fi = PlaceholderFrameIndex();   // <-- ключевая строка
-			}
-			
+			int fi = EnsureFrameIndexByName(fName);
+			if (fi < 0) fi = PlaceholderFrameIndex();
+			if (fi >= 0) lastGoodFrameIdx = fi;
+
 			tempFrames.Push(fi);
 			tempDurMs.Push(dur);
 			tempCount++;
-			
 		}
 
 		return tempCount > 0;
+	}
+
+	ui bool EnsureFallbackAnim()
+	{
+		String fbName = FallbackAnimName();
+		int i = FindAnim(fbName);
+
+		if (fallbackTex.Length() == 0)
+			return (i >= 0 && clipCount[i] > 0);
+
+		int fi = EnsureFrameIndexByName(fallbackTex);
+		if (fi < 0)
+			return (i >= 0 && clipCount[i] > 0);
+
+		int off = flatFrames.Size();
+		flatFrames.Push(fi);
+		flatDurMs.Push(3600000.0);
+
+		if (i >= 0)
+		{
+			clipOffset[i] = off;
+			clipCount[i]  = 1;
+			clipLoop[i]   = true;
+			clipStopLast[i] = true;
+		}
+		else
+		{
+			animNames.Push(fbName);
+			clipOffset.Push(off);
+			clipCount.Push(1);
+			clipLoop.Push(true);
+			clipStopLast.Push(true);
+		}
+		return true;
+	}
+
+	ui void OnConversationEnd()
+	{
+		// keep loadedChars cached for next conversation speed
+		character = "";
+		InvalidateFallbackClips();
+	}
+
+	ui bool PlayFallback()
+	{
+		if (!EnsureFallbackAnim()) return false;
+		return PlayAnim(FallbackAnimName());
+	}
+
+	ui bool PlayForVoice(String voiceName)
+	{
+		EnsureCharacterForVoice(voiceName);
+
+		if (character.Length() > 0)
+		{
+			String clip = GetAnimationName(voiceName).MakeUpper();
+			if (PlayAnimChar(clip)) return true;
+			if (PlayAnimChar("IDLE")) return true;
+		}
+
+		if (PlayAnim("IDLE")) return true;
+		return PlayFallback();
+	}
+
+	ui bool CanDraw()
+	{
+		if (active && curClip >= 0)
+		{
+			if (useTempSeq && tempCount > 0) return true;
+			if (!useTempSeq && clipCount[curClip] > 0) return true;
+		}
+
+		if (lastFrameIdx >= 0) return true;
+
+		if (character.Length() > 0 && FindAnim(character .. ".IDLE") >= 0) return true;
+		if (FindAnim("IDLE") >= 0) return true;
+
+		int i = FindAnim(FallbackAnimName());
+		return (i >= 0 && clipCount[i] > 0);
+	}
+
+	ui bool PlayAnim(String name)
+	{
+		PreloadOnce();
+
+		int idx = FindAnim(GetAnimationName(name));
+		if (idx < 0) return false;
+
+		if (clipIsTemplate.Size() > idx && clipIsTemplate[idx])
+		{
+			if (!ResolveTemplateOnce(idx)) return false;
+
+			curClip = idx; active = true; seqPos = 0; useTempSeq = true;
+
+			timeLeftMs = tempDurMs[0];
+			if (timeLeftMs <= 0) timeLeftMs = 1;
+
+			if (IsIdleName(GetAnimationName(name).MakeUpper()))
+				timeLeftMs += RandomIdleHoldMs();
+
+			lastFrameIdx = tempFrames[0];
+			if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
+			return true;
+		}
+
+		if (clipCount[idx] <= 0) return false;
+
+		curClip = idx; active = true; seqPos = 0; useTempSeq = false;
+
+		int base = clipOffset[idx];
+		timeLeftMs = flatDurMs[base];
+		if (timeLeftMs <= 0) timeLeftMs = 1;
+
+		if (IsIdleName(GetAnimationName(name).MakeUpper()))
+			timeLeftMs += RandomIdleHoldMs();
+
+		lastFrameIdx = flatFrames[base];
+		if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
+		return true;
+	}
+
+	ui bool PlayAnimChar(String name)
+	{
+		String realName = GetAnimationName(name).MakeUpper();
+		PreloadOnce();
+
+		if (character.Length() > 0)
+		{
+			String full = character .. "." .. realName;
+			if (FindAnim(full) >= 0) return PlayAnim(full);
+		}
+		return PlayAnim(realName);
+	}
+
+	ui bool TryStartIdle()
+	{
+		if (character.Length() > 0 && FindAnim(character .. ".IDLE") >= 0)
+			return PlayAnimChar("IDLE");
+		if (FindAnim("IDLE") >= 0)
+			return PlayAnim("IDLE");
+		return false;
 	}
 
 	ui void Tick()
@@ -1431,6 +1276,7 @@ class PanelPlayer : Object
 		while (timeLeftMs <= 0.0)
 		{
 			seqPos++;
+
 			if (seqPos >= cnt)
 			{
 				if (clipLoop[curClip])
@@ -1442,18 +1288,20 @@ class PanelPlayer : Object
 				{
 					String curName = animNames[curClip];
 					bool wasIdle = (curName == "IDLE") ||
-								   (character.Length()>0 && curName == character .. ".IDLE");
-					bool wasFallback = (curName == "FALLBACK") ||
-									   StringEndsWith(curName, ".FALLBACK");
+						(character.Length() > 0 && curName == character .. ".IDLE");
+					bool wasFallback = (curName == "FALLBACK") || StringEndsWith(curName, ".FALLBACK");
 
 					active = false;
 
-					if (clipStopLast[curClip])
+					// stopLast ALWAYS TRUE: keep last frame
 					{
-						int last = (useTempSeq ? (cnt - 1) : (clipOffset[curClip] + (cnt - 1)));
-						lastFrameIdx = useTempSeq ? tempFrames[last] : flatFrames[last];
+						int last = cnt - 1;
+						lastFrameIdx = useTempSeq
+							? tempFrames[last]
+							: flatFrames[clipOffset[curClip] + last];
+
+						if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
 					}
-					else lastFrameIdx = -1;
 
 					if (!wasIdle && !wasFallback)
 					{
@@ -1474,67 +1322,70 @@ class PanelPlayer : Object
 				timeLeftMs += flatDurMs[base];
 				lastFrameIdx = flatFrames[base];
 			}
+
+			if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
 		}
 	}
 
 	ui void Draw()
 	{
 		int drawIdx = lastFrameIdx;
+
 		if (active && curClip >= 0)
 		{
 			int cnt = useTempSeq ? tempCount : clipCount[curClip];
 			if (cnt > 0 && seqPos >= 0 && seqPos < cnt)
 			{
-				if (useTempSeq) {
-					drawIdx = tempFrames[seqPos];
-				} else {
-					int base = clipOffset[curClip] + seqPos;
-					drawIdx = flatFrames[base];
-				}
+				drawIdx = useTempSeq
+					? tempFrames[seqPos]
+					: flatFrames[clipOffset[curClip] + seqPos];
 			}
 		}
+
 		if (drawIdx < 0 || drawIdx >= frames.Size()) return;
 
-		TextureID tex = frames[drawIdx]; if (!tex.IsValid()) return;
+		TextureID tex = frames[drawIdx];
+		if (!tex.IsValid()) return;
+
 		Vector2 sz = TexMan.GetScaledSize(tex);
 		double x = (vW - sz.x) * 0.5;
 		double y = (vH - sz.y) * 0.25;
 
 		Screen.DrawTexture(tex, false, x, y,
-			DTA_VirtualWidth, vW,
+			DTA_VirtualWidth,  vW,
 			DTA_VirtualHeight, vH,
 			DTA_KeepRatio, true,
 			DTA_TopLeft, true
 		);
 	}
 
-
-    int FindAnim(String n)
-    {
-        for (int i = 0; i < animNames.Size(); i++) if (animNames[i] == n) return i;
-        return -1;
-    }
-
-		bool IsStopped()
+	int FindAnim(String n)
 	{
-		return !active || curClip < 0 || clipCount[curClip] <= 0;
+		for (int i = 0; i < animNames.Size(); i++)
+			if (animNames[i] == n) return i;
+		return -1;
 	}
 
-	bool IsPlaying(String name)
+	bool IsStopped()
 	{
-		int idx = FindAnim(name);
-		return active && idx == curClip;
+		if (!active || curClip < 0) return true;
+		if (useTempSeq) return (tempCount <= 0);
+		return (clipCount[curClip] <= 0);
 	}
 
 	int CurrentFrameIndex()
 	{
 		if (active && curClip >= 0)
 		{
-			int count = clipCount[curClip];
-			if (count > 0 && seqPos >= 0 && seqPos < count)
+			if (useTempSeq)
 			{
-				int base = clipOffset[curClip] + seqPos;
-				return flatFrames[base];
+				if (tempCount > 0 && seqPos >= 0 && seqPos < tempCount) return tempFrames[seqPos];
+			}
+			else
+			{
+				int count = clipCount[curClip];
+				if (count > 0 && seqPos >= 0 && seqPos < count)
+					return flatFrames[clipOffset[curClip] + seqPos];
 			}
 		}
 		return lastFrameIdx;
@@ -1544,6 +1395,4 @@ class PanelPlayer : Object
 	{
 		return (curClip >= 0 && curClip < animNames.Size()) ? animNames[curClip] : "";
 	}
-	
 }
-
