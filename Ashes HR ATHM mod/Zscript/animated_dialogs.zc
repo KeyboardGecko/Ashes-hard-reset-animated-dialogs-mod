@@ -539,6 +539,52 @@ class NewConversationMenu : ConversationMenu
 	StrifeDialogueNode _prev;
 	DialogUIOverlay o;
 
+	// Unified node start logic (voice + backdrop + sync scheduling)
+	void StartNode(StrifeDialogueNode node)
+	{
+		if (!o) return;
+
+		String voice = "";
+		String backdrop = "";
+
+		if (node != null)
+		{
+			voice = node.SpeakerVoice;
+			backdrop = node.Backdrop;
+		}
+
+		o.SetFallbackBackdropStatic(backdrop);
+
+		// No voice - do nothing. Excessive, we always play IDLE in this case.
+		if (voice.Length() == 0)
+		{
+ 			// o.ShowVoiceStatic("");
+			return;
+		}
+
+		let pl = players[consoleplayer];
+		if (pl && pl.mo && node)
+		{
+			let npc = pl.ConversationNPC;
+			if (npc)
+			{
+				double vol = 1.0;
+				let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+				if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+				DialogUIOverlay.ScheduleSyncStartStatic(npc, voice, vol, CHAN_5);
+			}
+			else
+			{
+				o.ShowVoiceStatic(voice);
+			}
+		}
+		else
+		{
+			o.ShowVoiceStatic(voice);
+		}
+	}
+
 	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
 	{
 		int r = Super.Init(CurNode, player, activereply);
@@ -548,33 +594,9 @@ class NewConversationMenu : ConversationMenu
 
 		o.EnsureStatic();
 		o.BeginConversationStatic();
-		
 		o.HeartbeatStatic();
 
-		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
-
-		// No PlayNodeVoice here. Only schedule unified start.
-		let pl = players[consoleplayer];
-		if (pl && pl.mo && CurNode)
-		{
-			let npc = pl.ConversationNPC;
-			if (npc)
-			{
-				double vol = 1.0;
-				let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
-				if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
-
-				DialogUIOverlay.ScheduleSyncStartStatic(npc, CurNode.SpeakerVoice, vol, CHAN_5);
-			}
-			else
-			{
-				o.ShowVoiceStatic(CurNode.SpeakerVoice);
-			}
-		}
-		else if (CurNode)
-		{
-			o.ShowVoiceStatic(CurNode.SpeakerVoice);
-		}
+		StartNode(CurNode);
 
 		_prev = CurNode;
 		return r;
@@ -587,37 +609,7 @@ class NewConversationMenu : ConversationMenu
 
 		if (mCurNode != _prev)
 		{
-			String voice = ""; 
-			String backdrop = ""; 
-
-			if (mCurNode != null) {
-				voice = mCurNode.SpeakerVoice; 
-				backdrop = mCurNode.Backdrop;
-			}
-			o.SetFallbackBackdropStatic(backdrop);
-
-			let pl = players[consoleplayer];
-			if (pl && pl.mo && mCurNode)
-			{
-				let npc = pl.ConversationNPC;
-				if (npc)
-				{
-					double vol = 1.0;
-					let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
-					if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
-
-					DialogUIOverlay.ScheduleSyncStartStatic(npc, voice, vol, CHAN_5);
-				}
-				else
-				{
-					o.ShowVoiceStatic(voice);
-				}
-			}
-			else
-			{
-				o.ShowVoiceStatic(voice);
-			}
-
+			StartNode(mCurNode);
 			_prev = mCurNode;
 		}
 
@@ -630,23 +622,9 @@ class NewConversationMenu : ConversationMenu
 	override bool DrawBackdrop() { return true; }
 }
 
-
 // ============================================================
 // Silencing original Strife dialog voice
 // ============================================================
-// class VoiceHijack : StaticEventHandler
-// {
-// 	override void WorldTick()
-// 	{
-// 		let pi = players[consoleplayer];
-// 		if (!pi) return;
-
-// 		let npc = pi.ConversationNPC;
-// 		if (!npc) return;
-
-// 		npc.A_StopSound(CHAN_VOICE);
-// 	}
-// }
 
 class VoiceHijack : StaticEventHandler
 {
@@ -1327,40 +1305,6 @@ class PanelPlayer : Object
 
 		return tempCount > 0;
 	}
-
-// 	ui bool EnsureFallbackAnim()
-// 	{
-// 		String fbName = FallbackAnimName();
-// 		int i = FindAnim(fbName);
-
-// 		if (fallbackTex.Length() == 0)
-// 			return (i >= 0 && clipCount[i] > 0);
-
-// 		int fi = EnsureFrameIndexByName(fallbackTex);
-// 		if (fi < 0)
-// 			return (i >= 0 && clipCount[i] > 0);
-
-// 		int off = flatFrames.Size();
-// 		flatFrames.Push(fi);
-// 		flatDurMs.Push(3600000.0);
-
-// 		if (i >= 0)
-// 		{
-// 			clipOffset[i] = off;
-// 			clipCount[i]  = 1;
-// 			clipLoop[i]   = true;
-// 			clipStopLast[i] = true;
-// 		}
-// 		else
-// 		{
-// 			animNames.Push(fbName);
-// 			clipOffset.Push(off);
-// 			clipCount.Push(1);
-// 			clipLoop.Push(true);
-// 			clipStopLast.Push(true);
-// 		}
-// 		return true;
-// 	}
 
 	ui bool EnsureFallbackAnim()
 	{
