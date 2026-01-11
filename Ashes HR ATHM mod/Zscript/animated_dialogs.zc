@@ -277,6 +277,24 @@ class DialogUIOverlay : StaticEventHandler
 
 	ui void Heartbeat() { hb = hbTimeout; }
 	ui static void HeartbeatStatic() { let o = Get(); if (o) o.Heartbeat(); }
+	
+	// clear image cache when changing map
+	// no memory leaks now
+	// although the logic is, uh, meh
+	int resetStampPlay;     // play-only counter
+	ui int resetStampUiSeen; // ui-only "last seen" copy of stamp
+
+
+	override void WorldLoaded(WorldEvent e)
+	{
+		resetStampPlay++;
+
+	}
+
+	override void WorldUnloaded(WorldEvent e)
+	{
+		resetStampPlay++;
+	}
 
 	ui void Ensure()
 	{
@@ -288,6 +306,16 @@ class DialogUIOverlay : StaticEventHandler
 			panel.PreloadOnce();
 		}
 	}
+	
+	ui void KillPendingSync()
+	{
+		hasPending = false;
+		pendingNpc = null;
+		pendingVoice = "";
+		pendingVol = 1.0;
+		pendingChan = 0;
+		pendingStartTic = 0;
+		}
 
 	ui void BeginConversation()
 	{
@@ -301,6 +329,9 @@ class DialogUIOverlay : StaticEventHandler
 
 		inConversation = false;
 
+		// IMPORTANT: kill pending sync
+		KillPendingSync();
+
 		if (panel) panel.OnConversationEnd(); // <- оставь
 		if (panel) panel.Reset();
 
@@ -309,10 +340,17 @@ class DialogUIOverlay : StaticEventHandler
 
 	ui static int SyncDelayTics()
 	{
-		let cv = CVar.GetCVar('jm_anim_sync_tics', players[consoleplayer]);
-		int t = (cv ? max(0, cv.GetInt()) : 1);
+		let o = Get();
+		if (!o) return 1;
+
+		o.EnsureCVars();
+
+		int t = 1;
+		if (o.cvSyncTics) t = max(0, o.cvSyncTics.GetInt());
+
 		return clamp(t, 0, 8);
 	}
+
 
 	ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
 	{
@@ -353,13 +391,37 @@ class DialogUIOverlay : StaticEventHandler
 		}
 
 		Ensure();
+		
+		int stamp = resetStampPlay;
+		if (stamp != resetStampUiSeen)
+		{
+			resetStampUiSeen = stamp;
+
+			// kill visuals/state
+			bShow = false;
+			inConversation = false;
+			hb = 0;
+
+			// cancel pending sync
+			KillPendingSync();
+
+
+			// restore music if we had ducked it
+			TurnMusicBack();
+
+			if (panel) panel.HardClear();
+
+			// do not start anything this tick
+			return;
+		}
 
 		// Single unified point: start voice+anim in same tick
 		if (hasPending && level.time >= pendingStartTic)
 		{
+			EnsureCVars();
+
 			bool allowVoice = true;
-			let cvOn = CVar.FindCVar('jm_voice_enable');
-			if (cvOn) allowVoice = cvOn.GetBool();
+			if (cvVoiceEnable) allowVoice = cvVoiceEnable.GetBool();
 
 			ShowVoiceInst(pendingVoice);
 
@@ -405,7 +467,31 @@ class DialogUIOverlay : StaticEventHandler
 		else if (panel) { panel.Reset(); bShow = false; }
 	}
 
-	ui static DialogUIOverlay Get()                      { return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay")); }
+// 	ui static DialogUIOverlay Get()                      { return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay")); }
+	// callable from both play and ui
+	clearscope static DialogUIOverlay Get()
+	{
+		return DialogUIOverlay(StaticEventHandler.Find("DialogUIOverlay"));
+	}
+
+	// cached CVars (avoid FindCVar each tick)
+	ui CVar cvVoiceEnable;
+	ui CVar cvSyncTics;
+
+	// one-shot init
+	ui void EnsureCVars()
+	{
+		if (!cvVoiceEnable) cvVoiceEnable = CVar.FindCVar("jm_voice_enable");
+		if (!cvSyncTics)    cvSyncTics    = CVar.FindCVar("jm_anim_sync_tics");
+	}
+
+	// play-safe query for other handlers
+	clearscope static bool IsConversationActive()
+	{
+		let o = Get();
+		return o;
+	}
+
 	ui static void BeginConversationStatic()             { let o = Get(); if (o) o.BeginConversation(); }
 	ui static void EndConversationStatic()     			 { let o = Get(); if (o) o.EndConversation(); }
 	ui static void EnsureStatic()                        { let o = Get(); if (o) o.Ensure(); }
@@ -462,6 +548,7 @@ class NewConversationMenu : ConversationMenu
 
 		o.EnsureStatic();
 		o.BeginConversationStatic();
+		
 		o.HeartbeatStatic();
 
 		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
@@ -547,21 +634,72 @@ class NewConversationMenu : ConversationMenu
 // ============================================================
 // Silencing original Strife dialog voice
 // ============================================================
+// class VoiceHijack : StaticEventHandler
+// {
+// 	override void WorldTick()
+// 	{
+// 		let pi = players[consoleplayer];
+// 		if (!pi) return;
+
+// 		let npc = pi.ConversationNPC;
+// 		if (!npc) return;
+
+// 		npc.A_StopSound(CHAN_VOICE);
+// 	}
+// }
+
 class VoiceHijack : StaticEventHandler
 {
+	Actor lastNpc;
+	int   armTics;   // strong stop window after NPC change (covers menu open)
+	int   pulse;     // periodic pulse to catch node changes without per-tick hammering
+
 	override void WorldTick()
 	{
+		if (!jm_anim_enabled)
+		{
+			lastNpc = null;
+			armTics = 0;
+			pulse = 0;
+			return;
+		}
+
 		let pi = players[consoleplayer];
-		if (!pi) return;
+		if (!pi)
+			return;
 
 		let npc = pi.ConversationNPC;
-		if (!npc) return;
 
-		npc.A_StopSound(CHAN_VOICE);
+		if (!npc)
+		{
+			lastNpc = null;
+			armTics = 0;
+			pulse = 0;
+			return;
+		}
+
+		if (npc != lastNpc)
+		{
+			lastNpc = npc;
+			armTics = 6; // ~0.17s @35 tics
+			pulse = 0;
+		}
+
+		if (armTics > 0)
+		{
+			npc.A_StopSound(CHAN_VOICE);
+			armTics--;
+			return;
+		}
+
+		pulse = (pulse + 1) & 7; // every 8 tics
+		if (pulse == 0)
+		{
+			npc.A_StopSound(CHAN_VOICE);
+		}
 	}
 }
-
-
+ 
 // ============================================================
 // PanelPlayer (animation playback + LANGUAGE cache stored here)
 // ============================================================
@@ -610,6 +748,66 @@ class PanelPlayer : Object
 	Array<String> langMapPrefs;     // $ANIMS_MAP_LIST tokens
 	Array<String> langRangeSeries;  // $ANIMS_RANGE_MAP_LIST tokens
 	Array<String> langNameMapKeys;  // $ANIMS_NAME_MAP_LIST tokens
+
+	// fallback anim name -> flat slot cache
+	Array<String> fbCacheName;  
+	Array<int>    fbCacheOff;
+
+	ui void HardClear()
+	{
+		ready = false;
+
+		Reset();
+
+		frames.Clear();
+		frameNamesLower.Clear();
+
+		animNames.Clear();
+		clipOffset.Clear();
+		clipCount.Clear();
+		clipLoop.Clear();
+		clipStopLast.Clear();
+
+		flatFrames.Clear();
+		flatDurMs.Clear();
+
+		clipIsTemplate.Clear();
+		clipTplFrames.Clear();
+		clipTplDurs.Clear();
+
+		useTempSeq = false;
+		tempFrames.Clear();
+		tempDurMs.Clear();
+		tempCount = 0;
+
+		loadedChars.Clear();
+		character = "";
+
+		fallbackTex = "";
+
+		lastGoodFrameIdx = -1;
+		lastFrameIdx = -1;
+
+		langCacheInit = false;
+		langMapPrefs.Clear();
+		langRangeSeries.Clear();
+		langNameMapKeys.Clear();
+
+		fbCacheName.Clear();
+		fbCacheOff.Clear();
+
+		cachedScaleIdx = -1;
+		vW = 0; vH = 0;
+		topMargin = 0.0;
+	}
+
+
+	int FindFbCache(String name)
+	{
+		for (int i = 0; i < fbCacheName.Size(); i++)
+			if (fbCacheName[i] == name) return i;
+		return -1;
+	}
 
 	void EnsureLangCaches()
 	{
@@ -849,6 +1047,7 @@ class PanelPlayer : Object
 
 		useTempSeq = false;
 		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
+		fbCacheName.Clear(); fbCacheOff.Clear();
 
 		curClip = -1; seqPos = 0; timeLeftMs = 0.0;
 		active = false; lastFrameIdx = -1;
@@ -967,94 +1166,93 @@ class PanelPlayer : Object
 		return (pos >= 0) ? path.Mid(pos + 1) : path;
 	}
 
-	// NOTE: template parser kept as in your version (ok for now)
+	static bool IsWSByte(int c)
+	{
+		return (c == 32 /*space*/ || c == 9 /*\t*/ || c == 13 /*\r*/ || c == 10 /*\n*/);
+	}
+
 	static void ParseChoiceGroupsNames(String src,
 		Array<String> alts, Array<int> posStart, Array<int> posLen)
 	{
 		alts.Clear(); posStart.Clear(); posLen.Clear();
 
-		String cur = "";
 		bool inGroup = false;
-		Array<String> group;
 
-		int len = int(src.Length());
-		for (int i = 0; i < len; i++)
+		int tokenStart = -1;
+
+		int groupStart = 0;
+		int groupCount = 0;
+
+		int len = src.Length();
+
+		for (int i = 0; i <= len; i++)
 		{
-			String ch = src.Mid(i, 1);
+			bool end = (i == len);
+			int c = end ? 0 : src.ByteAt(i);
 
-			if (ch == "(")
+			bool ws   = (!end && IsWSByte(c));
+			bool sep  = (!end && (c == 44 /*,*/ || c == 59 /*;*/));
+			bool lpar = (!end && (c == 40 /*(*/));
+			bool rpar = (!end && (c == 41 /*)*/));
+
+			bool delim = end || ws || sep || lpar || rpar;
+
+			if (!delim)
 			{
-				if (cur.Length() > 0)
-				{
-					int start = alts.Size();
-					alts.Push(cur);
-					posStart.Push(start);
-					posLen.Push(1);
-					cur = "";
-				}
-				inGroup = true;
-				group.Clear();
+				if (tokenStart < 0) tokenStart = i;
+				continue;
 			}
-			else if (ch == ")")
+
+			// flush token
+			if (tokenStart >= 0)
 			{
+				String tok = src.Mid(tokenStart, i - tokenStart);
+				alts.Push(tok);
+
 				if (inGroup)
 				{
-					if (cur.Length() > 0) { group.Push(cur); cur = ""; }
-					if (group.Size() > 0)
-					{
-						int start = alts.Size();
-						for (int g = 0; g < group.Size(); g++) alts.Push(group[g]);
-						posStart.Push(start);
-						posLen.Push(group.Size());
-					}
-					inGroup = false;
-				}
-				else cur = cur .. ch;
-			}
-			else if (ch == "," || ch == ";")
-			{
-				if (inGroup)
-				{
-					if (cur.Length() > 0) { group.Push(cur); cur = ""; }
+					groupCount++;
 				}
 				else
 				{
-					if (cur.Length() > 0)
+					int start = alts.Size() - 1;
+					posStart.Push(start);
+					posLen.Push(1);
+				}
+
+				tokenStart = -1;
+			}
+
+			if (end) break;
+
+			if (lpar)
+			{
+				// start group
+				inGroup = true;
+				groupStart = alts.Size();
+				groupCount = 0;
+			}
+			else if (rpar)
+			{
+				// end group
+				if (inGroup)
+				{
+					if (groupCount > 0)
 					{
-						int start = alts.Size();
-						alts.Push(cur);
-						posStart.Push(start);
-						posLen.Push(1);
-						cur = "";
+						posStart.Push(groupStart);
+						posLen.Push(groupCount);
 					}
+					inGroup = false;
 				}
 			}
-			else if (ch == " " || ch == "\t" || ch == "\r" || ch == "\n")
-			{
-			}
-			else cur = cur .. ch;
+			// sep/ws just separate tokens; nothing else
 		}
 
-		if (inGroup)
+		// unclosed group: finalize it
+		if (inGroup && groupCount > 0)
 		{
-			if (cur.Length() > 0) group.Push(cur);
-			if (group.Size() > 0)
-			{
-				int start = alts.Size();
-				for (int g = 0; g < group.Size(); g++) alts.Push(group[g]);
-				posStart.Push(start);
-				posLen.Push(group.Size());
-			}
-		}
-		else
-		{
-			if (cur.Length() > 0)
-			{
-				int start = alts.Size();
-				alts.Push(cur);
-				posStart.Push(start);
-				posLen.Push(1);
-			}
+			posStart.Push(groupStart);
+			posLen.Push(groupCount);
 		}
 	}
 
@@ -1130,28 +1328,85 @@ class PanelPlayer : Object
 		return tempCount > 0;
 	}
 
+// 	ui bool EnsureFallbackAnim()
+// 	{
+// 		String fbName = FallbackAnimName();
+// 		int i = FindAnim(fbName);
+
+// 		if (fallbackTex.Length() == 0)
+// 			return (i >= 0 && clipCount[i] > 0);
+
+// 		int fi = EnsureFrameIndexByName(fallbackTex);
+// 		if (fi < 0)
+// 			return (i >= 0 && clipCount[i] > 0);
+
+// 		int off = flatFrames.Size();
+// 		flatFrames.Push(fi);
+// 		flatDurMs.Push(3600000.0);
+
+// 		if (i >= 0)
+// 		{
+// 			clipOffset[i] = off;
+// 			clipCount[i]  = 1;
+// 			clipLoop[i]   = true;
+// 			clipStopLast[i] = true;
+// 		}
+// 		else
+// 		{
+// 			animNames.Push(fbName);
+// 			clipOffset.Push(off);
+// 			clipCount.Push(1);
+// 			clipLoop.Push(true);
+// 			clipStopLast.Push(true);
+// 		}
+// 		return true;
+// 	}
+
 	ui bool EnsureFallbackAnim()
 	{
 		String fbName = FallbackAnimName();
-		int i = FindAnim(fbName);
+		int animIdx = FindAnim(fbName);
 
+		// If no backdrop specified, rely on existing FALLBACK clip if present
 		if (fallbackTex.Length() == 0)
-			return (i >= 0 && clipCount[i] > 0);
+			return (animIdx >= 0 && clipCount[animIdx] > 0);
 
 		int fi = EnsureFrameIndexByName(fallbackTex);
 		if (fi < 0)
-			return (i >= 0 && clipCount[i] > 0);
+			return (animIdx >= 0 && clipCount[animIdx] > 0);
 
-		int off = flatFrames.Size();
-		flatFrames.Push(fi);
-		flatDurMs.Push(3600000.0);
-
-		if (i >= 0)
+		// Find or create cached slot for this fallback name
+		int c = FindFbCache(fbName);
+		if (c < 0)
 		{
-			clipOffset[i] = off;
-			clipCount[i]  = 1;
-			clipLoop[i]   = true;
-			clipStopLast[i] = true;
+			fbCacheName.Push(fbName);
+			fbCacheOff.Push(-1);
+			c = fbCacheName.Size() - 1;
+		}
+
+		int off = fbCacheOff[c];
+		if (off < 0)
+		{
+			// first time: allocate one slot
+			off = flatFrames.Size();
+			flatFrames.Push(fi);
+			flatDurMs.Push(3600000.0);
+			fbCacheOff[c] = off;
+		}
+		else
+		{
+			// subsequent times: overwrite (no growth)
+			flatFrames[off] = fi;
+			flatDurMs[off]  = 3600000.0;
+		}
+
+		// Ensure animation record points to our cached slot
+		if (animIdx >= 0)
+		{
+			clipOffset[animIdx]   = off;
+			clipCount[animIdx]    = 1;
+			clipLoop[animIdx]     = true;
+			clipStopLast[animIdx] = true;
 		}
 		else
 		{
@@ -1161,8 +1416,10 @@ class PanelPlayer : Object
 			clipLoop.Push(true);
 			clipStopLast.Push(true);
 		}
+
 		return true;
 	}
+
 
 	ui void OnConversationEnd()
 	{
