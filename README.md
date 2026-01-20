@@ -1,7 +1,7 @@
 # [**Ashes: Hard Reset**](https://www.moddb.com/mods/ashes-2063) talking heads mod
 
 <a href="https://youtu.be/8HwKkJ2bK_Y">
-  <img src="https://img.youtube.com/vi/VIDEO_ID/maxresdefault.jpg" width="600">
+  <img src="https://img.youtube.com/vi/8HwKkJ2bK_Y/maxresdefault.jpg" width="600">
 </a>
 
 An enhancement mod expanding the standard Strife dialogue system of **GZDoom/UZDoom** for Ashes:HR.
