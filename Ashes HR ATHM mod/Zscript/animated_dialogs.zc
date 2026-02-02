@@ -195,6 +195,10 @@ class AnimRegistryLang : Object
 		Array<String> names;
 		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
 
+		// preload background
+		p.SetBackground(who);
+
+		// preload frames
 		for (int i = 0; i < names.Size(); i++)
 		{
 			String texName = names[i];
@@ -208,9 +212,8 @@ class AnimRegistryLang : Object
 			}
 		}
 	}
-
+	
 	// Register clips for character
-	// STOP removed completely -> stopLast ALWAYS true
 	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
 	{
 		Array<String> clips;
@@ -226,7 +229,6 @@ class AnimRegistryLang : Object
 			if (sF.Length() == 0 || sD.Length() == 0) continue;
 
 			bool loopFlag = ParseBool(L(base .. "_LOOP"));
-			bool stopFlag = true; // ALWAYS TRUE now
 
 			String regName = prefix ? (who .. "." .. clip) : clip;
 
@@ -234,7 +236,7 @@ class AnimRegistryLang : Object
 
 			if (hasGroups)
 			{
-				p.DefineAnimationTemplate(regName, sF, sD, loopFlag, stopFlag);
+				p.DefineAnimationTemplate(regName, sF, sD, loopFlag, true);
 			}
 			else
 			{
@@ -245,7 +247,7 @@ class AnimRegistryLang : Object
 				while (f.Size() > n) f.Pop();
 				while (d.Size() > n) d.Pop();
 
-				p.DefineAnimationByNames(regName, f, d, loopFlag, stopFlag);
+				p.DefineAnimationByNames(regName, f, d, loopFlag, true);
 			}
 		}
 	}
@@ -329,12 +331,14 @@ class DialogUIOverlay : StaticEventHandler
 
 		inConversation = false;
 
-		// IMPORTANT: kill pending sync
 		KillPendingSync();
 
-		if (panel) panel.OnConversationEnd(); // <- оставь
-		if (panel) panel.Reset();
-
+		if (panel) 
+		{ 
+			panel.OnConversationEnd(); 
+			panel.Reset();
+			panel.SetBackground("");
+		}
 		bShow = false;
 	}
 
@@ -355,6 +359,11 @@ class DialogUIOverlay : StaticEventHandler
 	ui void ScheduleSyncStart(Actor npc, String voice, double vol, int chan = CHAN_5)
 	{
 		Ensure();
+		if (voice.Length() == 0)
+		{
+			ShowVoiceInst(""); 
+			return;
+		}
 		pendingNpc   = npc;
 		pendingVoice = voice;
 		pendingVol   = clamp(vol, 0.0, 1.0);
@@ -458,8 +467,10 @@ class DialogUIOverlay : StaticEventHandler
 		if (!panel) { bShow = false; return; }
 
 		bool ok = panel.PlayForVoice(voice);
-		if (!ok) ok = panel.PlayFallback();
-
+		if (!ok) {
+			ok = panel.TryStartIdle();
+			if (!ok) ok = panel.PlayFallback();
+		}
 		panel.EnsureLiveScale();
 
 		bShow = ok && panel.CanDraw();
@@ -539,52 +550,6 @@ class NewConversationMenu : ConversationMenu
 	StrifeDialogueNode _prev;
 	DialogUIOverlay o;
 
-	// Unified node start logic (voice + backdrop + sync scheduling)
-	void StartNode(StrifeDialogueNode node)
-	{
-		if (!o) return;
-
-		String voice = "";
-		String backdrop = "";
-
-		if (node != null)
-		{
-			voice = node.SpeakerVoice;
-			backdrop = node.Backdrop;
-		}
-
-		o.SetFallbackBackdropStatic(backdrop);
-
-		// No voice - do nothing. Excessive, we always play IDLE in this case.
-		if (voice.Length() == 0)
-		{
- 			// o.ShowVoiceStatic("");
-			return;
-		}
-
-		let pl = players[consoleplayer];
-		if (pl && pl.mo && node)
-		{
-			let npc = pl.ConversationNPC;
-			if (npc)
-			{
-				double vol = 1.0;
-				let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
-				if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
-
-				DialogUIOverlay.ScheduleSyncStartStatic(npc, voice, vol, CHAN_5);
-			}
-			else
-			{
-				o.ShowVoiceStatic(voice);
-			}
-		}
-		else
-		{
-			o.ShowVoiceStatic(voice);
-		}
-	}
-
 	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
 	{
 		int r = Super.Init(CurNode, player, activereply);
@@ -594,9 +559,33 @@ class NewConversationMenu : ConversationMenu
 
 		o.EnsureStatic();
 		o.BeginConversationStatic();
+		
 		o.HeartbeatStatic();
 
-		StartNode(CurNode);
+		o.SetFallbackBackdropStatic(CurNode ? CurNode.Backdrop : "");
+
+		// No PlayNodeVoice here. Only schedule unified start.
+		let pl = players[consoleplayer];
+		if (pl && pl.mo && CurNode)
+		{
+			let npc = pl.ConversationNPC;
+			if (npc)
+			{
+				double vol = 1.0;
+				let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+				if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+				DialogUIOverlay.ScheduleSyncStartStatic(npc, CurNode.SpeakerVoice, vol, CHAN_5);
+			}
+			else
+			{
+				o.ShowVoiceStatic(CurNode.SpeakerVoice);
+			}
+		}
+		else if (CurNode)
+		{
+			o.ShowVoiceStatic(CurNode.SpeakerVoice);
+		}
 
 		_prev = CurNode;
 		return r;
@@ -609,7 +598,37 @@ class NewConversationMenu : ConversationMenu
 
 		if (mCurNode != _prev)
 		{
-			StartNode(mCurNode);
+			String voice = ""; 
+			String backdrop = ""; 
+
+			if (mCurNode != null) {
+				voice = mCurNode.SpeakerVoice; 
+				backdrop = mCurNode.Backdrop;
+			}
+			o.SetFallbackBackdropStatic(backdrop);
+
+			let pl = players[consoleplayer];
+			if (pl && pl.mo && mCurNode)
+			{
+				let npc = pl.ConversationNPC;
+				if (npc)
+				{
+					double vol = 1.0;
+					let cvVol = CVar.GetCVar('jm_voice_volume', players[consoleplayer]);
+					if (cvVol) vol = clamp(cvVol.GetFloat(), 0.0, 1.0);
+
+					DialogUIOverlay.ScheduleSyncStartStatic(npc, voice, vol, CHAN_5);
+				}
+				else
+				{
+					o.ShowVoiceStatic(voice);
+				}
+			}
+			else
+			{
+				o.ShowVoiceStatic(voice);
+			}
+
 			_prev = mCurNode;
 		}
 
@@ -621,6 +640,7 @@ class NewConversationMenu : ConversationMenu
 
 	override bool DrawBackdrop() { return true; }
 }
+
 
 // ============================================================
 // Silencing original Strife dialog voice
@@ -685,6 +705,9 @@ class PanelPlayer : Object
 {
 	bool ready;
 
+	bool         langBgCacheInit;
+	Array<String> langBgMapKeys;   // $ANIMS_BG_MAP_LIST tokens
+
 	Array<TextureID> frames;
 	Array<String>    frameNamesLower; // cache tex names in lowercase
 
@@ -731,6 +754,11 @@ class PanelPlayer : Object
 	Array<String> fbCacheName;  
 	Array<int>    fbCacheOff;
 
+	// Separate background
+	ui TextureID bgTexture;
+	ui String    bgName;
+
+
 	ui void HardClear()
 	{
 		ready = false;
@@ -739,6 +767,8 @@ class PanelPlayer : Object
 
 		frames.Clear();
 		frameNamesLower.Clear();
+		langBgCacheInit = false;
+		langBgMapKeys.Clear();
 
 		animNames.Clear();
 		clipOffset.Clear();
@@ -777,6 +807,9 @@ class PanelPlayer : Object
 		cachedScaleIdx = -1;
 		vW = 0; vH = 0;
 		topMargin = 0.0;
+		
+		bgName = "";
+		bgTexture = TexMan.CheckForTexture("", TexMan.Type_MiscPatch);
 	}
 
 
@@ -789,13 +822,9 @@ class PanelPlayer : Object
 
 	void EnsureLangCaches()
 	{
-		if (langCacheInit) return;
-
 		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_MAP_LIST"),        langMapPrefs);
 		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_RANGE_MAP_LIST"),  langRangeSeries);
 		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_NAME_MAP_LIST"),   langNameMapKeys);
-
-		langCacheInit = true;
 	}
 
 	String ResolveCharFromVoicePrefix(String voiceNameUpper)
@@ -957,9 +986,12 @@ class PanelPlayer : Object
 
 		String who = ResolveCharFromVoiceSmart(clear);
 		if (who.Length() == 0) return;
-
+		
 		bool changed = (character != who);
 		character = who;
+
+		// BECAUSE!
+		SetBackground(who);
 
 		if (changed) InvalidateFallbackClips();
 
@@ -1389,7 +1421,10 @@ class PanelPlayer : Object
 			if (PlayAnimChar("IDLE")) return true;
 		}
 
-		if (PlayAnim("IDLE")) return true;
+		if (PlayAnim("IDLE")) 
+		{
+			return true;
+		}
 		return PlayFallback();
 	}
 
@@ -1536,6 +1571,33 @@ class PanelPlayer : Object
 		}
 	}
 
+	ui void SetBackground(String who)
+	{
+		bgName = AnimRegistryLang.L("$ANIMS_" .. who .. "_BGDEF");
+
+		if (bgName.Length() == 0)
+		{
+			bgTexture = TexMan.CheckForTexture("", TexMan.Type_MiscPatch);
+			return;
+		}
+		
+		bgTexture = TexMan.CheckForTexture(bgName, TexMan.Type_MiscPatch);
+		if (!bgTexture.IsValid())
+		{
+			bgTexture = TexMan.CheckForTexture(bgName);
+		}
+	}
+
+	ui void DrawTexture(TextureID tex, int x, int y, int vW, int vH)
+	{
+		Screen.DrawTexture(tex, false, x, y,
+			DTA_VirtualWidth,  vW,
+			DTA_VirtualHeight, vH,
+			DTA_KeepRatio, true,
+			DTA_TopLeft, true
+		);	
+	}
+
 	ui void Draw()
 	{
 		int drawIdx = lastFrameIdx;
@@ -1560,12 +1622,13 @@ class PanelPlayer : Object
 		double x = (vW - sz.x) * 0.5;
 		double y = (vH - sz.y) * 0.25;
 
-		Screen.DrawTexture(tex, false, x, y,
-			DTA_VirtualWidth,  vW,
-			DTA_VirtualHeight, vH,
-			DTA_KeepRatio, true,
-			DTA_TopLeft, true
-		);
+		// if background is there, draw it
+		if (bgTexture.IsValid()) {
+			DrawTexture(bgTexture, x, y, vW, vH);
+		}
+		
+		// draw animation frame
+		DrawTexture(tex, x, y, vW, vH);
 	}
 
 	int FindAnim(String n)
