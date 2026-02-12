@@ -989,8 +989,10 @@ class PanelPlayer : Object
 		int v = cv.GetInt();
 
 		if (v == 0) return base;
-
-		return base .. "_ALT";
+		if (base == "VN" && v == 1)
+			return base .. "_ALT";
+			
+		return base;
 	}
 
 	ui void EnsureCharacterForVoice(String voiceName)
