@@ -10,6 +10,7 @@ JM_SIZE_SMALL = "Small";
 JM_SIZE_NORMAL = "Normal";
 JM_SIZE_BIG = "Big";
 JM_OPT_WIN_SIZE = "Panel size";
+JM_OPT_SEXY_VARNI = "Sexy Varni enabled";
 
 // [ru default]
 // JM_OPT_ANIM_TITLE   = "Настройки диалогов";

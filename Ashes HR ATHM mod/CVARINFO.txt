@@ -4,3 +4,5 @@ user bool  jm_voice_enable = true;   // enable voice (obviously)
 user float jm_voice_volume = 1;    // 0.0 .. 1.0
 user string jm_voice_current = "";
 user int jm_anim_scale = 0; // 0=big, 1=normal, 2=small, 3=tiny
+server int jm_anim_sexy_varni_enabled = 0;
+

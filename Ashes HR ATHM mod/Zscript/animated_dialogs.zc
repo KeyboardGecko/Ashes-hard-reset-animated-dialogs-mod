@@ -978,6 +978,21 @@ class PanelPlayer : Object
 		return frames.Size() - 1;
 	}
 
+	ui String ApplyVariant(String base)
+		// for sexy Varni
+	{
+		if (base.Length() == 0) return base;
+
+		let cv = CVar.FindCVar('jm_anim_sexy_varni_enabled');
+		if (!cv) return base;
+
+		int v = cv.GetInt();
+
+		if (v == 0) return base;
+
+		return base .. "_ALT";
+	}
+
 	ui void EnsureCharacterForVoice(String voiceName)
 	{
 		String clear = (voiceName.RightIndexOf("/") >= 0)
@@ -985,6 +1000,7 @@ class PanelPlayer : Object
 			: voiceName;
 
 		String who = ResolveCharFromVoiceSmart(clear);
+		who = ApplyVariant(who);
 		if (who.Length() == 0) return;
 		
 		bool changed = (character != who);

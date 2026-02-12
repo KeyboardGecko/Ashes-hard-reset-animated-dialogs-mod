@@ -17,6 +17,8 @@ OptionMenu "JMAnimOptions"
     StaticText ""
     Option "$JM_VOICE_PLAY", "jm_voice_enable", "OnOff"
     Slider "$JM_VOICE_VOL",  "jm_voice_volume", 0.0, 1.0, 0.05, 2, "jm_voice_enable"
+	
+	Option "$JM_OPT_SEXY_VARNI", "jm_anim_sexy_varni_enabled", "OnOff", 0
 }
 
 AddOptionMenu "OptionsMenu"
