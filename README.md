@@ -46,7 +46,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 9. Place **clipmarks** on the timeline ("B" hotkey).  
 10. Add **labels** to clipmarks.  
 11. Load images into clipmarks. All clipmarks with the same label will share the same images.  
-12. Done. You'll get the hang of it as you use the tool. Don't forget to save the project. Explore the `Prpject` - `Settings` menu for more hotkeys.
+12. Done. You'll get the hang of it as you use the tool. Don't forget to save the project. Explore the `Project` - `Settings` menu for more hotkeys.
 
 ---
 
