@@ -34,7 +34,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 1. Start the tool.  
 2. Create LANGUAGE_ANIM.txt lump in the root of your mod. Open it.
    No matter where LANGUAGE_ANIM.txt is, two folders will be created: graphics/dialog and sounds/voices. So it makes sense to put your LANGUAGE_ANIM.txt in the root of your mod, near LANGUAGE, MAPINFO, etc.
-3. Create a character ("Project - add character", or "Animation library - Character actions - Add character")
+3. Create a character (`Project` - `add character`, or `Animation library` - `Character actions` - `Add character`)
    It will create graphics/dialog/<character> folder - that's where you put your animation frames.
    Take note of the following GZ/UZdoom quirks:
     - every frame should have length of 6 symbols max
