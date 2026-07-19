@@ -12,12 +12,15 @@ An enhancement mod expanding the standard Strife dialogue system of **GZDoom/UZD
 - Smooth transitions between dialogue steps (no flickering).
 - Updated dialog audio files.
 - Dialog audios are put into channel 5 (previously CHAN_VOICE).
-- Separate submenu in the game's main menu for dialogue settings - including dialog window size, dialog volume, etc.
+- Separate submenu in the game's main menu for dialogue settings, including dialog window size, dialog volume, etc.
 
 ## 👀 In this repo you'll find
 - .PK3-file to use with latest Ashes: HR.
 - The same exact .pk3, but unpacked.
 - Animation making tool.
+
+This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom game. Feel free to use it in your projects and leave feedback in issues.
+
 
 ---
 
@@ -29,16 +32,29 @@ An enhancement mod expanding the standard Strife dialogue system of **GZDoom/UZD
 
 ## 🛠️ How to use Animation Making Tool
 1. Start the tool.  
-2. Load audio file – preferably **WAV** (the only format that draws the waveform correctly). UPD: loading .ogg now creates a .wav, which is used once to draw a waveform. You can safely remove it. 
-3. Place **clipmarks** on the timeline ("B" hotkey).  
-4. Add **labels** to clipmarks.  
-5. Load images into clipmarks. All clipmarks with the same label will share the same images.  
-6. Done. You'll get the hang of it as you use the tool. Don't forget to save the project. Explore the `Settings` menu for more hotkeys.
-<img width="1912" height="1018" alt="image" src="https://github.com/user-attachments/assets/5af99a1f-4f28-432f-972d-506321318f5d" />
+2. Create LANGUAGE_ANIM.txt lump in the root of your mod. Open it.
+   No matter where LANGUAGE_ANIM.txt is, two folders will be created: graphics/dialog and sounds/voices. So it makes sense to put your LANGUAGE_ANIM.txt in the root of your mod, near LANGUAGE, MAPINFO, etc.
+3. Create a character ("Project - add character", or "Animation library - Character actions - Add character")
+   It will create graphics/dialog/<character> folder - that's where you put your animation frames.
+   Take note of the following GZ/UZdoom quirks:
+    - every frame should have length of 6 symbols max
+    - every frame should have a distinct name across ALL the frames.
+   The same goes for sounds/voices. Currently voice files are just put together, without any subfolders.
+5. You ar now ready to create your animation. Put frames into graphics/dialog/<character> and sounds into sounds/voices.
+6. Load audio file.
+   Preferably **WAV** (the only format that draws the waveform correctly). UPD: loading .ogg now creates a .wav, which is used once to draw a waveform. You can safely remove it. 
+9. Place **clipmarks** on the timeline ("B" hotkey).  
+10. Add **labels** to clipmarks.  
+11. Load images into clipmarks. All clipmarks with the same label will share the same images.  
+12. Done. You'll get the hang of it as you use the tool. Don't forget to save the project. Explore the `Prpject` - `Settings` menu for more hotkeys.
 
 ---
 
 ## 📂 Things to Note
-- Animation projects are saved in **JSON format** (look into `animation files` folder).  
-- Export animations into the `LANGUAGE_ANIM` lump via "menu" - "Export to LANGUAGE_ANIM". ⚠️ Don’t forget to select **all JSONs** you want to include into your game. Put your new lump into the root of your .pk3.
-- **IDLE animations** are empty by default – you’ll need to write them using basic method of typing with hands. See `LANGUAGE_ANIM` - IDLE animations for details.
+- Animation projects are all in `LANGUAGE_ANIM`. No more external JSON-files for every animation.
+- App uses a dictionary to set labels to your frames (for example, you may want to use short names for frames, like L, M, etc. while files have names like MPYL, MPYM). If this dictionary is empty, app will load frame names as labels. Dictionary can be found in animaker_labels.json file.
+- `Loop` button loops your animation. Mostly used for IDLE-animations.
+- To make part of your animation unskippable, select some of the frames and press `UNSKIPPABLE` button. If you want it to play randomly - use `RANDOM` button and set the chance of animation appearing. You can also add additional soundfile to unskippable sequence with corresponding button.
+- Use `edit step variants` button in your frame to add some more randomization to your animations - set different durations or interchangeable frames. Again, useful for IDLE-animations.
+- Background can be set for all animations of the character (`BACKGROUND` - `set character background`, then `INHERIT` in every animation by default). Or you can use a specific background for animation. Or none at all.
+- **IDLE animations** are always created with the character. Be sure to fill them with frames.
