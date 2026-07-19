@@ -7,11 +7,10 @@
 An enhancement mod expanding the standard Strife dialogue system of **GZDoom/UZDoom** for Ashes:HR.
 
 ## ✨ Mod features
-- Animations for all dialogue portraits, similar to fallout 1 and 2.
+- Animations for all dialogue portraits, just like in fallout 1 and 2.
 - Idle animations.
 - Smooth transitions between dialogue steps (no flickering).
 - Updated dialog audio files.
-- Dialog audios are put into channel 5 (previously CHAN_VOICE).
 - Separate submenu in the game's main menu for dialogue settings, including dialog window size, dialog volume, etc.
 
 ## 👀 In this repo you'll find
@@ -40,7 +39,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
     - every frame should have length of 6 symbols max
     - every frame should have a distinct name across ALL the frames.
    The same goes for sounds/voices. Currently voice files are just put together, without any subfolders.
-5. You ar now ready to create your animation. Put frames into graphics/dialog/<character> and sounds into sounds/voices.
+5. You are now ready to create your animation. Put frames into graphics/dialog/<character> and sounds into sounds/voices.
 6. Load audio file.
    Preferably **WAV** (the only format that draws the waveform correctly). UPD: loading .ogg now creates a .wav, which is used once to draw a waveform. You can safely remove it. 
 9. Place **clipmarks** on the timeline ("B" hotkey).  
@@ -65,3 +64,5 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
   <img width="1000" height="500" alt="image" src="https://github.com/user-attachments/assets/6084814b-9c24-41d2-bc36-c517191d737f" />
 
 - **IDLE animations** are always created with the character. Be sure to fill them with frames.
+- Dialog audios are put into channel 5 (previously CHAN_VOICE).
+
