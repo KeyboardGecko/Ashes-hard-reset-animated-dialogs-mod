@@ -18,6 +18,7 @@ class TimelineBlockAudioClip {
     required this.audioDurationMs,
     required this.offsetMs,
     required this.includedInPreview,
+    this.peaks,
   });
 
   final String groupId;
@@ -27,6 +28,7 @@ class TimelineBlockAudioClip {
   final double audioDurationMs;
   final double offsetMs;
   final bool includedInPreview;
+  final List<double>? peaks;
 
   double get audioStartMs => blockStartMs + offsetMs;
 
@@ -39,7 +41,8 @@ class TimelineBlockAudioClip {
       other.blockEndMs == blockEndMs &&
       other.audioDurationMs == audioDurationMs &&
       other.offsetMs == offsetMs &&
-      other.includedInPreview == includedInPreview;
+      other.includedInPreview == includedInPreview &&
+      listEquals(other.peaks, peaks);
 
   @override
   int get hashCode => Object.hash(
@@ -50,6 +53,7 @@ class TimelineBlockAudioClip {
     audioDurationMs,
     offsetMs,
     includedInPreview,
+    Object.hashAll(peaks ?? const <double>[]),
   );
 }
 
@@ -1087,6 +1091,15 @@ class TimelinePainter extends CustomPainter {
 
   void _paintPeaks(Canvas canvas, Rect rect) {
     final data = peaks!;
+    _paintPeakData(canvas, rect, data, waveColor);
+  }
+
+  void _paintPeakData(
+    Canvas canvas,
+    Rect rect,
+    List<double> data,
+    Color color,
+  ) {
     if (data.isEmpty || rect.width <= 0 || rect.height <= 0) return;
 
     final w = rect.width.toInt();
@@ -1095,7 +1108,7 @@ class TimelinePainter extends CustomPainter {
 
     final n = data.length;
     final paintWave = Paint()
-      ..color = waveColor
+      ..color = color
       ..strokeWidth = 1.0
       ..isAntiAlias = false;
 
@@ -1163,6 +1176,18 @@ class TimelinePainter extends CustomPainter {
         audioRect,
         Paint()..color = optionalLockedColor.withValues(alpha: alpha),
       );
+      final clipPeaks = clip.peaks;
+      if (clipPeaks != null && clipPeaks.isNotEmpty) {
+        canvas.save();
+        canvas.clipRRect(audioRect);
+        _paintPeakData(
+          canvas,
+          audioRect.outerRect,
+          clipPeaks,
+          textColor.withValues(alpha: clip.includedInPreview ? 0.72 : 0.36),
+        );
+        canvas.restore();
+      }
       final label = TextPainter(
         text: TextSpan(
           text: '♪ ${clip.label}  +${clip.offsetMs.toStringAsFixed(0)} ms',

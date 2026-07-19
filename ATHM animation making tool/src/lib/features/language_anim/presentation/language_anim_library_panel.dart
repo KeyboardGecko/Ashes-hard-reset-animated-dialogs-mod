@@ -10,6 +10,7 @@ class LanguageAnimLibraryPanel extends StatefulWidget {
     required this.selectedCharacterId,
     required this.selectedAnimationName,
     required this.onSelected,
+    required this.onCharacterSelected,
     required this.onAddCharacter,
     required this.onAddAnimation,
     required this.onSetCharacterBackground,
@@ -24,6 +25,7 @@ class LanguageAnimLibraryPanel extends StatefulWidget {
   final String? selectedCharacterId;
   final String? selectedAnimationName;
   final Future<void> Function(AthmCharacter, AthmAnimation) onSelected;
+  final Future<void> Function(AthmCharacter, AthmAnimation) onCharacterSelected;
   final Future<void> Function() onAddCharacter;
   final Future<void> Function(AthmCharacter) onAddAnimation;
   final Future<void> Function(AthmCharacter) onSetCharacterBackground;
@@ -41,6 +43,13 @@ class LanguageAnimLibraryPanel extends StatefulWidget {
 class _LanguageAnimLibraryPanelState extends State<LanguageAnimLibraryPanel> {
   String _query = '';
   late String _characterId;
+
+  AthmAnimation _initialAnimation(AthmCharacter character) {
+    for (final animation in character.animations) {
+      if (animation.name.toUpperCase() == 'IDLE') return animation;
+    }
+    return character.animations.first;
+  }
 
   @override
   void initState() {
@@ -113,8 +122,19 @@ class _LanguageAnimLibraryPanelState extends State<LanguageAnimLibraryPanel> {
                       for (final item in characters)
                         DropdownMenuItem(value: item.id, child: Text(item.id)),
                     ],
-                    onChanged: (value) {
-                      if (value != null) setState(() => _characterId = value);
+                    onChanged: (value) async {
+                      if (value == null) return;
+                      final selected = widget.workspace.document.characterById(
+                        value,
+                      );
+                      if (selected == null || selected.animations.isEmpty) {
+                        return;
+                      }
+                      setState(() => _characterId = value);
+                      await widget.onCharacterSelected(
+                        selected,
+                        _initialAnimation(selected),
+                      );
                     },
                   ),
                 ),

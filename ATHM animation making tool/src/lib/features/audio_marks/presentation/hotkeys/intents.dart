@@ -35,8 +35,16 @@ class CopyFramesIntent extends Intent {
   const CopyFramesIntent();
 }
 
+class CutFramesIntent extends Intent {
+  const CutFramesIntent();
+}
+
 class PasteFramesIntent extends Intent {
   const PasteFramesIntent();
+}
+
+class SaveAnimationIntent extends Intent {
+  const SaveAnimationIntent();
 }
 
 class CtrlIntent extends Intent {

@@ -1,0 +1,23 @@
+Animaker bundles a custom audio-only FFmpeg 8.1.2 executable for Windows x86_64.
+
+Upstream project:
+https://ffmpeg.org/
+
+Exact source archive:
+https://ffmpeg.org/releases/ffmpeg-8.1.2.tar.xz
+
+Source archive SHA-256:
+464beb5e7bf0c311e68b45ae2f04e9cc2af88851abb4082231742a74d97b524c
+
+Bundled executable SHA-256:
+db0e742349eae6c7c21a7c33d0b7469dd2a7ba6219a3963af32f4d6eb19c4ea2
+
+The executable was built from unmodified FFmpeg source with GCC 16.1.0 and
+NASM 2.16.03 from MSYS2. See BUILD.txt for the complete configuration.
+
+This build contains only the native FFmpeg components needed to decode local
+WAV, Ogg Vorbis/Opus, MP3, FLAC, M4A/AAC and raw AAC audio to PCM WAV. Network,
+device and video processing support is disabled.
+
+FFmpeg is invoked as a separate executable. This build is licensed under the
+GNU Lesser General Public License, version 2.1 or later.

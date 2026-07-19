@@ -189,8 +189,12 @@ class KeymapController extends ChangeNotifier {
           const RedoIntent(),
       const SingleActivator(LogicalKeyboardKey.keyC, control: true):
           const CopyFramesIntent(),
+      const SingleActivator(LogicalKeyboardKey.keyX, control: true):
+          const CutFramesIntent(),
       const SingleActivator(LogicalKeyboardKey.keyV, control: true):
           const PasteFramesIntent(),
+      const SingleActivator(LogicalKeyboardKey.keyS, control: true):
+          const SaveAnimationIntent(),
       const SingleActivator(
         LogicalKeyboardKey.keyZ,
         control: true,

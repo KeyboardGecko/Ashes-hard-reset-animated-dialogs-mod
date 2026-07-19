@@ -10,6 +10,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:path/path.dart' as p;
+import 'package:animaker/features/language_anim/application/animaker_label_config.dart';
 import 'package:animaker/features/language_anim/application/language_anim_session_store.dart';
 import 'package:animaker/features/language_anim/application/language_anim_workspace.dart';
 import 'package:animaker/features/language_anim/domain/language_anim_models.dart';
@@ -103,6 +104,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       const LanguageAnimWorkspaceService();
   final LanguageAnimSessionStore _languageSessionStore =
       const LanguageAnimSessionStore();
+  final AnimakerLabelConfig _labelConfig = AnimakerLabelConfig();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   LanguageAnimWorkspace? _languageWorkspace;
   String? _selectedCharacterId;
@@ -141,10 +143,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   StreamSubscription<bool>? _clockPlayingSubscription;
   List<double>? _peaks;
   final Map<String, double> _optionalAudioDurationByPath = {};
+  final Map<String, List<double>> _optionalAudioPeaksByPath = {};
+  final Map<String, Future<void>> _optionalAudioPeakLoads = {};
   FrameClipboardData _frameClipboard = const FrameClipboardData([]);
   String? _pendingScrollId;
   late final AppLifecycleListener _appLifecycleListener;
   _EditorStateSnapshot? _timelineGestureBefore;
+  List<ClipMark>? _timelineGestureMarksBefore;
+  Set<String>? _timelineGestureSelectionBefore;
   List<ClipMark>? _blockAudioGestureBefore;
   Set<String>? _blockAudioGestureSelection;
 
@@ -236,6 +242,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
             audioDurationMs: audioDurationMs,
             offsetMs: first.optionalSoundOffsetMs,
             includedInPreview: first.optionalIncludedInPreview,
+            peaks: _optionalAudioPeaksByPath[_optionalAudioCacheKey(path)],
           ),
         );
       }
@@ -432,12 +439,35 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
 
   void _beginTimelineEditorChange() {
     _timelineGestureBefore ??= _captureEditorState();
+    _timelineGestureMarksBefore ??= List<ClipMark>.from(marksCtrl.marks.value);
+    _timelineGestureSelectionBefore ??= Set<String>.from(
+      marksCtrl.selection.value,
+    );
   }
 
   void _endTimelineEditorChange(String label) {
     final before = _timelineGestureBefore;
+    final beforeMarks = _timelineGestureMarksBefore;
+    final beforeSelection = _timelineGestureSelectionBefore;
     _timelineGestureBefore = null;
-    if (before != null) _recordEditorState(before, label: label);
+    _timelineGestureMarksBefore = null;
+    _timelineGestureSelectionBefore = null;
+    if (before == null || beforeMarks == null || beforeSelection == null) {
+      return;
+    }
+    final after = _captureEditorState();
+    final afterMarks = List<ClipMark>.from(marksCtrl.marks.value);
+    final afterSelection = Set<String>.from(marksCtrl.selection.value);
+    if (before.sameAs(after) && listEquals(beforeMarks, afterMarks)) return;
+    history.record(
+      beforeMarks: beforeMarks,
+      beforeSel: beforeSelection,
+      afterMarks: afterMarks,
+      afterSel: afterSelection,
+      undoAction: before.sameAs(after) ? null : () => _applyEditorState(before),
+      redoAction: before.sameAs(after) ? null : () => _applyEditorState(after),
+      label: label,
+    );
   }
 
   Future<void> _applyEditorState(_EditorStateSnapshot state) async {
@@ -511,6 +541,25 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     );
   }
 
+  void _cutSelectedFrames() {
+    final copied = copySelectedFrames(
+      marksCtrl.marks.value,
+      marksCtrl.selection.value,
+    );
+    if (copied.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Select frames to cut.')));
+      return;
+    }
+    _frameClipboard = copied;
+    marksCtrl.removeSelected();
+    _refreshTimelineDurationFromMarks();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Cut ${copied.frames.length} frame(s).')),
+    );
+  }
+
   Future<void> _pasteCopiedFrames() async {
     if (_frameClipboard.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -569,13 +618,20 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   }
 
   void _setAnimationDuration(double value) {
-    final trackEnd = selectedTrackEndMs(marksCtrl.marks.value);
     final audioEnd = currentAudioPath == null
         ? 0.0
         : _audioOffsetMs + _audioDurationMs;
-    final minimum = math.max(trackEnd, audioEnd);
-    _explicitDurationMs = value.clamp(minimum, double.infinity).toDouble();
-    _animationDurationMs = _explicitDurationMs!;
+    final source = _timelineGestureMarksBefore ?? marksCtrl.marks.value;
+    final resized = resizeTimelineEnd(
+      source: source,
+      requestedDurationMs: value,
+      audioEndMs: audioEnd,
+    );
+    if (!listEquals(marksCtrl.marks.value, resized.marks)) {
+      marksCtrl.marks.value = resized.marks;
+    }
+    _explicitDurationMs = resized.durationMs;
+    _animationDurationMs = resized.durationMs;
     animationClock.setDurationMs(_animationDurationMs);
     if (mounted) setState(() {});
   }
@@ -670,9 +726,16 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
 
   Future<double> _loadOptionalAudioDurationMs(String path) async {
     final key = _optionalAudioCacheKey(path);
+    final peaksLoad = _ensureOptionalAudioPeaks(path);
     final cached = _optionalAudioDurationByPath[key];
-    if (cached != null) return cached;
-    if (!await File(path).exists()) return 0;
+    if (cached != null) {
+      await peaksLoad;
+      return cached;
+    }
+    if (!await File(path).exists()) {
+      await peaksLoad;
+      return 0;
+    }
 
     final probe = PlaybackController();
     try {
@@ -680,9 +743,57 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       final duration = await probe.waitForDuration();
       final durationMs = duration.inMilliseconds.toDouble();
       if (durationMs > 0) _optionalAudioDurationByPath[key] = durationMs;
+      await peaksLoad;
       return durationMs;
     } finally {
       await probe.dispose();
+    }
+  }
+
+  Future<void> _ensureOptionalAudioPeaks(String path) {
+    final key = _optionalAudioCacheKey(path);
+    final cached = _optionalAudioPeaksByPath[key];
+    if (cached != null && cached.isNotEmpty) {
+      return Future<void>.value();
+    }
+    final active = _optionalAudioPeakLoads[key];
+    if (active != null) return active;
+
+    final load = _loadOptionalAudioPeaks(path, key);
+    _optionalAudioPeakLoads[key] = load;
+    return load.whenComplete(() {
+      if (identical(_optionalAudioPeakLoads[key], load)) {
+        _optionalAudioPeakLoads.remove(key);
+      }
+    });
+  }
+
+  Future<void> _loadOptionalAudioPeaks(String path, String key) async {
+    Directory? temporaryDirectory;
+    try {
+      if (!await File(path).exists()) {
+        _optionalAudioPeaksByPath.remove(key);
+        return;
+      }
+
+      var wavPath = path;
+      if (p.extension(path).toLowerCase() != '.wav') {
+        temporaryDirectory = await Directory.systemTemp.createTemp(
+          'am2_block_wav_',
+        );
+        wavPath = await ensureWavForPlayback(path, outDir: temporaryDirectory);
+      }
+      _optionalAudioPeaksByPath[key] =
+          await computePeaksFromWavFile(wavPath, buckets: 800) ?? const [];
+    } catch (_) {
+      _optionalAudioPeaksByPath.remove(key);
+    } finally {
+      if (temporaryDirectory != null) {
+        try {
+          await temporaryDirectory.delete(recursive: true);
+        } catch (_) {}
+      }
+      if (mounted) setState(() {});
     }
   }
 
@@ -1150,13 +1261,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     }
     try {
       final saved = await _languageWorkspaceService.saveAs(workspace, path);
+      final labelWarning = await _saveCurrentFrameLabels();
       if (!mounted) return;
       setState(() => _languageWorkspace = saved);
       await _rememberCurrentLanguageAnimSession();
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Saved as $path')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Saved as $path${labelWarning ?? ''}')),
+      );
     } catch (error) {
       workspace.document = previousDocument;
       if (!mounted) return;
@@ -1312,12 +1424,11 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         final sourcePath = result?.files.single.path;
         if (sourcePath == null) return;
         try {
-          final importedPath = await _languageWorkspaceService
-              .importBackground(
-                _languageWorkspace!,
-                character.id,
-                sourcePath,
-              );
+          final importedPath = await _languageWorkspaceService.importBackground(
+            _languageWorkspace!,
+            character.id,
+            sourcePath,
+          );
           background = p.basenameWithoutExtension(importedPath).toUpperCase();
         } catch (error) {
           if (!mounted) return;
@@ -1350,8 +1461,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       )!;
       final reopenedAnimation = reopenedCharacter.animations.firstWhere(
         (animation) =>
-            animation.name.toUpperCase() ==
-            selectedAnimationName.toUpperCase(),
+            animation.name.toUpperCase() == selectedAnimationName.toUpperCase(),
       );
       await _loadWorkspaceAnimation(
         reopenedCharacter,
@@ -1421,6 +1531,15 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
           character.id,
         );
         return;
+      }
+      try {
+        await _labelConfig.renameCharacter(character.id, id);
+      } catch (error) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Character renamed; label config: $error')),
+          );
+        }
       }
       if (_selectedCharacterId?.toUpperCase() == character.id.toUpperCase()) {
         _selectedCharacterId = id;
@@ -1738,6 +1857,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     AthmAnimation animation, {
     bool force = false,
     bool guardUnsaved = true,
+    bool closeLibrary = true,
   }) async {
     final workspace = _languageWorkspace;
     if (workspace == null) return;
@@ -1745,11 +1865,12 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         _selectedCharacterId?.toUpperCase() == character.id.toUpperCase() &&
         _selectedAnimationName?.toUpperCase() == animation.name.toUpperCase();
     if (alreadySelected && !force) {
-      _scaffoldKey.currentState?.closeDrawer();
+      if (closeLibrary) _scaffoldKey.currentState?.closeDrawer();
       return;
     }
     if (guardUnsaved && !await _confirmSaveCurrentAnimation()) return;
     final assets = workspace.statusFor(character.id, animation.name);
+    final savedLabels = await _labelConfig.loadForCharacter(character.id);
 
     await playback.raw.stop();
     await optionalBlockPlayback.raw.stop();
@@ -1770,7 +1891,16 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         entry.key.toUpperCase(): entry.value,
     };
 
-    imgSvc.setAll(assets.framesByName);
+    final framePathsByName = {
+      for (final entry in assets.framesByName.entries)
+        entry.key.toUpperCase(): entry.value,
+    };
+    final editorImages = Map<String, String>.from(assets.framesByName);
+    for (final entry in savedLabels.entries) {
+      final imagePath = framePathsByName[entry.key.toUpperCase()];
+      if (imagePath != null) editorImages[entry.value] = imagePath;
+    }
+    imgSvc.setAll(editorImages);
     if (assets.framesByName.isNotEmpty) {
       imgSvc.defaultImage = assets.framesByName.values.first;
     }
@@ -1807,8 +1937,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
           ClipMark(
             startMs: startMs,
             durationMs: layoutDuration,
-            label: segment.previewFrame,
-            frameChoices: List<String>.from(segment.frameChoices),
+            label:
+                savedLabels[segment.previewFrame.trim().toUpperCase()] ??
+                segment.previewFrame,
+            frameChoices: segment.frameChoices
+                .map(
+                  (frame) => savedLabels[frame.trim().toUpperCase()] ?? frame,
+                )
+                .toList(),
             durationChoicesMs: List<double>.from(segment.durationChoicesMs),
             selectedFrameChoiceIndex: 0,
             selectedDurationChoiceIndex: 0,
@@ -1864,7 +2000,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       _loopEnabled = animation.loop;
     });
     unawaited(_rememberCurrentLanguageAnimSession());
-    _scaffoldKey.currentState?.closeDrawer();
+    if (closeLibrary) _scaffoldKey.currentState?.closeDrawer();
     if (!assets.isComplete) {
       final details = [
         if (assets.expectsAudio && !assets.hasAudio) 'sound not found',
@@ -1897,6 +2033,36 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     resolveFrameName: _savedFrameName,
   );
 
+  Map<String, String> _currentFrameLabels() {
+    final result = <String, String>{};
+    for (final mark in marksCtrl.marks.value) {
+      final choices = List<String>.from(
+        mark.frameChoices ?? [mark.label ?? 'FRAME'],
+      );
+      if (choices.isEmpty) choices.add(mark.label ?? 'FRAME');
+      if (choices.length == 1 && (mark.label?.trim().isNotEmpty ?? false)) {
+        choices[0] = mark.label!.trim();
+      }
+      for (final label in choices) {
+        final trimmed = label.trim();
+        if (trimmed.isEmpty) continue;
+        result[_savedFrameName(trimmed).toUpperCase()] = trimmed;
+      }
+    }
+    return result;
+  }
+
+  Future<String?> _saveCurrentFrameLabels() async {
+    final characterId = _selectedCharacterId;
+    if (characterId == null) return null;
+    try {
+      await _labelConfig.updateCharacter(characterId, _currentFrameLabels());
+      return null;
+    } catch (error) {
+      return ' Labels were not saved: $error';
+    }
+  }
+
   Future<bool> _saveLanguageAnim() async {
     final workspace = _languageWorkspace;
     _ensureKnownOptionalAudioFits();
@@ -1907,6 +2073,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
 
     try {
       await _languageWorkspaceService.save(workspace);
+      final labelWarning = await _saveCurrentFrameLabels();
       _languageWorkspace = await _languageWorkspaceService.open(
         workspace.languageFilePath,
       );
@@ -1922,7 +2089,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Saved ATHM v4. Backup: ${p.basename(workspace.languageFilePath)}.bak',
+            'Saved ATHM v4. Backup: '
+            '${p.basename(workspace.languageFilePath)}.bak'
+            '${labelWarning ?? ''}',
           ),
         ),
       );
@@ -2186,6 +2355,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       await File(source).copy(destination);
       source = destination;
     }
+    final cacheKey = _optionalAudioCacheKey(source);
+    _optionalAudioDurationByPath.remove(cacheKey);
+    _optionalAudioPeaksByPath.remove(cacheKey);
 
     final before = List<ClipMark>.from(marksCtrl.marks.value);
     final selection = Set<String>.from(marksCtrl.selection.value);
@@ -2717,7 +2889,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       onUndo: () => history.undo(),
       onRedo: () => history.redo(),
       onCopyFrames: _copySelectedFrames,
+      onCutFrames: _cutSelectedFrames,
       onPasteFrames: _pasteCopiedFrames,
+      onSaveAnimation: _saveLanguageAnim,
 
       focusNode: _hotkeysFocus,
       bindings: keymapCtrl.toKeyBindings(seekStepMs: 100, rateStep: 0.25),
@@ -2768,6 +2942,12 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                       selectedCharacterId: _selectedCharacterId,
                       selectedAnimationName: _selectedAnimationName,
                       onSelected: _loadWorkspaceAnimation,
+                      onCharacterSelected: (character, animation) =>
+                          _loadWorkspaceAnimation(
+                            character,
+                            animation,
+                            closeLibrary: false,
+                          ),
                       onAddCharacter: _addCharacter,
                       onAddAnimation: _addAnimation,
                       onSetCharacterBackground: _setCharacterBackground,
@@ -2781,6 +2961,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                 ),
           appBar: AppBar(
             automaticallyImplyLeading: false,
+            centerTitle: true,
             title: Text(
               _selectedAnimation == null
                   ? 'Animation maker 2.0'
@@ -2802,7 +2983,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
               if (_selectedAnimation != null)
                 IconButton(
                   tooltip:
-                      'Save $_selectedAnimationName${_hasUnsavedAnimation ? ' *' : ''}',
+                      'Save $_selectedAnimationName${_hasUnsavedAnimation ? ' *' : ''} (Ctrl+S)',
                   onPressed: _saveLanguageAnim,
                   icon: const Icon(Icons.save_outlined),
                 ),

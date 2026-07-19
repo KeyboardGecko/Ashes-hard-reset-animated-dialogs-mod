@@ -31,7 +31,9 @@ class GlobalHotkeys extends StatefulWidget {
     required this.onUndo,
     required this.onRedo,
     required this.onCopyFrames,
+    required this.onCutFrames,
     required this.onPasteFrames,
+    required this.onSaveAnimation,
     this.onCtrlChange,
     this.focusNode,
   });
@@ -46,7 +48,9 @@ class GlobalHotkeys extends StatefulWidget {
   final VoidCallback onUndo;
   final VoidCallback onRedo;
   final VoidCallback onCopyFrames;
+  final VoidCallback onCutFrames;
   final VoidCallback onPasteFrames;
+  final VoidCallback onSaveAnimation;
   final void Function(bool down)? onCtrlChange;
   final FocusNode? focusNode;
 
@@ -144,9 +148,21 @@ class _GlobalHotkeysState extends State<GlobalHotkeys> {
               return null;
             },
           ),
+          CutFramesIntent: CallbackAction<CutFramesIntent>(
+            onInvoke: (_) {
+              if (!_isEditingOrDropdown()) widget.onCutFrames();
+              return null;
+            },
+          ),
           PasteFramesIntent: CallbackAction<PasteFramesIntent>(
             onInvoke: (_) {
               if (!_isEditingOrDropdown()) widget.onPasteFrames();
+              return null;
+            },
+          ),
+          SaveAnimationIntent: CallbackAction<SaveAnimationIntent>(
+            onInvoke: (_) {
+              if (!_isEditingOrDropdown()) widget.onSaveAnimation();
               return null;
             },
           ),

@@ -25,6 +25,14 @@ class KeyBindings {
         LogicalKeySet(LogicalKeyboardKey.equal): RateIntent(r),
         LogicalKeySet(LogicalKeyboardKey.minus): RateIntent(-r),
         LogicalKeySet(LogicalKeyboardKey.delete): const DeleteSelectedIntent(),
+        LogicalKeySet(LogicalKeyboardKey.controlLeft, LogicalKeyboardKey.keyX):
+            const CutFramesIntent(),
+        LogicalKeySet(LogicalKeyboardKey.controlRight, LogicalKeyboardKey.keyX):
+            const CutFramesIntent(),
+        LogicalKeySet(LogicalKeyboardKey.controlLeft, LogicalKeyboardKey.keyS):
+            const SaveAnimationIntent(),
+        LogicalKeySet(LogicalKeyboardKey.controlRight, LogicalKeyboardKey.keyS):
+            const SaveAnimationIntent(),
         // LogicalKeySet(LogicalKeyboardKey.backspace):
         //     const DeleteSelectedIntent(),
         LogicalKeySet(LogicalKeyboardKey.controlLeft, LogicalKeyboardKey.keyZ):

@@ -43,4 +43,52 @@ void main() {
       1800,
     );
   });
+
+  test('shrinking past the last frame end trims that frame', () {
+    final result = resizeTimelineEnd(
+      source: [
+        ClipMark(startMs: 0, durationMs: 100),
+        ClipMark(startMs: 100, durationMs: 400),
+      ],
+      requestedDurationMs: 250,
+      audioEndMs: 200,
+    );
+
+    expect(result.durationMs, 250);
+    expect(result.marks.last.durationMs, 150);
+    expect(selectedTrackEndMs(result.marks), 250);
+  });
+
+  test('extending after a trim creates an empty tail', () {
+    final trimmed = [
+      ClipMark(startMs: 0, durationMs: 100),
+      ClipMark(startMs: 100, durationMs: 150),
+    ];
+    final result = resizeTimelineEnd(
+      source: trimmed,
+      requestedDurationMs: 700,
+      audioEndMs: 200,
+    );
+
+    expect(result.durationMs, 700);
+    expect(result.marks.last.durationMs, 150);
+    expect(selectedTrackEndMs(result.marks), 250);
+  });
+
+  test('trimming updates only the selected duration variant', () {
+    final result = resizeTimelineEnd(
+      source: [
+        ClipMark(
+          startMs: 100,
+          durationMs: 400,
+          durationChoicesMs: [200, 400, 800],
+          selectedDurationChoiceIndex: 1,
+        ),
+      ],
+      requestedDurationMs: 300,
+    );
+
+    expect(result.marks.single.durationMs, 200);
+    expect(result.marks.single.durationChoicesMs, [200, 200, 800]);
+  });
 }

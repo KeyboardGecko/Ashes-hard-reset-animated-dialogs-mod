@@ -50,6 +50,8 @@ class HistoryController {
     required List<ClipMark> afterMarks,
     required Set<String> afterSel,
     String? label,
+    HistoryAction? undoAction,
+    HistoryAction? redoAction,
   }) {
     if (_applying) return;
     _undo.add(
@@ -57,6 +59,8 @@ class HistoryController {
         _State(List<ClipMark>.from(beforeMarks), Set<String>.from(beforeSel)),
         _State(List<ClipMark>.from(afterMarks), Set<String>.from(afterSel)),
         label: label,
+        undoAction: undoAction,
+        redoAction: redoAction,
       ),
     );
     _redo.clear();
