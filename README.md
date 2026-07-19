@@ -47,6 +47,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 10. Add **labels** to clipmarks.  
 11. Load images into clipmarks. All clipmarks with the same label will share the same images.  
 12. Done. You'll get the hang of it as you use the tool. Don't forget to save the project. Explore the `Project` - `Settings` menu for more hotkeys.
+<img width="1259" height="974" alt="image" src="https://github.com/user-attachments/assets/d68d1956-6a27-4d33-9285-c76741f6cc1c" />
 
 ---
 
@@ -55,6 +56,11 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 - App uses a dictionary to set labels to your frames (for example, you may want to use short names for frames, like L, M, etc. while files have names like MPYL, MPYM). If this dictionary is empty, app will load frame names as labels. Dictionary can be found in animaker_labels.json file.
 - `Loop` button loops your animation. Mostly used for IDLE-animations.
 - To make part of your animation unskippable, select some of the frames and press `UNSKIPPABLE` button. If you want it to play randomly - use `RANDOM` button and set the chance of animation appearing. You can also add additional soundfile to unskippable sequence with corresponding button.
+  Example - IDLE-animation (loop, no audio) + additional segment with audio, 25% chance of appearing:
+  <img width="800" height="450" alt="image" src="https://github.com/user-attachments/assets/a8270c8f-c149-49e2-9c0e-93de7db4d423" />
+ 
 - Use `edit step variants` button in your frame to add some more randomization to your animations - set different durations or interchangeable frames. Again, useful for IDLE-animations.
 - Background can be set for all animations of the character (`BACKGROUND` - `set character background`, then `INHERIT` in every animation by default). Or you can use a specific background for animation. Or none at all.
+  <img width="1000" height="500" alt="image" src="https://github.com/user-attachments/assets/6084814b-9c24-41d2-bc36-c517191d737f" />
+
 - **IDLE animations** are always created with the character. Be sure to fill them with frames.
