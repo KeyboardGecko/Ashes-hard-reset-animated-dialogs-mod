@@ -57,7 +57,8 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 - `Loop` button loops your animation. Mostly used for IDLE-animations.
 - To make part of your animation unskippable, select some of the frames and press `UNSKIPPABLE` button. If you want it to play randomly - use `RANDOM` button and set the chance of animation appearing. You can also add additional soundfile to unskippable sequence with corresponding button.
   Example - IDLE-animation (loop, no audio) + additional segment with audio, 25% chance of appearing:
-  <img width="800" height="450" alt="image" src="https://github.com/user-attachments/assets/a8270c8f-c149-49e2-9c0e-93de7db4d423" />
+ <img width="800" height="450" alt="wham" src="https://github.com/user-attachments/assets/6812f8ba-226f-40a1-95de-456fdd902c1f" />
+
  
 - Use `edit step variants` button in your frame to add some more randomization to your animations - set different durations or interchangeable frames. Again, useful for IDLE-animations.
 - Background can be set for all animations of the character (`BACKGROUND` - `set character background`, then `INHERIT` in every animation by default). Or you can use a specific background for animation. Or none at all.
