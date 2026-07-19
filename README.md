@@ -51,7 +51,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 ---
 
 ## 📂 Things to Note
-- Animation projects are all in `LANGUAGE_ANIM`. No more external JSON-files for every animation.
+- All animations are now kept in `LANGUAGE_ANIM`. No more external JSON-files for every animation.
 - App uses a dictionary to set labels to your frames (for example, you may want to use short names for frames, like L, M, etc. while files have names like MPYL, MPYM). If this dictionary is empty, app will load frame names as labels. Dictionary can be found in animaker_labels.json file.
 - `Loop` button loops your animation. Mostly used for IDLE-animations.
 - To make part of your animation unskippable, select some of the frames and press `UNSKIPPABLE` button. If you want it to play randomly - use `RANDOM` button and set the chance of animation appearing. You can also add additional soundfile to unskippable sequence with corresponding button.
