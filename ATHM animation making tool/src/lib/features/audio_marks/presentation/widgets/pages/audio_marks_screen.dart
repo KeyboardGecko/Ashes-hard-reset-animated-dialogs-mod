@@ -10,8 +10,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:path/path.dart' as p;
+import 'package:animaker/features/language_anim/application/language_anim_session_store.dart';
 import 'package:animaker/features/language_anim/application/language_anim_workspace.dart';
 import 'package:animaker/features/language_anim/domain/language_anim_models.dart';
+import 'package:animaker/features/language_anim/presentation/animation_background_dialog.dart';
 import 'package:animaker/features/language_anim/presentation/language_anim_library_panel.dart';
 
 // существующие виджеты из вашего проекта
@@ -24,6 +26,7 @@ import 'package:animaker/widgets/playback_player_preview.dart';
 import '../../../application/audio_transcode.dart';
 import '../../../application/frame_clipboard.dart';
 import '../../../application/marks_to_athm_track.dart';
+import '../../../application/optional_audio_timeline.dart';
 import '../../../application/timeline_duration.dart';
 import '../../../domain/entities/clip_mark.dart';
 import '../../../domain/services/playback_controller.dart';
@@ -43,6 +46,18 @@ final _itemPositions = ItemPositionsListener.create();
 
 enum _UnsavedAnimationChoice { save, discard, cancel }
 
+class _OptionalAudioCue {
+  const _OptionalAudioCue({
+    required this.groupId,
+    required this.path,
+    required this.startMs,
+  });
+
+  final String groupId;
+  final String path;
+  final double startMs;
+}
+
 class _EditorStateSnapshot {
   const _EditorStateSnapshot({
     required this.audioPath,
@@ -50,6 +65,7 @@ class _EditorStateSnapshot {
     required this.audioOffsetMs,
     required this.explicitDurationMs,
     required this.loop,
+    required this.background,
   });
 
   final String? audioPath;
@@ -57,13 +73,15 @@ class _EditorStateSnapshot {
   final double audioOffsetMs;
   final double? explicitDurationMs;
   final bool loop;
+  final String? background;
 
   bool sameAs(_EditorStateSnapshot other) =>
       audioPath == other.audioPath &&
       soundName == other.soundName &&
       (audioOffsetMs - other.audioOffsetMs).abs() < 0.001 &&
       explicitDurationMs == other.explicitDurationMs &&
-      loop == other.loop;
+      loop == other.loop &&
+      background == other.background;
 }
 
 class AudioMarksScreen extends StatefulWidget {
@@ -77,16 +95,21 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     with TickerProviderStateMixin {
   // controllers/services
   late final PlaybackController playback;
+  late final PlaybackController optionalBlockPlayback;
   late final AnimationClock animationClock;
   late final MarksController marksCtrl;
   final LabelImageService imgSvc = LabelImageService();
   final LanguageAnimWorkspaceService _languageWorkspaceService =
       const LanguageAnimWorkspaceService();
+  final LanguageAnimSessionStore _languageSessionStore =
+      const LanguageAnimSessionStore();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   LanguageAnimWorkspace? _languageWorkspace;
   String? _selectedCharacterId;
   String? _selectedAnimationName;
   String? _selectedSoundName;
+  String? _animationBackground;
+  Map<String, String> _backgroundCandidatesByName = {};
 
   // history (for undo-redo)
   late final HistoryController history;
@@ -111,13 +134,19 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   double _audioDurationMs = 0;
   double _lastClockPositionMs = 0;
   bool _audioSyncBusy = false;
+  bool _optionalAudioSyncBusy = false;
+  String? _activeOptionalAudioGroupId;
+  String? _activeOptionalAudioPath;
   StreamSubscription<Duration>? _clockPositionSubscription;
   StreamSubscription<bool>? _clockPlayingSubscription;
   List<double>? _peaks;
+  final Map<String, double> _optionalAudioDurationByPath = {};
   FrameClipboardData _frameClipboard = const FrameClipboardData([]);
   String? _pendingScrollId;
   late final AppLifecycleListener _appLifecycleListener;
   _EditorStateSnapshot? _timelineGestureBefore;
+  List<ClipMark>? _blockAudioGestureBefore;
+  Set<String>? _blockAudioGestureSelection;
 
   bool get hasPlaybackTimeline => _animationDurationMs > 0;
 
@@ -141,6 +170,80 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       _selectedMarks.isNotEmpty &&
       _selectedMarks.every((mark) => mark.lockedSequenceId != null);
 
+  bool get _allSelectedMarksOptional =>
+      _allSelectedMarksLocked &&
+      _selectedMarks.every((mark) => mark.optionalChancePercent != null);
+
+  double? get _selectedOptionalChance {
+    if (!_allSelectedMarksOptional) return null;
+    final chance = _selectedMarks.first.optionalChancePercent!;
+    return _selectedMarks.every((mark) => mark.optionalChancePercent == chance)
+        ? chance
+        : null;
+  }
+
+  bool get _selectedOptionalIncludedInPreview =>
+      _allSelectedMarksOptional &&
+      _selectedMarks.every((mark) => mark.optionalIncludedInPreview);
+
+  String? get _selectedOptionalGroupId {
+    final groups = _selectedOptionalGroupIds();
+    return groups.length == 1 ? groups.single : null;
+  }
+
+  ClipMark? get _selectedOptionalGroupFirstMark {
+    final groupId = _selectedOptionalGroupId;
+    if (groupId == null) return null;
+    final group =
+        marksCtrl.marks.value
+            .where((mark) => mark.lockedSequenceId == groupId)
+            .toList()
+          ..sort((a, b) => a.startMs.compareTo(b.startMs));
+    return group.isEmpty ? null : group.first;
+  }
+
+  String _optionalAudioCacheKey(String path) => p.normalize(path).toLowerCase();
+
+  List<TimelineBlockAudioClip> get _timelineBlockAudioClips {
+    final marks = marksCtrl.marks.value;
+    final result = <TimelineBlockAudioClip>[];
+    var index = 0;
+    while (index < marks.length) {
+      final first = marks[index];
+      final groupId = first.lockedSequenceId;
+      if (groupId == null || first.optionalSoundPath == null) {
+        index++;
+        continue;
+      }
+      var endIndex = index;
+      while (endIndex + 1 < marks.length &&
+          marks[endIndex + 1].lockedSequenceId == groupId) {
+        endIndex++;
+      }
+      final path = first.optionalSoundPath!;
+      final audioDurationMs =
+          _optionalAudioDurationByPath[_optionalAudioCacheKey(path)] ?? 0;
+      if (audioDurationMs > 0) {
+        final blockEndMs = endIndex + 1 < marks.length
+            ? marks[endIndex + 1].startMs
+            : marks[endIndex].startMs + (marks[endIndex].durationMs ?? 100.0);
+        result.add(
+          TimelineBlockAudioClip(
+            groupId: groupId,
+            label: first.optionalSoundName ?? p.basename(path),
+            blockStartMs: first.startMs,
+            blockEndMs: blockEndMs,
+            audioDurationMs: audioDurationMs,
+            offsetMs: first.optionalSoundOffsetMs,
+            includedInPreview: first.optionalIncludedInPreview,
+          ),
+        );
+      }
+      index = endIndex + 1;
+    }
+    return result;
+  }
+
   AthmAnimation? get _editorAnimation {
     final selected = _selectedAnimation;
     if (selected == null) return null;
@@ -152,7 +255,45 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       soundOffsetMs: _audioOffsetMs,
       sound: _selectedSoundName,
       clearSound: _selectedSoundName == null,
+      background: _animationBackground,
+      clearBackground: _animationBackground == null,
     );
+  }
+
+  String? get _effectiveBackgroundName {
+    if (_animationBackground?.toLowerCase() == AthmAnimation.noBackground) {
+      return null;
+    }
+    return _animationBackground ?? _selectedCharacter?.background;
+  }
+
+  String? get _effectiveBackgroundPath {
+    final name = _effectiveBackgroundName?.trim();
+    if (name == null || name.isEmpty) return null;
+    final requested = _backgroundCandidatesByName[name.toUpperCase()];
+    if (requested != null) return requested;
+    if (_animationBackground != null) {
+      final inherited = _selectedCharacter?.background?.trim();
+      if (inherited != null && inherited.isNotEmpty) {
+        return _backgroundCandidatesByName[inherited.toUpperCase()];
+      }
+    }
+    return null;
+  }
+
+  bool get _isRequestedBackgroundMissing {
+    final name = _effectiveBackgroundName?.trim();
+    return name != null &&
+        name.isNotEmpty &&
+        !_backgroundCandidatesByName.containsKey(name.toUpperCase());
+  }
+
+  String get _backgroundControlLabel {
+    if (_animationBackground == null) return 'BACKGROUND: INHERIT';
+    if (_animationBackground?.toLowerCase() == AthmAnimation.noBackground) {
+      return 'BACKGROUND: NONE';
+    }
+    return 'BACKGROUND: $_animationBackground';
   }
 
   bool get _hasUnsavedAnimation {
@@ -164,6 +305,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
             codec.encodeTrack(edited.track) ||
         original.loop != edited.loop ||
         original.sound != edited.sound ||
+        original.background != edited.background ||
         original.durationMs != edited.durationMs ||
         (original.soundOffsetMs - edited.soundOffsetMs).abs() > 0.001;
   }
@@ -173,7 +315,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
 
   void _refocusHotkeys() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && !_hotkeysFocus.hasFocus) {
+      if (mounted && !_hotkeysFocus.hasFocus && !isEditableTextFocused()) {
         FocusScope.of(context).requestFocus(_hotkeysFocus);
       }
     });
@@ -183,6 +325,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   void initState() {
     super.initState();
     playback = PlaybackController();
+    optionalBlockPlayback = PlaybackController();
     animationClock = AnimationClock(
       vsync: this,
       durationMs: _animationDurationMs,
@@ -192,6 +335,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     );
     _clockPlayingSubscription = animationClock.playingStream.listen((_) {
       _syncAudioToClock(forceSeek: true);
+      _syncOptionalBlockAudio(forceSeek: true);
     });
     history = HistoryController(
       apply: (m, s) {
@@ -211,6 +355,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     _appLifecycleListener = AppLifecycleListener(
       onExitRequested: _onExitRequested,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(_restoreLastLanguageAnimSession());
+    });
 
     // WidgetsBinding.instance.addPostFrameCallback((_) {
     //   if (mounted) _screenFocus.requestFocus();
@@ -221,12 +368,10 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   void dispose() {
     marksCtrl.selection.removeListener(_selectionChanged);
     marksCtrl.marks.removeListener(_marksChanged);
-    for (final fn in _labelFocusById.values) {
-      fn.dispose();
-    }
-    _labelFocusById.clear();
+    _labelEditorKeyById.clear();
 
     playback.dispose();
+    optionalBlockPlayback.dispose();
     _clockPositionSubscription?.cancel();
     _clockPlayingSubscription?.cancel();
     animationClock.dispose();
@@ -267,6 +412,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     audioOffsetMs: _audioOffsetMs,
     explicitDurationMs: _explicitDurationMs,
     loop: _loopEnabled,
+    background: _animationBackground,
   );
 
   void _recordEditorState(
@@ -332,6 +478,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     _audioOffsetMs = state.audioOffsetMs;
     _explicitDurationMs = state.explicitDurationMs;
     _loopEnabled = state.loop;
+    _animationBackground = state.background;
     _animationDurationMs = effectiveTimelineDurationMs(
       selectedTrackEndMs: selectedTrackEndMs(marksCtrl.marks.value),
       explicitMinimumMs: _explicitDurationMs,
@@ -440,11 +587,201 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     if (mounted) setState(() {});
   }
 
+  void _beginBlockAudioOffsetChange(String groupId) {
+    _blockAudioGestureBefore ??= List<ClipMark>.from(marksCtrl.marks.value);
+    _blockAudioGestureSelection ??= Set<String>.from(marksCtrl.selection.value);
+  }
+
+  void _setBlockAudioOffset(String groupId, double value) {
+    marksCtrl.marks.value = marksCtrl.marks.value
+        .map(
+          (mark) => mark.lockedSequenceId == groupId
+              ? mark.copyWith(optionalSoundOffsetMs: value)
+              : mark,
+        )
+        .toList();
+    _syncOptionalBlockAudio(forceSeek: true);
+  }
+
+  void _endBlockAudioOffsetChange(String groupId) {
+    final before = _blockAudioGestureBefore;
+    final beforeSelection = _blockAudioGestureSelection;
+    _blockAudioGestureBefore = null;
+    _blockAudioGestureSelection = null;
+    if (before == null || beforeSelection == null) return;
+    final after = List<ClipMark>.from(marksCtrl.marks.value);
+    if (listEquals(before, after)) return;
+    history.record(
+      beforeMarks: before,
+      beforeSel: beforeSelection,
+      afterMarks: after,
+      afterSel: Set<String>.from(marksCtrl.selection.value),
+      label: 'move block audio',
+    );
+  }
+
   void _onClockPosition(Duration position) {
     final positionMs = position.inMilliseconds.toDouble();
     final wrapped = positionMs + 1 < _lastClockPositionMs;
     _lastClockPositionMs = positionMs;
     _syncAudioToClock(forceSeek: wrapped);
+    _syncOptionalBlockAudio(forceSeek: wrapped);
+  }
+
+  List<_OptionalAudioCue> _optionalAudioCues() {
+    final marks = List<ClipMark>.from(marksCtrl.marks.value)
+      ..sort((a, b) => a.startMs.compareTo(b.startMs));
+    final result = <_OptionalAudioCue>[];
+    var skippedMs = 0.0;
+    var index = 0;
+    while (index < marks.length) {
+      final first = marks[index];
+      if (first.optionalChancePercent == null ||
+          first.lockedSequenceId == null) {
+        index++;
+        continue;
+      }
+      final groupId = first.lockedSequenceId!;
+      final groupStart = first.startMs;
+      var groupEnd = first.startMs + (first.durationMs ?? 100);
+      var next = index + 1;
+      while (next < marks.length && marks[next].lockedSequenceId == groupId) {
+        groupEnd = math.max(
+          groupEnd,
+          marks[next].startMs + (marks[next].durationMs ?? 100),
+        );
+        next++;
+      }
+      if (!first.optionalIncludedInPreview) {
+        skippedMs += groupEnd - groupStart;
+      } else if (first.optionalSoundPath case final path?) {
+        result.add(
+          _OptionalAudioCue(
+            groupId: groupId,
+            path: path,
+            startMs: groupStart - skippedMs + first.optionalSoundOffsetMs,
+          ),
+        );
+      }
+      index = next;
+    }
+    return result;
+  }
+
+  Future<double> _loadOptionalAudioDurationMs(String path) async {
+    final key = _optionalAudioCacheKey(path);
+    final cached = _optionalAudioDurationByPath[key];
+    if (cached != null) return cached;
+    if (!await File(path).exists()) return 0;
+
+    final probe = PlaybackController();
+    try {
+      await probe.openPath(path);
+      final duration = await probe.waitForDuration();
+      final durationMs = duration.inMilliseconds.toDouble();
+      if (durationMs > 0) _optionalAudioDurationByPath[key] = durationMs;
+      return durationMs;
+    } finally {
+      await probe.dispose();
+    }
+  }
+
+  Future<List<ClipMark>> _fitLoadedOptionalAudio(List<ClipMark> source) async {
+    var result = List<ClipMark>.from(source);
+    final groups = <String, String>{};
+    for (final mark in result) {
+      final groupId = mark.lockedSequenceId;
+      final path = mark.optionalSoundPath;
+      if (groupId != null && path != null) groups[groupId] = path;
+    }
+    for (final entry in groups.entries) {
+      final durationMs = await _loadOptionalAudioDurationMs(entry.value);
+      if (durationMs <= 0) continue;
+      result = fitOptionalAudioGroup(
+        marks: result,
+        groupId: entry.key,
+        audioDurationMs: durationMs,
+      ).marks;
+    }
+    return result;
+  }
+
+  List<ClipMark> _fitKnownOptionalAudio(List<ClipMark> source) {
+    var result = List<ClipMark>.from(source);
+    final groups = <String, String>{};
+    for (final mark in result) {
+      final groupId = mark.lockedSequenceId;
+      final path = mark.optionalSoundPath;
+      if (groupId != null && path != null) groups[groupId] = path;
+    }
+    for (final entry in groups.entries) {
+      final durationMs =
+          _optionalAudioDurationByPath[_optionalAudioCacheKey(entry.value)] ??
+          0;
+      if (durationMs <= 0) continue;
+      result = fitOptionalAudioGroup(
+        marks: result,
+        groupId: entry.key,
+        audioDurationMs: durationMs,
+      ).marks;
+    }
+    return result;
+  }
+
+  void _ensureKnownOptionalAudioFits() {
+    final before = marksCtrl.marks.value;
+    final fitted = _fitKnownOptionalAudio(before);
+    if (!listEquals(before, fitted)) {
+      marksCtrl.marks.value = fitted;
+      _refreshTimelineDurationFromMarks();
+    }
+  }
+
+  Future<void> _syncOptionalBlockAudio({bool forceSeek = false}) async {
+    if (_optionalAudioSyncBusy) return;
+    _optionalAudioSyncBusy = true;
+    try {
+      final clockMs = animationClock.position.inMilliseconds.toDouble();
+      _OptionalAudioCue? cue;
+      for (final candidate in _optionalAudioCues()) {
+        if (candidate.startMs <= clockMs) cue = candidate;
+      }
+      if (!animationClock.playing || cue == null) {
+        if (optionalBlockPlayback.playing) await optionalBlockPlayback.pause();
+        return;
+      }
+
+      final changed =
+          _activeOptionalAudioGroupId != cue.groupId ||
+          _activeOptionalAudioPath != cue.path;
+      if (changed) {
+        if (!await File(cue.path).exists()) {
+          _activeOptionalAudioGroupId = cue.groupId;
+          _activeOptionalAudioPath = null;
+          return;
+        }
+        await optionalBlockPlayback.openPath(cue.path);
+        await optionalBlockPlayback.setRate(_playbackRate);
+        _activeOptionalAudioGroupId = cue.groupId;
+        _activeOptionalAudioPath = cue.path;
+        forceSeek = true;
+      }
+      final localMs = clockMs - cue.startMs;
+      final durationMs = (await optionalBlockPlayback.waitForDuration())
+          .inMilliseconds
+          .toDouble();
+      if (localMs < 0 || (durationMs > 0 && localMs >= durationMs)) {
+        if (optionalBlockPlayback.playing) await optionalBlockPlayback.pause();
+        return;
+      }
+      final drift = optionalBlockPlayback.position.inMilliseconds - localMs;
+      if (forceSeek || !optionalBlockPlayback.playing || drift.abs() > 80) {
+        await optionalBlockPlayback.seekMs(localMs);
+      }
+      if (!optionalBlockPlayback.playing) await optionalBlockPlayback.play();
+    } finally {
+      _optionalAudioSyncBusy = false;
+    }
   }
 
   Future<void> _syncAudioToClock({bool forceSeek = false}) async {
@@ -474,11 +811,13 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   Future<void> _seekAnimation(double ms) async {
     animationClock.seekMs(ms);
     await _syncAudioToClock(forceSeek: true);
+    await _syncOptionalBlockAudio(forceSeek: true);
   }
 
   Future<void> _toggleAnimationPlayback() async {
     animationClock.playOrPause();
     await _syncAudioToClock(forceSeek: true);
+    await _syncOptionalBlockAudio(forceSeek: true);
   }
 
   void _onRandomPassDuration(double passDurationMs) {
@@ -516,6 +855,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     final before = _captureEditorState();
 
     await playback.raw.stop();
+    await optionalBlockPlayback.raw.stop();
+    _activeOptionalAudioGroupId = null;
+    _activeOptionalAudioPath = null;
     animationClock.pause();
     await _cleanupPlayTmp();
 
@@ -524,10 +866,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     final character = _selectedCharacter;
     if (source != null && workspace != null && character != null) {
       final soundsDirectory = Directory(
-        _languageWorkspaceService.characterSoundsPath(
-          workspace.rootPath,
-          character.id,
-        ),
+        _languageWorkspaceService.soundsRootPath(workspace.rootPath),
       );
       await soundsDirectory.create(recursive: true);
       final destination = p.join(soundsDirectory.path, p.basename(source));
@@ -801,6 +1140,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   Future<void> _saveLanguageAnimAs() async {
     final workspace = _languageWorkspace;
     if (workspace == null) return;
+    _ensureKnownOptionalAudioFits();
     final path = await _chooseLanguageAnimSavePath();
     if (path == null) return;
     final previousDocument = workspace.document;
@@ -812,6 +1152,8 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       final saved = await _languageWorkspaceService.saveAs(workspace, path);
       if (!mounted) return;
       setState(() => _languageWorkspace = saved);
+      await _rememberCurrentLanguageAnimSession();
+      if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Saved as $path')));
@@ -926,6 +1268,98 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       (animation) => animation.name.toUpperCase() == name,
     );
     await _loadWorkspaceAnimation(reopenedCharacter, reopenedAnimation);
+  }
+
+  Future<void> _setCharacterBackground(AthmCharacter character) async {
+    final initialWorkspace = _languageWorkspace;
+    if (initialWorkspace == null || character.animations.isEmpty) return;
+    final assets = initialWorkspace.statusFor(
+      character.id,
+      character.animations.first.name,
+    );
+    final candidates = {
+      for (final entry in assets.backgroundCandidatesByName.entries)
+        entry.key.toUpperCase(): entry.value,
+    };
+    final selection = await showDialog<AnimationBackgroundSelection>(
+      context: context,
+      builder: (context) => AnimationBackgroundDialog(
+        title: '${character.id} character background',
+        allowInherit: false,
+        candidatesByName: candidates,
+        currentValue: character.background,
+      ),
+    );
+    if (selection == null || !mounted) return;
+    if (!await _confirmSaveCurrentAnimation()) return;
+
+    String? background;
+    switch (selection.type) {
+      case AnimationBackgroundSelectionType.inherit:
+      case AnimationBackgroundSelectionType.setCharacter:
+      case AnimationBackgroundSelectionType.none:
+        background = null;
+        break;
+      case AnimationBackgroundSelectionType.custom:
+        background = selection.name;
+        break;
+      case AnimationBackgroundSelectionType.import:
+        final result = await FilePicker.platform.pickFiles(
+          dialogTitle: 'Import character background',
+          type: FileType.custom,
+          allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
+        );
+        final sourcePath = result?.files.single.path;
+        if (sourcePath == null) return;
+        try {
+          final importedPath = await _languageWorkspaceService
+              .importBackground(
+                _languageWorkspace!,
+                character.id,
+                sourcePath,
+              );
+          background = p.basenameWithoutExtension(importedPath).toUpperCase();
+        } catch (error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cannot import background: $error')),
+          );
+          return;
+        }
+        break;
+    }
+
+    final workspace = _languageWorkspace!;
+    final selectedAnimationName = _selectedAnimationName;
+    final updated = workspace.document.copyWith(
+      characters: workspace.document.characters.map((item) {
+        return item.id.toUpperCase() == character.id.toUpperCase()
+            ? item.copyWith(
+                background: background,
+                clearBackground: background == null,
+              )
+            : item;
+      }).toList(),
+    );
+    if (!await _saveStructuralDocument(updated)) return;
+
+    if (_selectedCharacterId?.toUpperCase() == character.id.toUpperCase() &&
+        selectedAnimationName != null) {
+      final reopenedCharacter = _languageWorkspace!.document.characterById(
+        character.id,
+      )!;
+      final reopenedAnimation = reopenedCharacter.animations.firstWhere(
+        (animation) =>
+            animation.name.toUpperCase() ==
+            selectedAnimationName.toUpperCase(),
+      );
+      await _loadWorkspaceAnimation(
+        reopenedCharacter,
+        reopenedAnimation,
+        force: true,
+        guardUnsaved: false,
+      );
+    }
   }
 
   Future<bool> _confirmDelete(String title, String message) async {
@@ -1157,14 +1591,11 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         _selectedAnimationName = null;
       });
       final character = workspace.document.characters.first;
-      final animation = character.animations.firstWhere(
-        (item) => item.name.toUpperCase() == 'IDLE',
-        orElse: () => character.animations.first,
-      );
+      final animation = _initialAnimationFor(character);
       await _loadWorkspaceAnimation(character, animation);
       if (!mounted) return;
       final migrated = workspace.document.wasMigratedFromLegacy
-          ? ' Legacy format loaded and will be saved as ATHM v3.'
+          ? ' Legacy format loaded and will be saved as ATHM v4.'
           : '';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Loaded ${p.basename(path)}.$migrated')),
@@ -1175,6 +1606,131 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         SnackBar(content: Text('Cannot open LANGUAGE_ANIM: $error')),
       );
     }
+  }
+
+  AthmAnimation _initialAnimationFor(AthmCharacter character) =>
+      character.animations.firstWhere(
+        (animation) => animation.name.toUpperCase() == 'IDLE',
+        orElse: () => character.animations.first,
+      );
+
+  Future<void> _rememberCurrentLanguageAnimSession() async {
+    final workspace = _languageWorkspace;
+    final characterId = _selectedCharacterId;
+    final animationName = _selectedAnimationName;
+    if (workspace == null || characterId == null || animationName == null) {
+      return;
+    }
+    await _languageSessionStore.save(
+      languageFilePath: workspace.languageFilePath,
+      characterId: characterId,
+      animationName: animationName,
+    );
+  }
+
+  Future<void> _restoreLastLanguageAnimSession() async {
+    final session = await _languageSessionStore.load();
+    if (session == null || !mounted || _languageWorkspace != null) return;
+    if (!await File(session.languageFilePath).exists()) {
+      await _languageSessionStore.clear();
+      return;
+    }
+
+    try {
+      final workspace = await _languageWorkspaceService.open(
+        session.languageFilePath,
+      );
+      if (!mounted || _languageWorkspace != null) return;
+      setState(() {
+        _languageWorkspace = workspace;
+        _selectedCharacterId = null;
+        _selectedAnimationName = null;
+      });
+
+      final selection = resolveLanguageAnimSessionSelection(
+        workspace.document,
+        session,
+      );
+      await _loadWorkspaceAnimation(
+        selection.character,
+        selection.animation,
+        force: true,
+        guardUnsaved: false,
+      );
+    } catch (error) {
+      await _languageSessionStore.clear();
+      if (!mounted || _languageWorkspace != null) return;
+      setState(() {
+        _languageWorkspace = null;
+        _selectedCharacterId = null;
+        _selectedAnimationName = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Cannot restore the last project: $error')),
+      );
+    }
+  }
+
+  Future<void> _chooseAnimationBackground() async {
+    final workspace = _languageWorkspace;
+    final character = _selectedCharacter;
+    if (workspace == null || character == null) return;
+    final selection = await showDialog<AnimationBackgroundSelection>(
+      context: context,
+      builder: (context) => AnimationBackgroundDialog(
+        candidatesByName: _backgroundCandidatesByName,
+        currentValue: _animationBackground,
+        inheritedName: character.background,
+      ),
+    );
+    if (selection == null || !mounted) return;
+
+    String? next;
+    switch (selection.type) {
+      case AnimationBackgroundSelectionType.inherit:
+        next = null;
+        break;
+      case AnimationBackgroundSelectionType.setCharacter:
+        await _setCharacterBackground(character);
+        return;
+      case AnimationBackgroundSelectionType.none:
+        next = AthmAnimation.noBackground;
+        break;
+      case AnimationBackgroundSelectionType.custom:
+        next = selection.name;
+        break;
+      case AnimationBackgroundSelectionType.import:
+        final result = await FilePicker.platform.pickFiles(
+          dialogTitle: 'Import animation background',
+          type: FileType.custom,
+          allowedExtensions: ['png', 'jpg', 'jpeg', 'webp'],
+        );
+        final sourcePath = result?.files.single.path;
+        if (sourcePath == null) return;
+        try {
+          final importedPath = await _languageWorkspaceService.importBackground(
+            workspace,
+            character.id,
+            sourcePath,
+          );
+          next = p.basenameWithoutExtension(importedPath).toUpperCase();
+          _backgroundCandidatesByName = {
+            ..._backgroundCandidatesByName,
+            next: importedPath,
+          };
+        } catch (error) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Cannot import background: $error')),
+          );
+          return;
+        }
+        break;
+    }
+
+    final before = _captureEditorState();
+    setState(() => _animationBackground = next);
+    _recordEditorState(before, label: 'change animation background');
   }
 
   Future<void> _loadWorkspaceAnimation(
@@ -1196,6 +1752,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     final assets = workspace.statusFor(character.id, animation.name);
 
     await playback.raw.stop();
+    await optionalBlockPlayback.raw.stop();
+    _activeOptionalAudioGroupId = null;
+    _activeOptionalAudioPath = null;
     animationClock.pause();
     await _cleanupPlayTmp();
     currentAudioPath = assets.audioPath;
@@ -1205,19 +1764,43 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     _audioOffsetMs = animation.soundOffsetMs;
     _explicitDurationMs = animation.durationMs;
     _selectedSoundName = animation.sound;
+    _animationBackground = animation.background;
+    _backgroundCandidatesByName = {
+      for (final entry in assets.backgroundCandidatesByName.entries)
+        entry.key.toUpperCase(): entry.value,
+    };
 
     imgSvc.setAll(assets.framesByName);
     if (assets.framesByName.isNotEmpty) {
       imgSvc.defaultImage = assets.framesByName.values.first;
     }
 
-    final marks = <ClipMark>[];
+    var marks = <ClipMark>[];
     var startMs = 0.0;
     var lockNumber = 0;
     for (final entry in animation.track) {
-      final lockedId = entry is AthmLockedSequence
-          ? 'locked_${++lockNumber}'
+      final locked =
+          entry is AthmLockedSequence || entry is AthmOptionalLockedSequence;
+      final lockedId = locked ? 'locked_${++lockNumber}' : null;
+      final optionalChance = entry is AthmOptionalLockedSequence
+          ? entry.chancePercent
           : null;
+      final optionalSoundName = entry is AthmOptionalLockedSequence
+          ? entry.sound
+          : null;
+      final optionalSoundOffsetMs = entry is AthmOptionalLockedSequence
+          ? entry.soundOffsetMs
+          : 0.0;
+      final optionalSoundKey = optionalSoundName == null
+          ? null
+          : p
+                .basenameWithoutExtension(
+                  optionalSoundName.replaceAll('\\', '/'),
+                )
+                .toUpperCase();
+      final optionalSoundPath = optionalSoundKey == null
+          ? null
+          : assets.soundsByName[optionalSoundKey];
       for (final segment in entry.segments) {
         final layoutDuration = segment.durationChoicesMs.first;
         marks.add(
@@ -1230,11 +1813,18 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
             selectedFrameChoiceIndex: 0,
             selectedDurationChoiceIndex: 0,
             lockedSequenceId: lockedId,
+            optionalChancePercent: optionalChance,
+            optionalIncludedInPreview: true,
+            optionalSoundName: optionalSoundName,
+            optionalSoundPath: optionalSoundPath,
+            optionalSoundOffsetMs: optionalSoundOffsetMs,
           ),
         );
         startMs += layoutDuration;
       }
     }
+    marks = await _fitLoadedOptionalAudio(marks);
+    startMs = selectedTrackEndMs(marks);
     _animationDurationMs = effectiveTimelineDurationMs(
       selectedTrackEndMs: startMs,
       explicitMinimumMs: _explicitDurationMs,
@@ -1273,12 +1863,17 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       _selectedAnimationName = animation.name;
       _loopEnabled = animation.loop;
     });
+    unawaited(_rememberCurrentLanguageAnimSession());
     _scaffoldKey.currentState?.closeDrawer();
     if (!assets.isComplete) {
       final details = [
         if (assets.expectsAudio && !assets.hasAudio) 'sound not found',
         if (assets.missingFrames.isNotEmpty)
           '${assets.missingFrames.length} frame(s) not found',
+        if (assets.missingOptionalSounds.isNotEmpty)
+          '${assets.missingOptionalSounds.length} block sound(s) not found; animation will still play',
+        if (assets.missingBackground != null)
+          'background ${assets.missingBackground} not found; animation will still play',
       ].join(', ');
       ScaffoldMessenger.of(
         context,
@@ -1286,11 +1881,25 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     }
   }
 
-  List<AthmTrackEntry> _trackFromMarks() =>
-      buildAthmTrackFromMarks(marksCtrl.marks.value);
+  String _savedFrameName(String editorLabel) {
+    final imagePath = imgSvc.imageForLabelNullable(editorLabel);
+    if (imagePath == null ||
+        imagePath.isEmpty ||
+        imagePath.startsWith('data:image/')) {
+      return editorLabel;
+    }
+    final imageName = p.basenameWithoutExtension(imagePath).trim();
+    return imageName.isEmpty ? editorLabel : imageName;
+  }
+
+  List<AthmTrackEntry> _trackFromMarks() => buildAthmTrackFromMarks(
+    marksCtrl.marks.value,
+    resolveFrameName: _savedFrameName,
+  );
 
   Future<bool> _saveLanguageAnim() async {
     final workspace = _languageWorkspace;
+    _ensureKnownOptionalAudioFits();
     final updatedAnimation = _editorAnimation;
     if (workspace == null || updatedAnimation == null) return false;
     final previousDocument = workspace.document;
@@ -1302,10 +1911,18 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         workspace.languageFilePath,
       );
       if (!mounted) return true;
+      final refreshedAssets = _languageWorkspace!.statusFor(
+        _selectedCharacterId!,
+        _selectedAnimationName!,
+      );
+      _backgroundCandidatesByName = {
+        for (final entry in refreshedAssets.backgroundCandidatesByName.entries)
+          entry.key.toUpperCase(): entry.value,
+      };
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Saved ATHM v3. Backup: ${p.basename(workspace.languageFilePath)}.bak',
+            'Saved ATHM v4. Backup: ${p.basename(workspace.languageFilePath)}.bak',
           ),
         ),
       );
@@ -1337,8 +1954,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
   }
 
   void _toggleMarkLocked(ClipMark mark) {
+    final ids = mark.optionalChancePercent == null
+        ? {mark.id}
+        : marksCtrl.marks.value
+              .where((item) => item.lockedSequenceId == mark.lockedSequenceId)
+              .map((item) => item.id)
+              .toSet();
     _setMarksLocked(
-      {mark.id},
+      ids,
       mark.lockedSequenceId == null,
       historyLabel: 'toggle frame unskippable',
     );
@@ -1357,6 +1980,11 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       return mark.copyWith(
         lockedSequenceId: locked ? lockId : null,
         clearLockedSequenceId: !locked,
+        clearOptionalChancePercent: true,
+        optionalIncludedInPreview: true,
+        clearOptionalSoundName: !locked,
+        clearOptionalSoundPath: !locked,
+        optionalSoundOffsetMs: locked ? mark.optionalSoundOffsetMs : 0,
       );
     }).toList();
     history.record(
@@ -1367,6 +1995,359 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       label: historyLabel,
     );
     marksCtrl.marks.value = next;
+  }
+
+  Set<String> _selectedOptionalGroupIds() => _selectedMarks
+      .where((mark) => mark.optionalChancePercent != null)
+      .map((mark) => mark.lockedSequenceId)
+      .whereType<String>()
+      .toSet();
+
+  Set<String> _optionalGroupTargetMarkIds() {
+    final groups = _selectedOptionalGroupIds();
+    if (groups.isEmpty) return marksCtrl.selection.value;
+    return marksCtrl.marks.value
+        .where((mark) => groups.contains(mark.lockedSequenceId))
+        .map((mark) => mark.id)
+        .toSet();
+  }
+
+  Future<double?> _askOptionalChance(double initial) async {
+    final controller = TextEditingController(
+      text: initial.toStringAsFixed(initial == initial.roundToDouble() ? 0 : 1),
+    );
+    final result = await showDialog<double>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Random unskippable sequence'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+          ],
+          decoration: const InputDecoration(
+            labelText: 'Chance per loop (%)',
+            helperText: 'Enter a value greater than 0 and up to 100.',
+          ),
+          onSubmitted: (_) {
+            final value = double.tryParse(controller.text.trim());
+            if (value != null && value > 0 && value <= 100) {
+              Navigator.of(dialogContext).pop(value);
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final value = double.tryParse(controller.text.trim());
+              if (value != null && value > 0 && value <= 100) {
+                Navigator.of(dialogContext).pop(value);
+              }
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    return result;
+  }
+
+  Future<void> _enableSelectedOptional() async {
+    if (!_allSelectedMarksLocked) return;
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    final hasGuaranteedFrameAfter = marksCtrl.marks.value.any(
+      (mark) =>
+          !selection.contains(mark.id) && mark.optionalChancePercent == null,
+    );
+    if (!hasGuaranteedFrameAfter) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Keep at least one frame outside random sequences.'),
+        ),
+      );
+      return;
+    }
+    final chance = await _askOptionalChance(_selectedOptionalChance ?? 50);
+    if (chance == null || !mounted) return;
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final groupId = 'optional_${DateTime.now().microsecondsSinceEpoch}';
+    final next = before.map((mark) {
+      if (!selection.contains(mark.id)) return mark;
+      return mark.copyWith(
+        lockedSequenceId: groupId,
+        optionalChancePercent: chance,
+        optionalIncludedInPreview: true,
+      );
+    }).toList();
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'make unskippable sequence random',
+    );
+    marksCtrl.marks.value = next;
+  }
+
+  void _disableSelectedOptional() {
+    final targets = _optionalGroupTargetMarkIds();
+    if (targets.isEmpty) return;
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    final next = before.map((mark) {
+      if (!targets.contains(mark.id)) return mark;
+      return mark.copyWith(
+        clearOptionalChancePercent: true,
+        optionalIncludedInPreview: true,
+        clearOptionalSoundName: true,
+        clearOptionalSoundPath: true,
+        optionalSoundOffsetMs: 0,
+      );
+    }).toList();
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'make unskippable sequence deterministic',
+    );
+    marksCtrl.marks.value = next;
+  }
+
+  Future<void> _editSelectedOptionalChance() async {
+    final current = _selectedOptionalChance;
+    if (current == null) return;
+    final chance = await _askOptionalChance(current);
+    if (chance == null || !mounted || chance == current) return;
+    final targets = _optionalGroupTargetMarkIds();
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    final next = before
+        .map(
+          (mark) => targets.contains(mark.id)
+              ? mark.copyWith(optionalChancePercent: chance)
+              : mark,
+        )
+        .toList();
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'change random sequence chance',
+    );
+    marksCtrl.marks.value = next;
+  }
+
+  void _setSelectedOptionalPreview(bool included) {
+    final targets = _optionalGroupTargetMarkIds();
+    if (targets.isEmpty) return;
+    marksCtrl.marks.value = marksCtrl.marks.value
+        .map(
+          (mark) => targets.contains(mark.id)
+              ? mark.copyWith(optionalIncludedInPreview: included)
+              : mark,
+        )
+        .toList();
+    setState(() {});
+  }
+
+  Future<void> _pickOptionalBlockAudio() async {
+    final groupId = _selectedOptionalGroupId;
+    final workspace = _languageWorkspace;
+    if (groupId == null || workspace == null) return;
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Choose random block audio',
+      type: FileType.custom,
+      allowedExtensions: ['wav', 'mp3', 'm4a', 'aac', 'flac', 'ogg'],
+    );
+    var source = result?.files.single.path;
+    if (source == null) return;
+    final soundsDirectory = Directory(
+      _languageWorkspaceService.soundsRootPath(workspace.rootPath),
+    );
+    await soundsDirectory.create(recursive: true);
+    final safeBaseName = p
+        .basenameWithoutExtension(source)
+        .replaceAll(RegExp(r'[^A-Za-z0-9_-]+'), '_');
+    final destination = p.join(
+      soundsDirectory.path,
+      '$safeBaseName${p.extension(source).toLowerCase()}',
+    );
+    if (p.normalize(source).toLowerCase() !=
+        p.normalize(destination).toLowerCase()) {
+      await File(source).copy(destination);
+      source = destination;
+    }
+
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    final soundName = safeBaseName;
+    var next = before
+        .map(
+          (mark) => mark.lockedSequenceId == groupId
+              ? mark.copyWith(
+                  optionalSoundName: soundName,
+                  optionalSoundPath: source,
+                )
+              : mark,
+        )
+        .toList();
+    final audioDurationMs = await _loadOptionalAudioDurationMs(source);
+    if (audioDurationMs > 0) {
+      next = fitOptionalAudioGroup(
+        marks: next,
+        groupId: groupId,
+        audioDurationMs: audioDurationMs,
+      ).marks;
+    }
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'attach random block audio',
+    );
+    marksCtrl.marks.value = next;
+    _refreshTimelineDurationFromMarks();
+    _activeOptionalAudioGroupId = null;
+    _activeOptionalAudioPath = null;
+    await _syncOptionalBlockAudio(forceSeek: true);
+  }
+
+  Future<void> _removeOptionalBlockAudio() async {
+    final groupId = _selectedOptionalGroupId;
+    final current = _selectedOptionalGroupFirstMark;
+    if (groupId == null || current?.optionalSoundName == null) return;
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Are you sure?'),
+            content: Text(
+              'Remove ${current!.optionalSoundName} from this random block? '
+              'The audio file will remain on disk.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton.tonal(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Remove audio'),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed || !mounted) return;
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    final next = before
+        .map(
+          (mark) => mark.lockedSequenceId == groupId
+              ? mark.copyWith(
+                  clearOptionalSoundName: true,
+                  clearOptionalSoundPath: true,
+                  optionalSoundOffsetMs: 0,
+                )
+              : mark,
+        )
+        .toList();
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'remove random block audio',
+    );
+    marksCtrl.marks.value = next;
+    await optionalBlockPlayback.raw.stop();
+    _activeOptionalAudioGroupId = null;
+    _activeOptionalAudioPath = null;
+  }
+
+  Future<void> _editOptionalBlockAudioOffset() async {
+    final groupId = _selectedOptionalGroupId;
+    final current = _selectedOptionalGroupFirstMark;
+    if (groupId == null || current?.optionalSoundName == null) return;
+    final controller = TextEditingController(
+      text: current!.optionalSoundOffsetMs.toStringAsFixed(0),
+    );
+    final value = await showDialog<double>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Block audio offset'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+          ],
+          decoration: const InputDecoration(
+            labelText: 'Start after block begins (ms)',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final parsed = double.tryParse(controller.text.trim());
+              if (parsed != null && parsed.isFinite && parsed >= 0) {
+                Navigator.pop(dialogContext, parsed);
+              }
+            },
+            child: const Text('Apply'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (value == null || !mounted || value == current.optionalSoundOffsetMs) {
+      return;
+    }
+    final before = List<ClipMark>.from(marksCtrl.marks.value);
+    final selection = Set<String>.from(marksCtrl.selection.value);
+    var next = before
+        .map(
+          (mark) => mark.lockedSequenceId == groupId
+              ? mark.copyWith(optionalSoundOffsetMs: value)
+              : mark,
+        )
+        .toList();
+    final path = current.optionalSoundPath;
+    if (path != null) {
+      final durationMs = await _loadOptionalAudioDurationMs(path);
+      if (durationMs > 0) {
+        next = fitOptionalAudioGroup(
+          marks: next,
+          groupId: groupId,
+          audioDurationMs: durationMs,
+        ).marks;
+      }
+    }
+    history.record(
+      beforeMarks: before,
+      beforeSel: selection,
+      afterMarks: next,
+      afterSel: selection,
+      label: 'change random block audio offset',
+    );
+    marksCtrl.marks.value = next;
+    _refreshTimelineDurationFromMarks();
+    await _syncOptionalBlockAudio(forceSeek: true);
   }
 
   Future<void> _editStepVariants(int markIndex, ClipMark mark) async {
@@ -1431,16 +2412,18 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       );
       cursor += selectedDuration;
     }
+    final fitted = _fitKnownOptionalAudio(next);
+    cursor = selectedTrackEndMs(fitted);
 
     final selection = Set<String>.from(marksCtrl.selection.value);
     history.record(
       beforeMarks: beforeMarks,
       beforeSel: beforeSelection,
-      afterMarks: next,
+      afterMarks: fitted,
       afterSel: selection,
       label: 'edit step variants',
     );
-    marksCtrl.marks.value = next;
+    marksCtrl.marks.value = fitted;
     _animationDurationMs = effectiveTimelineDurationMs(
       selectedTrackEndMs: cursor,
       explicitMinimumMs: _explicitDurationMs,
@@ -1477,6 +2460,13 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       parts.add(
         'frame variants: ${frameChoices.length} '
         '(current: ${frameChoices[selectedIndex]})',
+      );
+    }
+    if (mark.optionalChancePercent != null) {
+      parts.add(
+        'random unskippable: '
+        '${mark.optionalChancePercent!.toStringAsFixed(0)}% '
+        '(preview: ${mark.optionalIncludedInPreview ? 'included' : 'skipped'})',
       );
     }
     return parts.join(', ');
@@ -1554,7 +2544,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
       // и ещё один кадр — чтобы TextField «прикрутился» к дереву
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        _labelFocus(id).requestFocus();
+        _requestLabelFocus(id);
       });
     }
   }
@@ -1663,7 +2653,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     } else if (focusLabelEditor) {
       // если скролл не нужен — просто сфокусируем
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _labelFocus(id).requestFocus();
+        _requestLabelFocus(id);
       });
     }
   }
@@ -1696,18 +2686,25 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     await _selectAndMaybeSeek(mark.id, seek: true, scrollList: true);
   }
 
-  final Map<String, FocusNode> _labelFocusById = {};
+  final Map<String, GlobalKey<InlineLabelEditorState>> _labelEditorKeyById = {};
 
-  FocusNode _labelFocus(String id) =>
-      _labelFocusById.putIfAbsent(id, () => FocusNode(debugLabel: 'label_$id'));
+  GlobalKey<InlineLabelEditorState> _labelEditorKey(String id) =>
+      _labelEditorKeyById.putIfAbsent(
+        id,
+        () => GlobalKey<InlineLabelEditorState>(debugLabel: 'label_$id'),
+      );
+
+  void _requestLabelFocus(String id) {
+    _labelEditorKey(id).currentState?.requestFocus();
+  }
 
   void _disposeMissingLabelFoci() {
     final alive = marksCtrl.marks.value.map((m) => m.id).toSet();
-    final toDrop = _labelFocusById.keys
+    final toDrop = _labelEditorKeyById.keys
         .where((k) => !alive.contains(k))
         .toList();
     for (final k in toDrop) {
-      _labelFocusById.remove(k)?.dispose();
+      _labelEditorKeyById.remove(k);
     }
   }
 
@@ -1745,6 +2742,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
         _playbackRate = (_playbackRate + dr).clamp(0.25, 2.0);
         animationClock.setRate(_playbackRate);
         playback.setRate(_playbackRate);
+        optionalBlockPlayback.setRate(_playbackRate);
         setState(() {});
       },
       onCtrlChange: (down) => _timelineKey.currentState?.setCtrlDown(down),
@@ -1772,6 +2770,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                       onSelected: _loadWorkspaceAnimation,
                       onAddCharacter: _addCharacter,
                       onAddAnimation: _addAnimation,
+                      onSetCharacterBackground: _setCharacterBackground,
                       onRenameCharacter: _renameCharacter,
                       onDeleteCharacter: _deleteCharacter,
                       onRenameAnimation: _renameAnimation,
@@ -1781,21 +2780,25 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                   ),
                 ),
           appBar: AppBar(
+            automaticallyImplyLeading: false,
             title: Text(
               _selectedAnimation == null
                   ? 'Animation maker 2.0'
                   : '$_selectedCharacterId / $_selectedAnimationName${_hasUnsavedAnimation ? ' *' : ''}',
             ),
             actions: [
-              IconButton(
-                tooltip: _languageWorkspace == null
-                    ? 'Open LANGUAGE_ANIM.txt'
-                    : 'Animation library',
-                onPressed: _languageWorkspace == null
-                    ? _openLanguageAnim
-                    : () => _scaffoldKey.currentState?.openDrawer(),
-                icon: const Icon(Icons.video_library_outlined),
-              ),
+              if (_languageWorkspace == null)
+                IconButton(
+                  tooltip: 'Open LANGUAGE_ANIM.txt',
+                  onPressed: _openLanguageAnim,
+                  icon: const Icon(Icons.folder_open_outlined),
+                )
+              else
+                IconButton(
+                  tooltip: 'Animation library',
+                  onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+                  icon: const Icon(Icons.video_library_outlined),
+                ),
               if (_selectedAnimation != null)
                 IconButton(
                   tooltip:
@@ -1856,6 +2859,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                       onPassDurationResolved: _onRandomPassDuration,
                       marksListenable: marksCtrl.marks,
                       getImageSrcForLabel: imgSvc.imageForLabelNullable,
+                      backgroundImageSrc: _effectiveBackgroundPath,
                       // height: 180,
                       backgroundColor:
                           theme.colorScheme.surfaceContainerHighest,
@@ -1868,8 +2872,10 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
 
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: Wrap(
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 8,
                   children: [
                     ElevatedButton.icon(
                       onPressed: _pickAudio,
@@ -1906,6 +2912,20 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                         },
                       ),
                       const SizedBox(width: 8),
+                      ActionChip(
+                        avatar: Icon(
+                          _isRequestedBackgroundMissing
+                              ? Icons.broken_image_outlined
+                              : Icons.wallpaper_outlined,
+                          size: 18,
+                        ),
+                        label: Text(_backgroundControlLabel),
+                        tooltip: _isRequestedBackgroundMissing
+                            ? 'Background $_effectiveBackgroundName was not found'
+                            : 'Choose the animation background',
+                        onPressed: _chooseAnimationBackground,
+                      ),
+                      const SizedBox(width: 8),
                       FilterChip(
                         selected: _allSelectedMarksLocked,
                         avatar: Icon(
@@ -1928,6 +2948,85 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                             ? null
                             : (_) => _toggleSelectedLocked(),
                       ),
+                      const SizedBox(width: 8),
+                      FilterChip(
+                        selected: _allSelectedMarksOptional,
+                        avatar: const Icon(Icons.casino_outlined, size: 18),
+                        label: const Text('RANDOM'),
+                        tooltip: !_allSelectedMarksLocked
+                            ? 'Select unskippable frames first'
+                            : (_allSelectedMarksOptional
+                                  ? 'Make this sequence deterministic'
+                                  : 'Randomly include this sequence per loop'),
+                        onSelected: !_allSelectedMarksLocked
+                            ? null
+                            : (enabled) {
+                                if (enabled) {
+                                  _enableSelectedOptional();
+                                } else {
+                                  _disableSelectedOptional();
+                                }
+                              },
+                      ),
+                      if (_selectedOptionalChance case final chance?) ...[
+                        const SizedBox(width: 8),
+                        ActionChip(
+                          avatar: const Icon(Icons.percent, size: 18),
+                          label: Text(chance.toStringAsFixed(0)),
+                          tooltip: 'Edit chance per loop',
+                          onPressed: _editSelectedOptionalChance,
+                        ),
+                        const SizedBox(width: 8),
+                        FilterChip(
+                          selected: _selectedOptionalIncludedInPreview,
+                          avatar: Icon(
+                            _selectedOptionalIncludedInPreview
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            size: 18,
+                          ),
+                          label: Text(
+                            _selectedOptionalIncludedInPreview
+                                ? 'PREVIEW: INCLUDED'
+                                : 'PREVIEW: SKIPPED',
+                          ),
+                          tooltip:
+                              'Choose the branch shown in the editor preview',
+                          onSelected: _setSelectedOptionalPreview,
+                        ),
+                        const SizedBox(width: 8),
+                        ActionChip(
+                          avatar: const Icon(Icons.music_note, size: 18),
+                          label: Text(
+                            _selectedOptionalGroupFirstMark
+                                    ?.optionalSoundName ??
+                                'ADD BLOCK AUDIO',
+                          ),
+                          tooltip:
+                              'Attach or replace audio for this random block',
+                          onPressed: _selectedOptionalGroupId == null
+                              ? null
+                              : _pickOptionalBlockAudio,
+                        ),
+                        if (_selectedOptionalGroupFirstMark
+                                ?.optionalSoundName !=
+                            null) ...[
+                          const SizedBox(width: 8),
+                          ActionChip(
+                            avatar: const Icon(Icons.timer_outlined, size: 18),
+                            label: Text(
+                              '${_selectedOptionalGroupFirstMark!.optionalSoundOffsetMs.toStringAsFixed(0)} ms',
+                            ),
+                            tooltip: 'Edit block audio start offset',
+                            onPressed: _editOptionalBlockAudioOffset,
+                          ),
+                          IconButton(
+                            tooltip: 'Remove block audio',
+                            onPressed: _removeOptionalBlockAudio,
+                            icon: const Icon(Icons.music_off_outlined),
+                          ),
+                        ],
+                      ],
                     ],
                   ],
                 ),
@@ -1960,6 +3059,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                       return ValueListenableBuilder<List<ClipMark>>(
                         valueListenable: marksCtrl.marks,
                         builder: (context, list, _) {
+                          final blockAudioClips = _timelineBlockAudioClips;
                           return ZoomableTimeline(
                             key: _timelineKey,
                             durationMs: durationMs,
@@ -1972,7 +3072,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                             audioLabel: currentAudioPath == null
                                 ? null
                                 : p.basename(currentAudioPath!),
+                            blockAudioClips: blockAudioClips,
+                            height: blockAudioClips.isEmpty ? 126 : 160,
                             onAudioOffsetChanged: _setAudioOffset,
+                            onBlockAudioOffsetChanged: _setBlockAudioOffset,
+                            onBlockAudioOffsetChangeStarted:
+                                _beginBlockAudioOffsetChange,
+                            onBlockAudioOffsetChangeEnded:
+                                _endBlockAudioOffsetChange,
                             onDurationChanged: _setAnimationDuration,
                             onAudioOffsetChangeStarted:
                                 _beginTimelineEditorChange,
@@ -2061,6 +3168,7 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                       _playbackRate = v;
                       animationClock.setRate(v);
                       playback.setRate(v);
+                      optionalBlockPlayback.setRate(v);
                       _refocusHotkeys();
                       setState(() {});
                     },
@@ -2145,9 +3253,9 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                                 title: Row(
                                   children: [
                                     InlineLabelEditor(
+                                      key: _labelEditorKey(m.id),
                                       initial: m.label ?? '',
                                       hint: 'put label here',
-                                      focusNode: _labelFocus(m.id),
                                       autofocus: false,
                                       onChangedCommitted: (text) {
                                         marksCtrl.updateLabelAtIndex(idx, text);
@@ -2193,14 +3301,20 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                                     IconButton(
                                       tooltip: m.lockedSequenceId == null
                                           ? 'Add frame to unskippable sequence'
-                                          : 'Remove frame from unskippable sequence',
+                                          : (m.optionalChancePercent == null
+                                                ? 'Remove frame from unskippable sequence'
+                                                : 'Remove frame from random unskippable sequence'),
                                       icon: Icon(
                                         m.lockedSequenceId == null
                                             ? Icons.lock_open_outlined
-                                            : Icons.lock,
+                                            : (m.optionalChancePercent == null
+                                                  ? Icons.lock
+                                                  : Icons.casino),
                                         color: m.lockedSequenceId == null
                                             ? null
-                                            : const Color(0xFFE65100),
+                                            : (m.optionalChancePercent == null
+                                                  ? const Color(0xFFE65100)
+                                                  : const Color(0xFF6A1B9A)),
                                       ),
                                       onPressed: () => _toggleMarkLocked(m),
                                     ),

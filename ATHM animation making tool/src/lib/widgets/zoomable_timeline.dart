@@ -3,11 +3,55 @@ import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show SystemMouseCursors;
 
 import '../features/audio_marks/domain/entities/clip_mark.dart';
 
 enum SeekTrigger { down, up }
+
+@immutable
+class TimelineBlockAudioClip {
+  const TimelineBlockAudioClip({
+    required this.groupId,
+    required this.label,
+    required this.blockStartMs,
+    required this.blockEndMs,
+    required this.audioDurationMs,
+    required this.offsetMs,
+    required this.includedInPreview,
+  });
+
+  final String groupId;
+  final String label;
+  final double blockStartMs;
+  final double blockEndMs;
+  final double audioDurationMs;
+  final double offsetMs;
+  final bool includedInPreview;
+
+  double get audioStartMs => blockStartMs + offsetMs;
+
+  @override
+  bool operator ==(Object other) =>
+      other is TimelineBlockAudioClip &&
+      other.groupId == groupId &&
+      other.label == label &&
+      other.blockStartMs == blockStartMs &&
+      other.blockEndMs == blockEndMs &&
+      other.audioDurationMs == audioDurationMs &&
+      other.offsetMs == offsetMs &&
+      other.includedInPreview == includedInPreview;
+
+  @override
+  int get hashCode => Object.hash(
+    groupId,
+    label,
+    blockStartMs,
+    blockEndMs,
+    audioDurationMs,
+    offsetMs,
+    includedInPreview,
+  );
+}
 
 class ZoomableTimeline extends StatefulWidget {
   const ZoomableTimeline({
@@ -26,6 +70,10 @@ class ZoomableTimeline extends StatefulWidget {
     this.audioOffsetMs = 0,
     this.audioLabel,
     this.onAudioOffsetChanged,
+    this.blockAudioClips = const [],
+    this.onBlockAudioOffsetChanged,
+    this.onBlockAudioOffsetChangeStarted,
+    this.onBlockAudioOffsetChangeEnded,
     this.onDurationChanged,
     this.onAudioOffsetChangeStarted,
     this.onAudioOffsetChangeEnded,
@@ -85,6 +133,11 @@ class ZoomableTimeline extends StatefulWidget {
   final double audioOffsetMs;
   final String? audioLabel;
   final ValueChanged<double>? onAudioOffsetChanged;
+  final List<TimelineBlockAudioClip> blockAudioClips;
+  final void Function(String groupId, double offsetMs)?
+  onBlockAudioOffsetChanged;
+  final ValueChanged<String>? onBlockAudioOffsetChangeStarted;
+  final ValueChanged<String>? onBlockAudioOffsetChangeEnded;
   final ValueChanged<double>? onDurationChanged;
   final VoidCallback? onAudioOffsetChangeStarted;
   final VoidCallback? onAudioOffsetChangeEnded;
@@ -206,6 +259,11 @@ class ZoomableTimelineState extends State<ZoomableTimeline> {
             audioOffsetMs: widget.audioOffsetMs,
             audioLabel: widget.audioLabel,
             onAudioOffsetChanged: widget.onAudioOffsetChanged,
+            blockAudioClips: widget.blockAudioClips,
+            onBlockAudioOffsetChanged: widget.onBlockAudioOffsetChanged,
+            onBlockAudioOffsetChangeStarted:
+                widget.onBlockAudioOffsetChangeStarted,
+            onBlockAudioOffsetChangeEnded: widget.onBlockAudioOffsetChangeEnded,
             onDurationChanged: widget.onDurationChanged,
             onAudioOffsetChangeStarted: widget.onAudioOffsetChangeStarted,
             onAudioOffsetChangeEnded: widget.onAudioOffsetChangeEnded,
@@ -314,6 +372,10 @@ class _TimelineGesturesAndPaint extends StatefulWidget {
     required this.audioOffsetMs,
     this.audioLabel,
     this.onAudioOffsetChanged,
+    required this.blockAudioClips,
+    this.onBlockAudioOffsetChanged,
+    this.onBlockAudioOffsetChangeStarted,
+    this.onBlockAudioOffsetChangeEnded,
     this.onDurationChanged,
     this.onAudioOffsetChangeStarted,
     this.onAudioOffsetChangeEnded,
@@ -354,6 +416,11 @@ class _TimelineGesturesAndPaint extends StatefulWidget {
   final double audioOffsetMs;
   final String? audioLabel;
   final ValueChanged<double>? onAudioOffsetChanged;
+  final List<TimelineBlockAudioClip> blockAudioClips;
+  final void Function(String groupId, double offsetMs)?
+  onBlockAudioOffsetChanged;
+  final ValueChanged<String>? onBlockAudioOffsetChangeStarted;
+  final ValueChanged<String>? onBlockAudioOffsetChangeEnded;
   final ValueChanged<double>? onDurationChanged;
   final VoidCallback? onAudioOffsetChangeStarted;
   final VoidCallback? onAudioOffsetChangeEnded;
@@ -406,6 +473,10 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
   bool _draggingAudio = false;
   double _audioDragAnchorX = 0;
   double _audioDragStartMs = 0;
+  String? _draggingBlockAudioGroupId;
+  String? _hoveringBlockAudioGroupId;
+  double _blockAudioDragAnchorX = 0;
+  double _blockAudioDragStartOffsetMs = 0;
   String? _downHitId; // id метки под курсором в момент Down
 
   Offset? _pointerDownPx;
@@ -440,6 +511,23 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
       position.dy <= 34 &&
       (position.dx - widget.durationMs * widget.pxPerMs).abs() <= 12;
 
+  TimelineBlockAudioClip? _blockAudioAt(Offset position) {
+    if (position.dy < 76 || position.dy > 108) return null;
+    for (final clip in widget.blockAudioClips.reversed) {
+      final left = clip.audioStartMs * widget.pxPerMs;
+      final width = math.max(8.0, clip.audioDurationMs * widget.pxPerMs);
+      if (position.dx >= left && position.dx <= left + width) return clip;
+    }
+    return null;
+  }
+
+  TimelineBlockAudioClip? _blockAudioById(String groupId) {
+    for (final clip in widget.blockAudioClips) {
+      if (clip.groupId == groupId) return clip;
+    }
+    return null;
+  }
+
   void _resetPointerInteraction() {
     _groupDragging = false;
     _groupDeltaMs = 0.0;
@@ -454,6 +542,7 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
     _durationResizeAnchorX = null;
     _durationResizeStarted = false;
     _draggingAudio = false;
+    _draggingBlockAudioGroupId = null;
   }
 
   (double min, double max) _allowedGroupDeltaRange() {
@@ -479,25 +568,33 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
               _hoveringSelected ||
               _hoveringDurationHandle ||
               _resizingDuration ||
-              _draggingAudio)
+              _draggingAudio ||
+              _draggingBlockAudioGroupId != null ||
+              _hoveringBlockAudioGroupId != null)
           ? SystemMouseCursors.resizeLeftRight
           : SystemMouseCursors.basic,
       onHover: (e) {
         final over = _isOverSelected(e.localPosition.dx);
         final overDurationHandle = _isOverDurationHandle(e.localPosition);
+        final overBlockAudio = _blockAudioAt(e.localPosition)?.groupId;
         if (over != _hoveringSelected ||
-            overDurationHandle != _hoveringDurationHandle) {
+            overDurationHandle != _hoveringDurationHandle ||
+            overBlockAudio != _hoveringBlockAudioGroupId) {
           setState(() {
             _hoveringSelected = over;
             _hoveringDurationHandle = overDurationHandle;
+            _hoveringBlockAudioGroupId = overBlockAudio;
           });
         }
       },
       onExit: (_) {
-        if (_hoveringSelected || _hoveringDurationHandle) {
+        if (_hoveringSelected ||
+            _hoveringDurationHandle ||
+            _hoveringBlockAudioGroupId != null) {
           setState(() {
             _hoveringSelected = false;
             _hoveringDurationHandle = false;
+            _hoveringBlockAudioGroupId = null;
           });
         }
       },
@@ -510,11 +607,13 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
           _downHitId = hitId; // 👈 запомнили кандидата
 
           final atDurationHandle = _isOverDurationHandle(ev.localPosition);
+          final blockAudio = _blockAudioAt(ev.localPosition);
           final audioLeft = widget.audioOffsetMs * widget.pxPerMs;
           final audioRight =
               (widget.audioOffsetMs + widget.audioDurationMs) * widget.pxPerMs;
           final inAudio =
               ev.localPosition.dy >= 38 &&
+              ev.localPosition.dy <= 70 &&
               x >= audioLeft &&
               x <= audioRight &&
               widget.audioDurationMs > 0;
@@ -524,6 +623,14 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
             _durationResizeAnchorX = x;
             _durationResizeStarted = false;
             widget.onDurationChangeStarted?.call();
+            setState(() {});
+            return;
+          }
+          if (blockAudio != null) {
+            _draggingBlockAudioGroupId = blockAudio.groupId;
+            _blockAudioDragAnchorX = x;
+            _blockAudioDragStartOffsetMs = blockAudio.offsetMs;
+            widget.onBlockAudioOffsetChangeStarted?.call(blockAudio.groupId);
             setState(() {});
             return;
           }
@@ -569,6 +676,24 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
             widget.onDurationChanged?.call(
               math.max(1, ev.localPosition.dx / widget.pxPerMs),
             );
+          } else if (_draggingBlockAudioGroupId != null) {
+            final groupId = _draggingBlockAudioGroupId!;
+            final clip = _blockAudioById(groupId);
+            if (clip != null) {
+              final deltaMs =
+                  (ev.localPosition.dx - _blockAudioDragAnchorX) /
+                  widget.pxPerMs;
+              final maximum = math.max(
+                0.0,
+                clip.blockEndMs - clip.blockStartMs - clip.audioDurationMs,
+              );
+              widget.onBlockAudioOffsetChanged?.call(
+                groupId,
+                (_blockAudioDragStartOffsetMs + deltaMs)
+                    .clamp(0.0, maximum)
+                    .toDouble(),
+              );
+            }
           } else if (_draggingAudio) {
             final deltaMs =
                 (ev.localPosition.dx - _audioDragAnchorX) / widget.pxPerMs;
@@ -601,9 +726,15 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
         },
 
         onPointerUp: (ev) {
-          if (_resizingDuration || _draggingAudio) {
+          if (_resizingDuration ||
+              _draggingAudio ||
+              _draggingBlockAudioGroupId != null) {
+            final blockAudioGroupId = _draggingBlockAudioGroupId;
             if (_resizingDuration) widget.onDurationChangeEnded?.call();
             if (_draggingAudio) widget.onAudioOffsetChangeEnded?.call();
+            if (blockAudioGroupId != null) {
+              widget.onBlockAudioOffsetChangeEnded?.call(blockAudioGroupId);
+            }
             _resetPointerInteraction();
             setState(() {});
             return;
@@ -653,6 +784,10 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
         onPointerCancel: (_) {
           if (_resizingDuration) widget.onDurationChangeEnded?.call();
           if (_draggingAudio) widget.onAudioOffsetChangeEnded?.call();
+          final blockAudioGroupId = _draggingBlockAudioGroupId;
+          if (blockAudioGroupId != null) {
+            widget.onBlockAudioOffsetChangeEnded?.call(blockAudioGroupId);
+          }
           _resetPointerInteraction();
           setState(() {});
         },
@@ -667,6 +802,7 @@ class _TimelineGesturesAndPaintState extends State<_TimelineGesturesAndPaint> {
             audioDurationMs: widget.audioDurationMs,
             audioOffsetMs: widget.audioOffsetMs,
             audioLabel: widget.audioLabel,
+            blockAudioClips: widget.blockAudioClips,
             pxPerMs: widget.pxPerMs,
             bgColor: Theme.of(context).colorScheme.surfaceContainerHighest,
             markerColor: Theme.of(context).colorScheme.primary,
@@ -714,6 +850,7 @@ class TimelinePainter extends CustomPainter {
     required this.audioDurationMs,
     required this.audioOffsetMs,
     this.audioLabel,
+    required this.blockAudioClips,
     required this.waveColor,
 
     this.getImageSrcForLabel,
@@ -756,11 +893,13 @@ class TimelinePainter extends CustomPainter {
   final double audioDurationMs;
   final double audioOffsetMs;
   final String? audioLabel;
+  final List<TimelineBlockAudioClip> blockAudioClips;
   final Color bgColor, markerColor, playheadColor, textColor, waveColor;
 
   final double? selectionFromX;
   final double? selectionToX;
   static const lockedColor = Color(0xFFE65100);
+  static const optionalLockedColor = Color(0xFF6A1B9A);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -799,7 +938,7 @@ class TimelinePainter extends CustomPainter {
         .clamp(0.0, math.max(0.0, size.width - audioLeft))
         .toDouble();
     final audioRect = RRect.fromRectAndRadius(
-      Rect.fromLTWH(audioLeft, 38, audioWidth, size.height - 64),
+      Rect.fromLTWH(audioLeft, 38, audioWidth, 32),
       const Radius.circular(6),
     );
     if (audioWidth > 0) {
@@ -818,6 +957,10 @@ class TimelinePainter extends CustomPainter {
     // волна
     if (peaks != null && peaks!.isNotEmpty) {
       _paintPeaks(canvas, audioRect.outerRect);
+    }
+
+    if (blockAudioClips.isNotEmpty) {
+      _paintBlockAudioClips(canvas, size);
     }
 
     _paintLockedRanges(canvas, size);
@@ -844,7 +987,9 @@ class TimelinePainter extends CustomPainter {
         return src != null && src.trim().isNotEmpty;
       }();
 
-      final baseBar = m.lockedSequenceId != null
+      final baseBar = m.optionalChancePercent != null
+          ? optionalLockedColor
+          : m.lockedSequenceId != null
           ? lockedColor
           : (draggingId != null && m.id == draggingId)
           ? draggingBarColor
@@ -970,6 +1115,75 @@ class TimelinePainter extends CustomPainter {
     }
   }
 
+  void _paintBlockAudioClips(Canvas canvas, Size size) {
+    const top = 76.0;
+    const height = 32.0;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTWH(0, top, size.width, height),
+        const Radius.circular(6),
+      ),
+      Paint()..color = optionalLockedColor.withValues(alpha: 0.06),
+    );
+    _paintTrackLabel(canvas, 'BLOCK AUDIO', 8, top + 4);
+
+    for (final clip in blockAudioClips) {
+      final blockLeft = (clip.blockStartMs * pxPerMs)
+          .clamp(0.0, size.width)
+          .toDouble();
+      final blockRight = (clip.blockEndMs * pxPerMs)
+          .clamp(blockLeft, size.width)
+          .toDouble();
+      final blockRect = RRect.fromRectAndRadius(
+        Rect.fromLTRB(blockLeft, top, blockRight, top + height),
+        const Radius.circular(6),
+      );
+      canvas.drawRRect(
+        blockRect,
+        Paint()..color = optionalLockedColor.withValues(alpha: 0.10),
+      );
+
+      final audioLeft = (clip.audioStartMs * pxPerMs)
+          .clamp(blockLeft, blockRight)
+          .toDouble();
+      final audioRight = ((clip.audioStartMs + clip.audioDurationMs) * pxPerMs)
+          .clamp(audioLeft, blockRight)
+          .toDouble();
+      final alpha = clip.includedInPreview ? 0.48 : 0.22;
+      final audioRect = RRect.fromRectAndRadius(
+        Rect.fromLTRB(
+          audioLeft,
+          top + 2,
+          math.max(audioLeft + 2, audioRight),
+          top + height - 2,
+        ),
+        const Radius.circular(5),
+      );
+      canvas.drawRRect(
+        audioRect,
+        Paint()..color = optionalLockedColor.withValues(alpha: alpha),
+      );
+      final label = TextPainter(
+        text: TextSpan(
+          text: '♪ ${clip.label}  +${clip.offsetMs.toStringAsFixed(0)} ms',
+          style: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: textColor.withValues(
+              alpha: clip.includedInPreview ? 1.0 : 0.55,
+            ),
+          ),
+        ),
+        maxLines: 1,
+        ellipsis: '…',
+        textDirection: TextDirection.ltr,
+      )..layout(maxWidth: math.max(0.0, audioRect.width - 10));
+      if (label.width > 0) {
+        label.paint(canvas, Offset(audioRect.left + 5, audioRect.top + 7));
+      }
+    }
+  }
+
   void _paintLockedRanges(Canvas canvas, Size size) {
     var index = 0;
     while (index < marks.length) {
@@ -978,8 +1192,14 @@ class TimelinePainter extends CustomPainter {
         continue;
       }
       final startIndex = index;
+      final optionalChance = marks[startIndex].optionalChancePercent;
+      final optionalGroupId = marks[startIndex].lockedSequenceId;
       while (index + 1 < marks.length &&
-          marks[index + 1].lockedSequenceId != null) {
+          marks[index + 1].lockedSequenceId != null &&
+          (optionalChance == null
+              ? marks[index + 1].optionalChancePercent == null
+              : marks[index + 1].optionalChancePercent != null &&
+                    marks[index + 1].lockedSequenceId == optionalGroupId)) {
         index++;
       }
       final endIndex = index;
@@ -991,22 +1211,39 @@ class TimelinePainter extends CustomPainter {
           : durationMs;
       final endX = (endMs * pxPerMs).clamp(startX, size.width).toDouble();
       final rect = Rect.fromLTRB(startX, 18, endX, size.height - 20);
+      final rangeColor = optionalChance == null
+          ? lockedColor
+          : optionalLockedColor;
       canvas.drawRect(
         rect,
-        Paint()..color = lockedColor.withValues(alpha: 0.10),
+        Paint()..color = rangeColor.withValues(alpha: 0.10),
       );
-      canvas.drawRect(
-        Rect.fromLTWH(startX, 18, math.max(2, endX - startX), 3),
-        Paint()..color = lockedColor,
-      );
+      if (optionalChance == null) {
+        canvas.drawRect(
+          Rect.fromLTWH(startX, 18, math.max(2, endX - startX), 3),
+          Paint()..color = rangeColor,
+        );
+      } else {
+        _paintDashedHorizontalLine(
+          canvas,
+          startX,
+          endX,
+          19.5,
+          Paint()
+            ..color = rangeColor
+            ..strokeWidth = 3,
+        );
+      }
       if (endX - startX >= 52) {
         final label = TextPainter(
-          text: const TextSpan(
-            text: 'LOCKED',
+          text: TextSpan(
+            text: optionalChance == null
+                ? 'LOCKED'
+                : 'RANDOM LOCK ${optionalChance.toStringAsFixed(0)}%',
             style: TextStyle(
               fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: lockedColor,
+              color: rangeColor,
             ),
           ),
           textDirection: TextDirection.ltr,
@@ -1014,6 +1251,23 @@ class TimelinePainter extends CustomPainter {
         label.paint(canvas, Offset(startX + 4, 22));
       }
       index++;
+    }
+  }
+
+  void _paintDashedHorizontalLine(
+    Canvas canvas,
+    double startX,
+    double endX,
+    double y,
+    Paint paint,
+  ) {
+    const dash = 7.0;
+    const gap = 4.0;
+    var x = startX;
+    while (x < endX) {
+      final dashEnd = math.min(x + dash, endX);
+      canvas.drawLine(Offset(x, y), Offset(dashEnd, y), paint);
+      x += dash + gap;
     }
   }
 
@@ -1041,6 +1295,7 @@ class TimelinePainter extends CustomPainter {
         old.audioDurationMs != audioDurationMs ||
         old.audioOffsetMs != audioOffsetMs ||
         old.audioLabel != audioLabel ||
+        !listEquals(old.blockAudioClips, blockAudioClips) ||
         old.waveColor != waveColor ||
         old.getImageSrcForLabel != getImageSrcForLabel ||
         old.missingImageColor != missingImageColor ||

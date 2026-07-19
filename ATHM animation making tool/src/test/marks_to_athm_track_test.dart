@@ -34,4 +34,29 @@ void main() {
 
     expect(track.whereType<AthmLockedSequence>(), hasLength(2));
   });
+
+  test('optional locked frames become one weighted track entry', () {
+    final first = mark('a', 0, locked: true)..optionalChancePercent = 35;
+    final second = mark('b', 100, locked: true)
+      ..lockedSequenceId = first.lockedSequenceId
+      ..optionalChancePercent = 35;
+    final track = buildAthmTrackFromMarks([
+      ClipMark(startMs: 0, durationMs: 100, label: 'BASE'),
+      first.copyWith(startMs: 100),
+      second.copyWith(startMs: 200),
+    ]);
+
+    final optional = track.whereType<AthmOptionalLockedSequence>().single;
+    expect(optional.chancePercent, 35);
+    expect(optional.items, hasLength(2));
+  });
+
+  test('saving can resolve editor labels to assigned image names', () {
+    final track = buildAthmTrackFromMarks([
+      ClipMark(startMs: 0, durationMs: 100, label: 'f'),
+    ], resolveFrameName: (label) => label == 'f' ? 'ANDF' : label);
+
+    final segment = (track.single as AthmSegmentEntry).segment;
+    expect(segment.frameChoices, ['ANDF']);
+  });
 }

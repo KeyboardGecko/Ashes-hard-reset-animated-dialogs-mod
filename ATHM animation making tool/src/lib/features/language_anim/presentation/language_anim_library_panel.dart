@@ -12,6 +12,7 @@ class LanguageAnimLibraryPanel extends StatefulWidget {
     required this.onSelected,
     required this.onAddCharacter,
     required this.onAddAnimation,
+    required this.onSetCharacterBackground,
     required this.onRenameCharacter,
     required this.onDeleteCharacter,
     required this.onRenameAnimation,
@@ -25,6 +26,7 @@ class LanguageAnimLibraryPanel extends StatefulWidget {
   final Future<void> Function(AthmCharacter, AthmAnimation) onSelected;
   final Future<void> Function() onAddCharacter;
   final Future<void> Function(AthmCharacter) onAddAnimation;
+  final Future<void> Function(AthmCharacter) onSetCharacterBackground;
   final Future<void> Function(AthmCharacter) onRenameCharacter;
   final Future<void> Function(AthmCharacter) onDeleteCharacter;
   final Future<void> Function(AthmCharacter, AthmAnimation) onRenameAnimation;
@@ -126,6 +128,9 @@ class _LanguageAnimLibraryPanelState extends State<LanguageAnimLibraryPanel> {
                       case 'rename':
                         await widget.onRenameCharacter(character);
                         return;
+                      case 'background':
+                        await widget.onSetCharacterBackground(character);
+                        return;
                       case 'delete':
                         await widget.onDeleteCharacter(character);
                         return;
@@ -133,6 +138,10 @@ class _LanguageAnimLibraryPanelState extends State<LanguageAnimLibraryPanel> {
                   },
                   itemBuilder: (context) => const [
                     PopupMenuItem(value: 'add', child: Text('Add character')),
+                    PopupMenuItem(
+                      value: 'background',
+                      child: Text('Set character background'),
+                    ),
                     PopupMenuItem(
                       value: 'rename',
                       child: Text('Rename character'),
@@ -208,12 +217,40 @@ class _LanguageAnimLibraryPanelState extends State<LanguageAnimLibraryPanel> {
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (animation.background != null)
+                              Tooltip(
+                                message: animation.disablesBackground
+                                    ? 'Animation background disabled'
+                                    : 'Animation background: ${animation.background}',
+                                child: Icon(
+                                  animation.disablesBackground
+                                      ? Icons.hide_image_outlined
+                                      : Icons.wallpaper_outlined,
+                                  size: 18,
+                                ),
+                              ),
                             if (animation.track.any(
-                              (entry) => entry is AthmLockedSequence,
+                              (entry) =>
+                                  entry is AthmLockedSequence ||
+                                  entry is AthmOptionalLockedSequence,
                             ))
-                              const Tooltip(
-                                message: 'Contains locked sequence',
-                                child: Icon(Icons.lock_outline, size: 18),
+                              Tooltip(
+                                message:
+                                    animation.track.any(
+                                      (entry) =>
+                                          entry is AthmOptionalLockedSequence,
+                                    )
+                                    ? 'Contains random locked sequence'
+                                    : 'Contains locked sequence',
+                                child: Icon(
+                                  animation.track.any(
+                                        (entry) =>
+                                            entry is AthmOptionalLockedSequence,
+                                      )
+                                      ? Icons.casino_outlined
+                                      : Icons.lock_outline,
+                                  size: 18,
+                                ),
                               ),
                             PopupMenuButton<String>(
                               tooltip: 'Animation actions',
@@ -265,7 +302,10 @@ class _AssetStatusIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!status.expectsAudio && status.missingFrames.isEmpty) {
+    if (!status.expectsAudio &&
+        status.missingFrames.isEmpty &&
+        status.missingBackground == null &&
+        status.missingOptionalSounds.isEmpty) {
       return Tooltip(
         message: 'Animation intentionally has no sound',
         child: Icon(
@@ -284,6 +324,10 @@ class _AssetStatusIcon extends StatelessWidget {
       if (status.expectsAudio && !status.hasAudio) 'sound missing',
       if (status.missingFrames.isNotEmpty)
         '${status.missingFrames.length} images missing',
+      if (status.missingBackground != null)
+        'background ${status.missingBackground} missing',
+      if (status.missingOptionalSounds.isNotEmpty)
+        '${status.missingOptionalSounds.length} block sounds missing',
     ].join(', ');
     return Tooltip(
       message: details,

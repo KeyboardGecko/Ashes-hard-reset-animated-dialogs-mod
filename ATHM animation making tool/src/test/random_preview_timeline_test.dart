@@ -4,6 +4,25 @@ import 'package:animaker/features/audio_marks/application/random_preview_timelin
 import 'package:animaker/features/audio_marks/domain/entities/clip_mark.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+class _FixedRandom implements Random {
+  _FixedRandom(this.value);
+
+  final double value;
+  int doubleCalls = 0;
+
+  @override
+  bool nextBool() => value >= 0.5;
+
+  @override
+  double nextDouble() {
+    doubleCalls++;
+    return value;
+  }
+
+  @override
+  int nextInt(int max) => (value * max).floor().clamp(0, max - 1).toInt();
+}
+
 void main() {
   test('editor preview uses the selected choices deterministically', () {
     final mark = ClipMark(
@@ -82,5 +101,58 @@ void main() {
     expect(mark.durationMs, 15);
     expect(mark.frameChoices, ['FIRST', 'SECOND']);
     expect(mark.durationChoicesMs, [15, 25]);
+  });
+
+  test('selected preview can include or collapse an optional sequence', () {
+    final marks = [
+      ClipMark(startMs: 0, label: 'A', durationMs: 100),
+      ClipMark(
+        startMs: 100,
+        label: 'OPTIONAL',
+        durationMs: 50,
+        lockedSequenceId: 'optional',
+        optionalChancePercent: 50,
+        optionalIncludedInPreview: false,
+      ),
+      ClipMark(startMs: 150, label: 'B', durationMs: 100),
+    ];
+
+    final skipped = buildSelectedPreviewTimeline(marks);
+    expect(skipped.map((span) => span.label), ['A', 'B']);
+    expect(skipped.last.startMs, 100);
+
+    marks[1].optionalIncludedInPreview = true;
+    final included = buildSelectedPreviewTimeline(marks);
+    expect(included.map((span) => span.label), ['A', 'OPTIONAL', 'B']);
+    expect(included.last.startMs, 150);
+  });
+
+  test('runtime preview decides once for the whole optional group', () {
+    final marks = [
+      ClipMark(startMs: 0, label: 'BASE', durationMs: 100),
+      ClipMark(
+        startMs: 100,
+        label: 'ONE',
+        durationMs: 50,
+        lockedSequenceId: 'optional',
+        optionalChancePercent: 50,
+      ),
+      ClipMark(
+        startMs: 150,
+        label: 'TWO',
+        durationMs: 50,
+        lockedSequenceId: 'optional',
+        optionalChancePercent: 50,
+      ),
+    ];
+    final skippedRandom = _FixedRandom(0.9);
+    final skipped = buildRandomPreviewTimeline(marks, skippedRandom);
+    expect(skipped.map((span) => span.label), ['BASE']);
+    expect(skippedRandom.doubleCalls, 1);
+
+    final includedRandom = _FixedRandom(0.1);
+    final included = buildRandomPreviewTimeline(marks, includedRandom);
+    expect(included.map((span) => span.label), ['BASE', 'ONE', 'TWO']);
+    expect(includedRandom.doubleCalls, 1);
   });
 }

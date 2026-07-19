@@ -6,10 +6,10 @@ class LanguageAnimCodec {
   LanguageAnimDocument decode(String source) {
     final values = _parseAssignments(source);
     final version = int.tryParse(values['ATHM_FORMAT'] ?? '');
-    if (version == 3) return _decodeV3(values);
+    if (version == 3 || version == 4) return _decodeV3(values);
     if (version != null) {
       throw LanguageAnimFormatException(
-        'Unsupported ATHM_FORMAT $version; expected 3.',
+        'Unsupported ATHM_FORMAT $version; expected 4.',
       );
     }
     return _decodeLegacy(values);
@@ -20,7 +20,7 @@ class LanguageAnimCodec {
     final out = StringBuffer()
       ..writeln('[default]')
       ..writeln()
-      ..writeln('ATHM_FORMAT = "3";')
+      ..writeln('ATHM_FORMAT = "4";')
       ..writeln(
         'ATHM_CHARACTERS = "${document.characters.map((c) => c.id).join(',')}";',
       )
@@ -54,6 +54,11 @@ class LanguageAnimCodec {
           '${key}_TRACK = "${_escape(encodeTrack(animation.track))}";',
         );
         out.writeln('${key}_LOOP = "${animation.loop}";');
+        if (_hasText(animation.background)) {
+          out.writeln(
+            '${key}_BACKGROUND = "${_escape(animation.background!)}";',
+          );
+        }
         if (animation.durationMs != null) {
           out.writeln(
             '${key}_DURATION_MS = "${_formatNumber(animation.durationMs!)}";',
@@ -78,20 +83,79 @@ class LanguageAnimCodec {
     for (final raw in _splitTopLevel(source, ';')) {
       final token = raw.trim();
       if (token.isEmpty) continue;
-      if (token.startsWith('[')) {
+      if (token.startsWith('?')) {
+        final open = token.indexOf('[');
+        if (open < 1 || !token.endsWith(']')) {
+          throw const LanguageAnimFormatException(
+            'Invalid optional locked sequence.',
+          );
+        }
+        final prefix = token.substring(1, open).trim();
+        final metadataOpen = prefix.indexOf('<');
+        final hasMetadata = metadataOpen >= 0;
+        if (hasMetadata && !prefix.endsWith('>')) {
+          throw const LanguageAnimFormatException(
+            'Invalid optional sequence sound metadata.',
+          );
+        }
+        final chanceText =
+            (hasMetadata ? prefix.substring(0, metadataOpen) : prefix).trim();
+        final chance = chanceText.isEmpty ? 50.0 : double.tryParse(chanceText);
+        if (chance == null || !chance.isFinite || chance <= 0 || chance > 100) {
+          throw LanguageAnimFormatException(
+            'Invalid optional sequence chance "$chanceText".',
+          );
+        }
+        final items = _decodeLockedItems(
+          token.substring(open + 1, token.length - 1),
+        );
+        String? sound;
+        var soundOffsetMs = 0.0;
+        if (hasMetadata) {
+          final metadata = prefix
+              .substring(metadataOpen + 1, prefix.length - 1)
+              .trim();
+          final offsetSeparator = metadata.lastIndexOf('@');
+          sound =
+              (offsetSeparator < 0
+                      ? metadata
+                      : metadata.substring(0, offsetSeparator))
+                  .trim();
+          if (sound.isEmpty) {
+            throw const LanguageAnimFormatException(
+              'Optional sequence sound name is empty.',
+            );
+          }
+          if (offsetSeparator >= 0) {
+            final offsetText = metadata.substring(offsetSeparator + 1).trim();
+            final parsedOffset = double.tryParse(offsetText);
+            if (parsedOffset == null ||
+                !parsedOffset.isFinite ||
+                parsedOffset < 0) {
+              throw LanguageAnimFormatException(
+                'Invalid optional sequence sound offset "$offsetText".',
+              );
+            }
+            soundOffsetMs = parsedOffset;
+          }
+        }
+        entries.add(
+          AthmOptionalLockedSequence(
+            items: items,
+            chancePercent: chance,
+            sound: sound,
+            soundOffsetMs: soundOffsetMs,
+          ),
+        );
+      } else if (token.startsWith('[')) {
         if (!token.endsWith(']')) {
           throw const LanguageAnimFormatException('Unclosed locked sequence.');
         }
-        final inner = token.substring(1, token.length - 1);
-        final items = _splitTopLevel(inner, ';')
-            .map((part) => part.trim())
-            .where((part) => part.isNotEmpty)
-            .map(_decodeSegment)
-            .toList();
-        if (items.isEmpty) {
-          throw const LanguageAnimFormatException('Locked sequence is empty.');
-        }
-        entries.add(AthmLockedSequence(items));
+        entries.add(
+          AthmLockedSequence(
+            _decodeLockedItems(token.substring(1, token.length - 1)),
+          ),
+        );
       } else {
         entries.add(AthmSegmentEntry(_decodeSegment(token)));
       }
@@ -109,6 +173,15 @@ class LanguageAnimCodec {
             AthmSegmentEntry(:final segment) => _encodeSegment(segment),
             AthmLockedSequence(:final items) =>
               '[${items.map(_encodeSegment).join(';')}]',
+            AthmOptionalLockedSequence(
+              :final items,
+              :final chancePercent,
+              :final sound,
+              :final soundOffsetMs,
+            ) =>
+              '?${chancePercent == 50 ? '' : _formatNumber(chancePercent)}'
+                  '${_hasText(sound) ? '<${_escape(sound!)}${soundOffsetMs > 0 ? '@${_formatNumber(soundOffsetMs)}' : ''}>' : ''}'
+                  '[${items.map(_encodeSegment).join(';')}]',
           };
         })
         .join(';');
@@ -137,6 +210,7 @@ class LanguageAnimCodec {
             track: decodeTrack(trackText!),
             loop: _parseBool(values['${key}_LOOP']),
             sound: _nullIfEmpty(values['${key}_SOUND']),
+            background: _nullIfEmpty(values['${key}_BACKGROUND']),
             durationMs: _parseOptionalPositiveDouble(
               values['${key}_DURATION_MS'],
               '${key}_DURATION_MS',
@@ -195,7 +269,7 @@ class LanguageAnimCodec {
     characterIds.sort();
     if (characterIds.isEmpty) {
       throw const LanguageAnimFormatException(
-        'Neither ATHM v3 nor legacy animation lists were found.',
+        'Neither ATHM v4 nor legacy animation lists were found.',
       );
     }
 
@@ -327,6 +401,18 @@ class LanguageAnimCodec {
     return AthmSegment(frameChoices: frames, durationChoicesMs: durations);
   }
 
+  List<AthmSegment> _decodeLockedItems(String source) {
+    final items = _splitTopLevel(source, ';')
+        .map((part) => part.trim())
+        .where((part) => part.isNotEmpty)
+        .map(_decodeSegment)
+        .toList();
+    if (items.isEmpty) {
+      throw const LanguageAnimFormatException('Locked sequence is empty.');
+    }
+    return items;
+  }
+
   String _encodeSegment(AthmSegment segment) {
     if (segment.frameChoices.isEmpty || segment.durationChoicesMs.isEmpty) {
       throw const LanguageAnimFormatException(
@@ -338,9 +424,9 @@ class LanguageAnimCodec {
   }
 
   void _validateDocument(LanguageAnimDocument document) {
-    if (document.formatVersion != 3) {
+    if (document.formatVersion != 4) {
       throw LanguageAnimFormatException(
-        'Unsupported ATHM_FORMAT ${document.formatVersion}; expected 3.',
+        'Unsupported ATHM_FORMAT ${document.formatVersion}; expected 4.',
       );
     }
     if (document.characters.isEmpty) {
@@ -390,6 +476,29 @@ class LanguageAnimCodec {
             'Animation $id/$name has an empty track.',
           );
         }
+        if (animation.track.every(
+          (entry) => entry is AthmOptionalLockedSequence,
+        )) {
+          throw LanguageAnimFormatException(
+            'Animation $id/$name must contain a guaranteed frame.',
+          );
+        }
+        for (final entry in animation.track) {
+          if (entry is AthmOptionalLockedSequence &&
+              (!entry.chancePercent.isFinite ||
+                  entry.chancePercent <= 0 ||
+                  entry.chancePercent > 100)) {
+            throw LanguageAnimFormatException(
+              'Animation $id/$name has an optional chance outside 0..100.',
+            );
+          }
+          if (entry is AthmOptionalLockedSequence &&
+              (!entry.soundOffsetMs.isFinite || entry.soundOffsetMs < 0)) {
+            throw LanguageAnimFormatException(
+              'Animation $id/$name has an invalid optional sound offset.',
+            );
+          }
+        }
         for (final segment in animation.segments) {
           if (segment.frameChoices.isEmpty ||
               segment.durationChoicesMs.isEmpty) {
@@ -409,6 +518,12 @@ class LanguageAnimCodec {
         if (animation.soundOffsetMs < 0 || !animation.soundOffsetMs.isFinite) {
           throw LanguageAnimFormatException(
             'Animation $id/$name has an invalid SOUND_OFFSET_MS.',
+          );
+        }
+        final background = animation.background?.trim();
+        if (background != null && background.isEmpty) {
+          throw LanguageAnimFormatException(
+            'Animation $id/$name has an empty BACKGROUND.',
           );
         }
 

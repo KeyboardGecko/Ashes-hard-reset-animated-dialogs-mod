@@ -6,6 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:wav/wav_file.dart';
 import 'package:path/path.dart' as p;
 
+bool isEditableTextFocused() {
+  final context = FocusManager.instance.primaryFocus?.context;
+  if (context == null) return false;
+  return context.widget is EditableText ||
+      context.findAncestorWidgetOfExactType<EditableText>() != null;
+}
+
 // ====== Инлайновый редактор для label ======
 class InlineLabelEditor extends StatefulWidget {
   const InlineLabelEditor({
@@ -36,6 +43,10 @@ class InlineLabelEditorState extends State<InlineLabelEditor> {
   FocusNode get _fn => widget.focusNode ?? (_localFocus ??= FocusNode());
 
   bool _didSelectAllThisFocus = false;
+
+  void requestFocus() => _fn.requestFocus();
+
+  bool get hasFocus => _fn.hasFocus;
 
   @override
   void initState() {

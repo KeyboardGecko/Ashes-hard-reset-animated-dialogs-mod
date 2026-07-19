@@ -28,6 +28,7 @@ class PlaybackLabelPreview extends StatefulWidget {
     this.placeholder,
     this.zoom = 1.5,
     this.backgroundColor,
+    this.backgroundImageSrc,
     this.borderRadius = const BorderRadius.all(Radius.circular(12)),
   });
 
@@ -48,6 +49,7 @@ class PlaybackLabelPreview extends StatefulWidget {
   final BoxFit fit;
   final Widget? placeholder;
   final Color? backgroundColor;
+  final String? backgroundImageSrc;
   final BorderRadius borderRadius;
 
   @override
@@ -136,7 +138,18 @@ class _PlaybackLabelPreviewState extends State<PlaybackLabelPreview> {
               final src =
                   widget.getImageSrcForLabel(label) ??
                   widget.getImageSrcForLabel(null);
-              return _buildImageOrPlaceholder(src);
+              return Stack(
+                fit: StackFit.expand,
+                alignment: Alignment.center,
+                children: [
+                  if (widget.backgroundImageSrc != null)
+                    _buildImage(
+                      widget.backgroundImageSrc,
+                      showPlaceholder: false,
+                    ),
+                  _buildImage(src, showPlaceholder: true),
+                ],
+              );
             },
           ),
         ),
@@ -169,9 +182,11 @@ class _PlaybackLabelPreviewState extends State<PlaybackLabelPreview> {
     return lab;
   }
 
-  Widget _buildImageOrPlaceholder(String? src) {
+  Widget _buildImage(String? src, {required bool showPlaceholder}) {
     final provider = _imageProviderFor(src);
     if (provider == null) {
+      if (!showPlaceholder) return const SizedBox.shrink();
+      if (widget.placeholder != null) return Center(child: widget.placeholder);
       return Padding(
         padding: const EdgeInsets.all(8),
         child: Opacity(
@@ -187,25 +202,29 @@ class _PlaybackLabelPreviewState extends State<PlaybackLabelPreview> {
         ),
       );
     }
-    return Transform.scale(
-      scale: widget.zoom,
-      alignment: Alignment.center,
-      child: Image(
-        image: provider,
-        fit: widget.fit,
-        errorBuilder: (_, __, ___) => Padding(
-          padding: const EdgeInsets.all(8),
-          child: Opacity(
-            opacity: 0.6,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                Icon(Icons.broken_image_outlined, size: 28),
-                SizedBox(height: 6),
-                Text('Failed to load image'),
-              ],
-            ),
-          ),
+    return Center(
+      child: Transform.scale(
+        scale: widget.zoom,
+        alignment: Alignment.center,
+        child: Image(
+          image: provider,
+          fit: widget.fit,
+          errorBuilder: (_, __, ___) => showPlaceholder
+              ? Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Opacity(
+                    opacity: 0.6,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.broken_image_outlined, size: 28),
+                        SizedBox(height: 6),
+                        Text('Failed to load image'),
+                      ],
+                    ),
+                  ),
+                )
+              : const SizedBox.shrink(),
         ),
       ),
     );

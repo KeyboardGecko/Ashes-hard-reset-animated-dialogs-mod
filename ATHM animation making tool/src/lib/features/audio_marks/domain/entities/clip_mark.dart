@@ -45,6 +45,11 @@ class ClipMark {
     this.selectedFrameChoiceIndex = 0,
     this.selectedDurationChoiceIndex = 0,
     this.lockedSequenceId,
+    this.optionalChancePercent,
+    this.optionalIncludedInPreview = true,
+    this.optionalSoundName,
+    this.optionalSoundPath,
+    this.optionalSoundOffsetMs = 0,
   }) : id = id ?? genId(); // ← генерим, если не передали
 
   final String id; // ← НЕ nullable и стабильный
@@ -57,6 +62,11 @@ class ClipMark {
   int selectedFrameChoiceIndex;
   int selectedDurationChoiceIndex;
   String? lockedSequenceId;
+  double? optionalChancePercent;
+  bool optionalIncludedInPreview;
+  String? optionalSoundName;
+  String? optionalSoundPath;
+  double optionalSoundOffsetMs;
 
   ClipMark copyWith({
     String? id, // обычно не трогаем
@@ -70,6 +80,14 @@ class ClipMark {
     int? selectedDurationChoiceIndex,
     String? lockedSequenceId,
     bool clearLockedSequenceId = false,
+    double? optionalChancePercent,
+    bool clearOptionalChancePercent = false,
+    bool? optionalIncludedInPreview,
+    String? optionalSoundName,
+    bool clearOptionalSoundName = false,
+    String? optionalSoundPath,
+    bool clearOptionalSoundPath = false,
+    double? optionalSoundOffsetMs,
   }) {
     return ClipMark(
       id: id ?? this.id, // ← сохраняем старый id по умолчанию
@@ -86,6 +104,19 @@ class ClipMark {
       lockedSequenceId: clearLockedSequenceId
           ? null
           : lockedSequenceId ?? this.lockedSequenceId,
+      optionalChancePercent: clearOptionalChancePercent
+          ? null
+          : optionalChancePercent ?? this.optionalChancePercent,
+      optionalIncludedInPreview:
+          optionalIncludedInPreview ?? this.optionalIncludedInPreview,
+      optionalSoundName: clearOptionalSoundName
+          ? null
+          : optionalSoundName ?? this.optionalSoundName,
+      optionalSoundPath: clearOptionalSoundPath
+          ? null
+          : optionalSoundPath ?? this.optionalSoundPath,
+      optionalSoundOffsetMs:
+          optionalSoundOffsetMs ?? this.optionalSoundOffsetMs,
     );
   }
 
@@ -100,6 +131,11 @@ class ClipMark {
     'selectedFrameChoiceIndex': selectedFrameChoiceIndex,
     'selectedDurationChoiceIndex': selectedDurationChoiceIndex,
     'lockedSequenceId': lockedSequenceId,
+    'optionalChancePercent': optionalChancePercent,
+    'optionalIncludedInPreview': optionalIncludedInPreview,
+    'optionalSoundName': optionalSoundName,
+    'optionalSoundPath': optionalSoundPath,
+    'optionalSoundOffsetMs': optionalSoundOffsetMs,
   };
 
   factory ClipMark.fromJson(Map<String, dynamic> j) => ClipMark(
@@ -117,6 +153,12 @@ class ClipMark {
     selectedDurationChoiceIndex:
         (j['selectedDurationChoiceIndex'] as num?)?.toInt() ?? 0,
     lockedSequenceId: j['lockedSequenceId'] as String?,
+    optionalChancePercent: (j['optionalChancePercent'] as num?)?.toDouble(),
+    optionalIncludedInPreview: j['optionalIncludedInPreview'] as bool? ?? true,
+    optionalSoundName: j['optionalSoundName'] as String?,
+    optionalSoundPath: j['optionalSoundPath'] as String?,
+    optionalSoundOffsetMs:
+        (j['optionalSoundOffsetMs'] as num?)?.toDouble() ?? 0,
   );
 
   @override
@@ -131,7 +173,12 @@ class ClipMark {
         _listEquals(other.durationChoicesMs, durationChoicesMs) &&
         other.selectedFrameChoiceIndex == selectedFrameChoiceIndex &&
         other.selectedDurationChoiceIndex == selectedDurationChoiceIndex &&
-        other.lockedSequenceId == lockedSequenceId;
+        other.lockedSequenceId == lockedSequenceId &&
+        other.optionalChancePercent == optionalChancePercent &&
+        other.optionalIncludedInPreview == optionalIncludedInPreview &&
+        other.optionalSoundName == optionalSoundName &&
+        other.optionalSoundPath == optionalSoundPath &&
+        other.optionalSoundOffsetMs == optionalSoundOffsetMs;
   }
 
   @override
@@ -146,6 +193,11 @@ class ClipMark {
     selectedFrameChoiceIndex,
     selectedDurationChoiceIndex,
     lockedSequenceId,
+    optionalChancePercent,
+    optionalIncludedInPreview,
+    optionalSoundName,
+    optionalSoundPath,
+    optionalSoundOffsetMs,
   );
 }
 

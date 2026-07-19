@@ -22,6 +22,23 @@ class AthmLockedSequence extends AthmTrackEntry {
   Iterable<AthmSegment> get segments => items;
 }
 
+class AthmOptionalLockedSequence extends AthmTrackEntry {
+  const AthmOptionalLockedSequence({
+    required this.items,
+    this.chancePercent = 50,
+    this.sound,
+    this.soundOffsetMs = 0,
+  });
+
+  final List<AthmSegment> items;
+  final double chancePercent;
+  final String? sound;
+  final double soundOffsetMs;
+
+  @override
+  Iterable<AthmSegment> get segments => items;
+}
+
 class AthmSegment {
   const AthmSegment({
     required this.frameChoices,
@@ -36,6 +53,8 @@ class AthmSegment {
 }
 
 class AthmAnimation {
+  static const noBackground = '@none';
+
   const AthmAnimation({
     required this.name,
     required this.track,
@@ -43,6 +62,7 @@ class AthmAnimation {
     this.sound,
     this.durationMs,
     this.soundOffsetMs = 0,
+    this.background,
   });
 
   final String name;
@@ -51,6 +71,12 @@ class AthmAnimation {
   final String? sound;
   final double? durationMs;
   final double soundOffsetMs;
+  final String? background;
+
+  bool get inheritsBackground => background == null;
+  bool get disablesBackground =>
+      background?.trim().toLowerCase() == noBackground;
+  bool get hasCustomBackground => background != null && !disablesBackground;
 
   Iterable<AthmSegment> get segments => track.expand((entry) => entry.segments);
   double get previewDurationMs =>
@@ -73,8 +99,10 @@ class AthmAnimation {
     String? sound,
     double? durationMs,
     double? soundOffsetMs,
+    String? background,
     bool clearSound = false,
     bool clearDuration = false,
+    bool clearBackground = false,
   }) => AthmAnimation(
     name: name ?? this.name,
     track: track ?? this.track,
@@ -82,6 +110,7 @@ class AthmAnimation {
     sound: clearSound ? null : (sound ?? this.sound),
     durationMs: clearDuration ? null : (durationMs ?? this.durationMs),
     soundOffsetMs: soundOffsetMs ?? this.soundOffsetMs,
+    background: clearBackground ? null : (background ?? this.background),
   );
 }
 
@@ -106,11 +135,12 @@ class AthmCharacter {
     List<String>? voiceMatches,
     String? background,
     String? variantOf,
+    bool clearBackground = false,
   }) => AthmCharacter(
     id: id ?? this.id,
     animations: animations ?? this.animations,
     voiceMatches: voiceMatches ?? this.voiceMatches,
-    background: background ?? this.background,
+    background: clearBackground ? null : (background ?? this.background),
     variantOf: variantOf ?? this.variantOf,
   );
 }
@@ -118,7 +148,7 @@ class AthmCharacter {
 class LanguageAnimDocument {
   const LanguageAnimDocument({
     required this.characters,
-    this.formatVersion = 3,
+    this.formatVersion = 4,
     this.wasMigratedFromLegacy = false,
   });
 

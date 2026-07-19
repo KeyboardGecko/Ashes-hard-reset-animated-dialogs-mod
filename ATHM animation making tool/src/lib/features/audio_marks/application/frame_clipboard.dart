@@ -10,6 +10,12 @@ class CopiedFrame {
     required this.selectedFrameChoiceIndex,
     required this.selectedDurationChoiceIndex,
     required this.locked,
+    required this.optionalChancePercent,
+    required this.optionalIncludedInPreview,
+    required this.optionalGroupKey,
+    required this.optionalSoundName,
+    required this.optionalSoundPath,
+    required this.optionalSoundOffsetMs,
   });
 
   final double durationMs;
@@ -20,6 +26,12 @@ class CopiedFrame {
   final int selectedFrameChoiceIndex;
   final int selectedDurationChoiceIndex;
   final bool locked;
+  final double? optionalChancePercent;
+  final bool optionalIncludedInPreview;
+  final String? optionalGroupKey;
+  final String? optionalSoundName;
+  final String? optionalSoundPath;
+  final double optionalSoundOffsetMs;
 }
 
 class FrameClipboardData {
@@ -74,6 +86,14 @@ FrameClipboardData copySelectedFrames(
         selectedFrameChoiceIndex: mark.selectedFrameChoiceIndex,
         selectedDurationChoiceIndex: mark.selectedDurationChoiceIndex,
         locked: mark.lockedSequenceId != null,
+        optionalChancePercent: mark.optionalChancePercent,
+        optionalIncludedInPreview: mark.optionalIncludedInPreview,
+        optionalGroupKey: mark.optionalChancePercent == null
+            ? null
+            : mark.lockedSequenceId,
+        optionalSoundName: mark.optionalSoundName,
+        optionalSoundPath: mark.optionalSoundPath,
+        optionalSoundOffsetMs: mark.optionalSoundOffsetMs,
       ),
     );
   }
@@ -112,11 +132,17 @@ PasteFramesResult pasteFramesAtPlayhead({
   final insertedIds = <String>{};
   var cursor = insertionMs;
   String? activeLockId;
+  String? activeOptionalGroupKey;
   for (final frame in clipboard.frames) {
     if (frame.locked) {
-      activeLockId ??= lockIdFactory();
+      if (activeLockId == null ||
+          frame.optionalGroupKey != activeOptionalGroupKey) {
+        activeLockId = lockIdFactory();
+      }
+      activeOptionalGroupKey = frame.optionalGroupKey;
     } else {
       activeLockId = null;
+      activeOptionalGroupKey = null;
     }
     final id = idFactory();
     insertedIds.add(id);
@@ -136,6 +162,11 @@ PasteFramesResult pasteFramesAtPlayhead({
         selectedFrameChoiceIndex: frame.selectedFrameChoiceIndex,
         selectedDurationChoiceIndex: frame.selectedDurationChoiceIndex,
         lockedSequenceId: activeLockId,
+        optionalChancePercent: frame.optionalChancePercent,
+        optionalIncludedInPreview: frame.optionalIncludedInPreview,
+        optionalSoundName: frame.optionalSoundName,
+        optionalSoundPath: frame.optionalSoundPath,
+        optionalSoundOffsetMs: frame.optionalSoundOffsetMs,
       ),
     );
     cursor += frame.durationMs;

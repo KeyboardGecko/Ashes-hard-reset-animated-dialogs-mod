@@ -27,6 +27,6 @@ Future<void> main(List<String> arguments) async {
   }
   await outputFile.writeAsString(codec.encode(document));
   stdout.writeln(
-    'Migrated ${document.characters.length} characters to ATHM v3: ${outputFile.path}',
+    'Migrated ${document.characters.length} characters to ATHM v4: ${outputFile.path}',
   );
 }

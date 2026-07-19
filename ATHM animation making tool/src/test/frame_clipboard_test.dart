@@ -77,4 +77,40 @@ void main() {
     expect(result.marks[2].lockedSequenceId, isNull);
     expect(result.marks[3].lockedSequenceId, 'lock_1');
   });
+
+  test('paste preserves optional chance and independent adjacent groups', () {
+    final source = [
+      ClipMark(
+        id: 'a',
+        startMs: 0,
+        durationMs: 10,
+        lockedSequenceId: 'optional_1',
+        optionalChancePercent: 25,
+        optionalIncludedInPreview: false,
+      ),
+      ClipMark(
+        id: 'b',
+        startMs: 10,
+        durationMs: 10,
+        lockedSequenceId: 'optional_2',
+        optionalChancePercent: 75,
+      ),
+    ];
+    final clipboard = copySelectedFrames(source, {'a', 'b'});
+    var id = 0;
+    var lock = 0;
+    final result = pasteFramesAtPlayhead(
+      source: const [],
+      clipboard: clipboard,
+      playheadMs: 0,
+      idFactory: () => 'new_${id++}',
+      lockIdFactory: () => 'lock_${lock++}',
+    );
+
+    expect(result.marks[0].lockedSequenceId, 'lock_0');
+    expect(result.marks[1].lockedSequenceId, 'lock_1');
+    expect(result.marks[0].optionalChancePercent, 25);
+    expect(result.marks[0].optionalIncludedInPreview, isFalse);
+    expect(result.marks[1].optionalChancePercent, 75);
+  });
 }
