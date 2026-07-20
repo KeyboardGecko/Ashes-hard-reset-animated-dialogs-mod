@@ -40,8 +40,7 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
     - every frame name should have a distinct name across ALL the frames.
    The same goes for sounds/voices. Currently voice files are just put together in sounds/voices, without any subfolders.
 5. You are now ready to create your animation. Put frames into graphics/dialog/<character> and sounds into sounds/voices.
-6. Load audio file.
-   Preferably **WAV** (the only format that draws the waveform correctly). UPD: loading .ogg now creates a .wav, which is used once to draw a waveform. You can safely remove it. 
+6. Load audio file. Preferably **WAV** or **OGG**. 
 9. Place **clipmarks** on the timeline ("B" hotkey).  
 10. Add **labels** to clipmarks.  
 11. Load images into clipmarks. All clipmarks with the same label will share the same images.  
