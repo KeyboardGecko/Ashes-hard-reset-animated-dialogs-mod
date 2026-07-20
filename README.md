@@ -34,11 +34,11 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
 2. Create LANGUAGE_ANIM.txt lump in the root of your mod. Open it.
    No matter where LANGUAGE_ANIM.txt is, two folders will be created: graphics/dialog and sounds/voices. So it makes sense to put your LANGUAGE_ANIM.txt in the root of your mod, near LANGUAGE, MAPINFO, etc.
 3. Create a character (`Project` - `add character`, or `Animation library` - `Character actions` - `Add character`)
-   It will create graphics/dialog/<character> folder - that's where you put your animation frames.
+   It will create graphics/dialog/character folder - that's where you put your animation frames.
    Take note of the following GZ/UZdoom quirks:
-    - every frame should have length of 6 symbols max
-    - every frame should have a distinct name across ALL the frames.
-   The same goes for sounds/voices. Currently voice files are just put together, without any subfolders.
+    - every frame name should have length of 6 symbols max
+    - every frame name should have a distinct name across ALL the frames.
+   The same goes for sounds/voices. Currently voice files are just put together in sounds/voices, without any subfolders.
 5. You are now ready to create your animation. Put frames into graphics/dialog/<character> and sounds into sounds/voices.
 6. Load audio file.
    Preferably **WAV** (the only format that draws the waveform correctly). UPD: loading .ogg now creates a .wav, which is used once to draw a waveform. You can safely remove it. 
@@ -61,8 +61,6 @@ This animation mod can be used not only for Ashes: HR, but for any GZ/UZdoom gam
  
 - Use `edit step variants` button in your frame to add some more randomization to your animations - set different durations or interchangeable frames. Again, useful for IDLE-animations.
 - Background can be set for all animations of the character (`BACKGROUND` - `set character background`, then `INHERIT` in every animation by default). Or you can use a specific background for animation. Or none at all.
-  <img width="1000" height="500" alt="image" src="https://github.com/user-attachments/assets/6084814b-9c24-41d2-bc36-c517191d737f" />
-
 - **IDLE animations** are always created with the character. Be sure to fill them with frames.
 - Dialog audios are put into channel 5 (previously CHAN_VOICE).
 
