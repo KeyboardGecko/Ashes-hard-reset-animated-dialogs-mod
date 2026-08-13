@@ -2,17 +2,150 @@
 //  Dialog animation system for GZDoom (ZScript)
 // ============================================================
 
+class AthmDataSource : Object
+{
+	Dictionary values;
+	bool loaded;
+	bool valid;
+	bool parseFailed;
+	int formatVersion;
+
+	static bool IsSpace(int c)
+	{
+		return c == 32 || c == 9 || c == 13 || c == 10;
+	}
+
+	static bool IsKeyByte(int c)
+	{
+		return (c >= 65 && c <= 90) || (c >= 97 && c <= 122) ||
+			(c >= 48 && c <= 57) || c == 95;
+	}
+
+	static String DecodeValue(String raw)
+	{
+		String result = "";
+		int start = 0;
+		int rawLength = raw.Length();
+		for (int i = 0; i < rawLength; i++)
+		{
+			if (raw.ByteAt(i) != 92 || i + 1 >= rawLength) continue;
+			result = result .. raw.Mid(start, i - start);
+			// LANGUAGE_ANIM values are single-line. Escapes are needed only to
+			// preserve a literal quote or backslash, so copying the next byte is
+			// sufficient and avoids ZScript's unusual backslash-literal syntax.
+			result = result .. raw.Mid(i + 1, 1);
+			i++;
+			start = i + 1;
+		}
+		return result .. raw.Mid(start);
+	}
+
+	ui bool Load()
+	{
+		if (loaded) return valid;
+		loaded = true;
+		values = Dictionary.Create();
+
+		int lump = Wads.CheckNumForFullName("language_anim.txt");
+		if (lump < 0)
+		{
+			Console.Printf("[ATHM] language_anim.txt was not found.\n");
+			return false;
+		}
+
+		String source = Wads.ReadLump(lump);
+		int length = source.Length();
+		int i = 0;
+		while (i < length)
+		{
+			while (i < length && IsSpace(source.ByteAt(i))) i++;
+			if (i >= length) break;
+
+			if (source.ByteAt(i) == 47 && i + 1 < length && source.ByteAt(i + 1) == 47)
+			{
+				while (i < length && source.ByteAt(i) != 10) i++;
+				continue;
+			}
+			if (source.ByteAt(i) == 91)
+			{
+				while (i < length && source.ByteAt(i) != 10) i++;
+				continue;
+			}
+
+			int keyStart = i;
+			while (i < length && IsKeyByte(source.ByteAt(i))) i++;
+			if (i == keyStart)
+			{
+				i++;
+				continue;
+			}
+			String key = source.Mid(keyStart, i - keyStart).MakeUpper();
+			while (i < length && IsSpace(source.ByteAt(i))) i++;
+			if (i >= length || source.ByteAt(i) != 61)
+			{
+				Console.Printf("[ATHM] Expected '=' after %s.\n", key);
+				parseFailed = true;
+				while (i < length && source.ByteAt(i) != 10) i++;
+				continue;
+			}
+			i++;
+			while (i < length && IsSpace(source.ByteAt(i))) i++;
+			if (i >= length || source.ByteAt(i) != 34)
+			{
+				Console.Printf("[ATHM] Expected quoted value for %s.\n", key);
+				parseFailed = true;
+				while (i < length && source.ByteAt(i) != 10) i++;
+				continue;
+			}
+			i++;
+			int valueStart = i;
+			bool escaped = false;
+			while (i < length)
+			{
+				int c = source.ByteAt(i);
+				if (c == 34 && !escaped) break;
+				if (c == 92 && !escaped) escaped = true;
+				else escaped = false;
+				i++;
+			}
+			if (i >= length)
+			{
+				Console.Printf("[ATHM] Unterminated value for %s.\n", key);
+				parseFailed = true;
+				break;
+			}
+			values.Insert(key, DecodeValue(source.Mid(valueStart, i - valueStart)));
+			i++;
+			while (i < length && source.ByteAt(i) != 10 && source.ByteAt(i) != 59) i++;
+			if (i < length && source.ByteAt(i) == 59) i++;
+		}
+
+		formatVersion = values.At("ATHM_FORMAT").ToInt();
+		valid = !parseFailed && formatVersion == 4 &&
+			values.At("ATHM_CHARACTERS").Length() > 0;
+		if (!valid)
+		{
+			if (formatVersion != 4)
+				Console.Printf("[ATHM] Unsupported ATHM_FORMAT %d; expected 4.\n", formatVersion);
+			else if (values.At("ATHM_CHARACTERS").Length() == 0)
+				Console.Printf("[ATHM] ATHM_CHARACTERS is empty.\n");
+			else Console.Printf("[ATHM] Data parsing failed; animations are disabled.\n");
+			return false;
+		}
+		return true;
+	}
+
+	ui String Get(String key)
+	{
+		if (!Load()) return "";
+		return values.At(key.MakeUpper());
+	}
+}
+
 
 // Helper class: parsing + LANGUAGE access + register
 class AnimRegistryLang : Object
 {
-	// Localization helper
-	static String L(String key)
-	{
-		let s = StringTable.Localize(key);
-		return (s && s != key) ? s : "";
-	}
-
 	// ---------------------------
 	// Fast token splitters (CSV/space/;/\t etc)
 	// Avoids cur = cur .. ch (O(n^2))
@@ -45,88 +178,6 @@ class AnimRegistryLang : Object
 				if (start >= 0)
 				{
 					outArr.Push(src.Mid(start, i - start));
-					start = -1;
-				}
-			}
-		}
-	}
-
-	static int ParseIntSafe(String s, int def)
-	{
-		int sign = 1, i = 0, val = 0;
-		if (s.Length() == 0) return def;
-
-		int c0 = s.ByteAt(0);
-		if (c0 == 45 /*-*/ || c0 == 43 /*+*/)
-		{
-			sign = (c0 == 45) ? -1 : 1;
-			i = 1;
-		}
-
-		int len = s.Length();
-		for (; i < len; i++)
-		{
-			int c = s.ByteAt(i);
-			if (c < 48 || c > 57) return def;
-			val = val * 10 + (c - 48);
-		}
-		return sign * val;
-	}
-
-	static void SplitCSVInts(String src, Array<int> outArr)
-	{
-		outArr.Clear();
-		int len = src.Length();
-		int start = -1;
-
-		for (int i = 0; i <= len; i++)
-		{
-			bool end = (i == len);
-			int c = end ? 0 : src.ByteAt(i);
-			bool sep = end || IsSepByte(c);
-
-			if (!sep)
-			{
-				if (start < 0) start = i;
-			}
-			else
-			{
-				if (start >= 0)
-				{
-					outArr.Push(ParseIntSafe(src.Mid(start, i - start), 0));
-					start = -1;
-				}
-			}
-		}
-	}
-
-	static double ParseFloatSafe(String s, double def)
-	{
-		if (s == "") return def;
-		return s.ToDouble();
-	}
-
-	static void SplitCSVFloats(String src, Array<double> outArr)
-	{
-		outArr.Clear();
-		int len = src.Length();
-		int start = -1;
-
-		for (int i = 0; i <= len; i++)
-		{
-			bool end = (i == len);
-			int c = end ? 0 : src.ByteAt(i);
-			bool sep = end || IsSepByte(c);
-
-			if (!sep)
-			{
-				if (start < 0) start = i;
-			}
-			else
-			{
-				if (start >= 0)
-				{
-					outArr.Push(ParseFloatSafe(src.Mid(start, i - start), 0.0));
 					start = -1;
 				}
 			}
@@ -192,63 +243,30 @@ class AnimRegistryLang : Object
 	// character preload
 	static ui void PreloadFor(PanelPlayer p, String who)
 	{
-		Array<String> names;
-		SplitCSVNames(L("$ANIMS_" .. who .. "_PRELOAD"), names);
-
-		// preload background
+		// ATHM v4 resolves textures lazily from TRACK entries.
 		p.SetBackground(who);
-
-		// preload frames
-		for (int i = 0; i < names.Size(); i++)
-		{
-			String texName = names[i];
-			TextureID id = TexMan.CheckForTexture(texName);
-
-			if (id.IsValid())
-			{
-				p.frames.Push(id);
-				// keep cache in sync
-				p.frameNamesLower.Push(TexMan.GetName(id).MakeLower());
-			}
-		}
 	}
 	
 	// Register clips for character
 	static ui void RegisterFor(PanelPlayer p, String who, bool prefix = true)
 	{
 		Array<String> clips;
-		SplitCSVNames(L("$ANIMS_" .. who .. "_LIST"), clips);
+		SplitCSVNames(p.Data("ATHM_" .. who .. "_ANIMATIONS"), clips);
 
 		for (int ci = 0; ci < clips.Size(); ci++)
 		{
 			String clip = clips[ci].MakeUpper();
-			String base = "$ANIMS_" .. who .. "_" .. clip;
+			String base = "ATHM_" .. who .. "_" .. clip;
+			String track = p.Data(base .. "_TRACK");
+			if (track.Length() == 0) continue;
 
-			String sF = L(base .. "_FRAMES");
-			String sD = L(base .. "_DURS");
-			if (sF.Length() == 0 || sD.Length() == 0) continue;
-
-			bool loopFlag = ParseBool(L(base .. "_LOOP"));
+			bool loopFlag = ParseBool(p.Data(base .. "_LOOP"));
+			double durationMs = p.Data(base .. "_DURATION_MS").ToDouble();
+			String background = p.Data(base .. "_BACKGROUND");
 
 			String regName = prefix ? (who .. "." .. clip) : clip;
 
-			bool hasGroups = (sF.IndexOf("(") >= 0) || (sD.IndexOf("(") >= 0);
-
-			if (hasGroups)
-			{
-				p.DefineAnimationTemplate(regName, sF, sD, loopFlag, true);
-			}
-			else
-			{
-				Array<String> f; SplitCSVNames(sF, f);
-				Array<double> d; SplitCSVFloats(sD, d);
-
-				int n = min(f.Size(), d.Size());
-				while (f.Size() > n) f.Pop();
-				while (d.Size() > n) d.Pop();
-
-				p.DefineAnimationByNames(regName, f, d, loopFlag, true);
-			}
+			p.DefineAnimationV2(regName, track, loopFlag, true, durationMs, background);
 		}
 	}
 }
@@ -307,6 +325,21 @@ class DialogUIOverlay : StaticEventHandler
 			panel = new("PanelPlayer");
 			panel.PreloadOnce();
 		}
+	}
+
+	ui bool ApplyPendingWorldReset()
+	{
+		int stamp = resetStampPlay;
+		if (stamp == resetStampUiSeen) return false;
+
+		resetStampUiSeen = stamp;
+		bShow = false;
+		inConversation = false;
+		hb = 0;
+		KillPendingSync();
+		TurnMusicBack();
+		if (panel) panel.HardClear();
+		return true;
 	}
 	
 	ui void KillPendingSync()
@@ -387,6 +420,7 @@ class DialogUIOverlay : StaticEventHandler
 
 	override void UiTick()
 	{
+		bool startedPanelThisTick = false;
 		if (hb > 0) hb--;
 		if (inConversation && hb == 0) EndConversation();
 
@@ -401,28 +435,9 @@ class DialogUIOverlay : StaticEventHandler
 
 		Ensure();
 		
-		int stamp = resetStampPlay;
-		if (stamp != resetStampUiSeen)
-		{
-			resetStampUiSeen = stamp;
-
-			// kill visuals/state
-			bShow = false;
-			inConversation = false;
-			hb = 0;
-
-			// cancel pending sync
-			KillPendingSync();
-
-
-			// restore music if we had ducked it
-			TurnMusicBack();
-
-			if (panel) panel.HardClear();
-
-			// do not start anything this tick
-			return;
-		}
+		// Do not start anything on a standalone reset tick. NewConversationMenu
+		// consumes this reset before it establishes the new conversation state.
+		if (ApplyPendingWorldReset()) return;
 
 		// Single unified point: start voice+anim in same tick
 		if (hasPending && level.time >= pendingStartTic)
@@ -432,17 +447,22 @@ class DialogUIOverlay : StaticEventHandler
 			bool allowVoice = true;
 			if (cvVoiceEnable) allowVoice = cvVoiceEnable.GetBool();
 
-			ShowVoiceInst(pendingVoice);
-
+			// Submit audio first. Starting the animation before A_StartSound is most
+			// noticeable while sound data is cold immediately after loading a save.
 			if (allowVoice && pendingNpc)
 			{
 				pendingNpc.A_StartSound(pendingVoice, pendingChan, 0, pendingVol, ATTN_NORM);
 			}
 
+			ShowVoiceInst(pendingVoice);
+			startedPanelThisTick = true;
+
 			hasPending = false;
 		}
 
-		if (panel && jm_anim_play) panel.Tick();
+		// PlayAnim installs frame zero with its complete duration. Do not consume
+		// one full 35 Hz tick at the exact moment the voice is submitted.
+		if (panel && jm_anim_play && !startedPanelThisTick) panel.Tick();
 		if (panel && !panel.CanDraw()) bShow = false;
 	}
 
@@ -467,6 +487,13 @@ class DialogUIOverlay : StaticEventHandler
 		if (!panel) { bShow = false; return; }
 
 		bool ok = panel.PlayForVoice(voice);
+		if (ok && voice.Length() > 0)
+		{
+			Sound voiceId = voice;
+			double voiceDurationMs = S_GetLength(voiceId) * 1000.0;
+			if (voiceDurationMs > 0.0)
+				panel.PadCurrentSequenceToDuration(voiceDurationMs);
+		}
 		if (!ok) {
 			ok = panel.TryStartIdle();
 			if (!ok) ok = panel.PlayFallback();
@@ -503,9 +530,46 @@ class DialogUIOverlay : StaticEventHandler
 		return o;
 	}
 
+	ui void PlayOptionalBlockSound(String sound)
+	{
+		if (sound.Length() == 0) return;
+		Sound soundId = sound;
+		if (S_GetLength(soundId) <= 0.0)
+		{
+			return;
+		}
+
+		Actor source = null;
+		let pl = players[consoleplayer];
+		if (pl && pl.mo) source = pl.mo;
+		else if (pendingNpc) source = pendingNpc;
+
+		if (source) source.A_StartSound(soundId, CHAN_6, 0, 1.0, ATTN_NONE);
+	}
+
+	ui static void PlayOptionalBlockSoundStatic(String sound)
+	{
+		let o = Get(); if (o) o.PlayOptionalBlockSound(sound);
+	}
+
+	ui static bool IsAnimationLocked()
+	{
+		let o = Get();
+		return jm_anim_enabled && jm_anim_play && o && o.panel && o.panel.IsLocked();
+	}
+
 	ui static void BeginConversationStatic()             { let o = Get(); if (o) o.BeginConversation(); }
 	ui static void EndConversationStatic()     			 { let o = Get(); if (o) o.EndConversation(); }
 	ui static void EnsureStatic()                        { let o = Get(); if (o) o.Ensure(); }
+	ui static void PrepareConversationStatic()
+	{
+		let o = Get();
+		if (o)
+		{
+			o.Ensure();
+			o.ApplyPendingWorldReset();
+		}
+	}
 	ui static void ShowVoiceStatic(String voice)         { let o = Get(); if (o) o.ShowVoiceInst(voice); }
 	ui static void SetFallbackBackdropStatic(String tex) { let o = Get(); if (o) o.SetFallbackBackdropInst(tex); }
 
@@ -549,15 +613,40 @@ class NewConversationMenu : ConversationMenu
 {
 	StrifeDialogueNode _prev;
 	DialogUIOverlay o;
+	bool pendingLockedAction;
+	int pendingLockedNode;
+	int pendingLockedReply;
+	int pendingLockedSince;
+
+	void ClearPendingLockedAction()
+	{
+		pendingLockedAction = false;
+		pendingLockedNode = 0;
+		pendingLockedReply = 0;
+		pendingLockedSince = 0;
+	}
+
+	void SendPendingLockedAction()
+	{
+		if (!pendingLockedAction) return;
+		int node = pendingLockedNode;
+		int reply = pendingLockedReply;
+		ClearPendingLockedAction();
+		SendConversationReply(node, reply);
+		Close();
+	}
 
 	override int Init(StrifeDialogueNode CurNode, PlayerInfo player, int activereply)
 	{
 		int r = Super.Init(CurNode, player, activereply);
+		ClearPendingLockedAction();
 
 		o = DialogUIOverlay.Get();
 		if (!o) return r;
 
-		o.EnsureStatic();
+		// Consume a pending WorldLoaded reset before establishing any state for
+		// this menu. Otherwise the first UI tick can erase the scheduled reply.
+		o.PrepareConversationStatic();
 		o.BeginConversationStatic();
 		
 		o.HeartbeatStatic();
@@ -595,6 +684,17 @@ class NewConversationMenu : ConversationMenu
 	{
 		Super.Ticker();
 		o.HeartbeatStatic();
+		if (pendingLockedAction && !DialogUIOverlay.IsAnimationLocked())
+		{
+			SendPendingLockedAction();
+			return;
+		}
+		if (pendingLockedAction && gametic - pendingLockedSince > GameTicRate * 60)
+		{
+			Console.Printf("[ATHM] Locked sequence exceeded 60 seconds; releasing queued dialogue action.\n");
+			SendPendingLockedAction();
+			return;
+		}
 
 		if (mCurNode != _prev)
 		{
@@ -636,6 +736,45 @@ class NewConversationMenu : ConversationMenu
 		{
 			o.EndConversationStatic();
 		}
+	}
+
+	override bool MenuEvent(int mkey, bool fromcontroller)
+	{
+		// The first accepted action is already captured. Ignore all further menu
+		// input until the locked animation releases it.
+		if (pendingLockedAction) return true;
+		if ((mkey == MKEY_Back || mkey == MKEY_Enter) &&
+			DialogUIOverlay.IsAnimationLocked())
+		{
+			// First action wins. Capture the reply now: the selection may still move
+			// while the unskippable sequence is playing.
+			int selectedResponse = mSelection;
+			int responseCount = mResponses.Size();
+			pendingLockedAction = true;
+			pendingLockedReply = GetReplyNum();
+			if (mkey == MKEY_Back) pendingLockedNode = -1;
+			else if (selectedResponse >= responseCount) pendingLockedNode = -2;
+			else pendingLockedNode = mCurNode.ThisNodeNum;
+			pendingLockedSince = gametic;
+			// Immediate one-shot feedback. The deferred send below deliberately does
+			// not play a sound, so the confirmation cannot repeat after the lock.
+			if (mkey == MKEY_Enter) MenuSound("menu/advance");
+			else MenuSound("menu/backup");
+			return true;
+		}
+		return Super.MenuEvent(mkey, fromcontroller);
+	}
+
+	override void OnDestroy()
+	{
+		ClearPendingLockedAction();
+		Super.OnDestroy();
+	}
+
+	override void DrawReplies()
+	{
+		if (pendingLockedAction) return;
+		Super.DrawReplies();
 	}
 
 	override bool DrawBackdrop() { return true; }
@@ -704,9 +843,7 @@ class VoiceHijack : StaticEventHandler
 class PanelPlayer : Object
 {
 	bool ready;
-
-	bool         langBgCacheInit;
-	Array<String> langBgMapKeys;   // $ANIMS_BG_MAP_LIST tokens
+	AthmDataSource dataSource;
 
 	Array<TextureID> frames;
 	Array<String>    frameNamesLower; // cache tex names in lowercase
@@ -714,6 +851,8 @@ class PanelPlayer : Object
 	Array<String> animNames;
 	Array<int>    clipOffset, clipCount;
 	Array<bool>   clipLoop, clipStopLast;
+	Array<double> clipDurationMs;
+	Array<String> clipBackground;
 	Array<int>    flatFrames;
 	Array<double> flatDurMs;
 
@@ -728,27 +867,38 @@ class PanelPlayer : Object
 	double timeLeftMs;
 
 	String character;
+	String resolvedAnimation;
 	Array<String> loadedChars;
 
 	String fallbackTex;
 
 	Array<bool>   clipIsTemplate;
+	// Legacy template arrays remain only for old in-memory helper compatibility.
 	Array<String> clipTplFrames;
 	Array<String> clipTplDurs;
+	Array<String> clipTplTrack;
 
 	// temp resolved sequence for templates
 	bool          useTempSeq;
 	Array<int>    tempFrames;
 	Array<double> tempDurMs;
+	Array<bool>   tempLocked;
+	Array<String> tempBlockSound;
+	Array<double> tempBlockSoundOffsetMs;
 	int           tempCount;
+	String        pendingBlockSound;
+	double        pendingBlockSoundMs;
 
 	int lastGoodFrameIdx;
 
-	// -------- LANGUAGE caches (NO static fields) --------
-	bool langCacheInit;
-	Array<String> langMapPrefs;     // $ANIMS_MAP_LIST tokens
-	Array<String> langRangeSeries;  // $ANIMS_RANGE_MAP_LIST tokens
-	Array<String> langNameMapKeys;  // $ANIMS_NAME_MAP_LIST tokens
+	// Runtime registry built once from ATHM v4 data.
+	bool registryReady;
+	Array<String> registryCharacters;
+	Array<String> soundNames;
+	Array<String> soundCharacters;
+	Array<String> soundAnimations;
+	Array<String> voicePatterns;
+	Array<String> voicePatternCharacters;
 
 	// fallback anim name -> flat slot cache
 	Array<String> fbCacheName;  
@@ -757,6 +907,7 @@ class PanelPlayer : Object
 	// Separate background
 	ui TextureID bgTexture;
 	ui String    bgName;
+	ui String    characterBgName;
 
 
 	ui void HardClear()
@@ -767,14 +918,13 @@ class PanelPlayer : Object
 
 		frames.Clear();
 		frameNamesLower.Clear();
-		langBgCacheInit = false;
-		langBgMapKeys.Clear();
-
 		animNames.Clear();
 		clipOffset.Clear();
 		clipCount.Clear();
 		clipLoop.Clear();
 		clipStopLast.Clear();
+		clipDurationMs.Clear();
+		clipBackground.Clear();
 
 		flatFrames.Clear();
 		flatDurMs.Clear();
@@ -782,24 +932,34 @@ class PanelPlayer : Object
 		clipIsTemplate.Clear();
 		clipTplFrames.Clear();
 		clipTplDurs.Clear();
+		clipTplTrack.Clear();
 
 		useTempSeq = false;
 		tempFrames.Clear();
 		tempDurMs.Clear();
+		tempLocked.Clear();
+		tempBlockSound.Clear();
+		tempBlockSoundOffsetMs.Clear();
 		tempCount = 0;
+		pendingBlockSound = "";
+		pendingBlockSoundMs = 0.0;
 
 		loadedChars.Clear();
 		character = "";
+		resolvedAnimation = "";
 
 		fallbackTex = "";
 
 		lastGoodFrameIdx = -1;
 		lastFrameIdx = -1;
 
-		langCacheInit = false;
-		langMapPrefs.Clear();
-		langRangeSeries.Clear();
-		langNameMapKeys.Clear();
+		registryReady = false;
+		registryCharacters.Clear();
+		soundNames.Clear();
+		soundCharacters.Clear();
+		soundAnimations.Clear();
+		voicePatterns.Clear();
+		voicePatternCharacters.Clear();
 
 		fbCacheName.Clear();
 		fbCacheOff.Clear();
@@ -809,6 +969,7 @@ class PanelPlayer : Object
 		topMargin = 0.0;
 		
 		bgName = "";
+		characterBgName = "";
 		bgTexture = TexMan.CheckForTexture("", TexMan.Type_MiscPatch);
 	}
 
@@ -820,101 +981,136 @@ class PanelPlayer : Object
 		return -1;
 	}
 
-	void EnsureLangCaches()
+	static String NormalizeSoundName(String path)
 	{
-		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_MAP_LIST"),        langMapPrefs);
-		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_RANGE_MAP_LIST"),  langRangeSeries);
-		AnimRegistryLang.SplitCSVNames(AnimRegistryLang.L("$ANIMS_NAME_MAP_LIST"),   langNameMapKeys);
+		int slash = path.RightIndexOf("/");
+		String result = (slash >= 0) ? path.Mid(slash + 1) : path;
+		int extensionPos = result.RightIndexOf(".");
+		if (extensionPos > 0) result = result.Left(extensionPos);
+		return result.MakeUpper();
 	}
 
-	String ResolveCharFromVoicePrefix(String voiceNameUpper)
+	ui void EnsureRegistry()
 	{
-		EnsureLangCaches();
+		if (registryReady) return;
+		registryReady = true;
+		AnimRegistryLang.SplitCSVNames(Data("ATHM_CHARACTERS"), registryCharacters);
 
-		for (int i = 0; i < langMapPrefs.Size(); i++)
+		for (int ci = 0; ci < registryCharacters.Size(); ci++)
 		{
-			String pref = langMapPrefs[i];
-			if (AnimRegistryLang.StartsWithIgnoreCase(voiceNameUpper, pref))
+			String who = registryCharacters[ci].MakeUpper();
+			registryCharacters[ci] = who;
+			String variantOf = Data("ATHM_" .. who .. "_VARIANT_OF").MakeUpper();
+			if (variantOf.Length() > 0) continue;
+
+			Array<String> animations;
+			AnimRegistryLang.SplitCSVNames(Data("ATHM_" .. who .. "_ANIMATIONS"), animations);
+			if (animations.Size() == 0)
+				Console.Printf("[ATHM] Character %s has no animations.\n", who);
+			for (int ai = 0; ai < animations.Size(); ai++)
 			{
-				String who = AnimRegistryLang.L("$ANIMS_MAP_" .. pref);
-				if (who.Length() > 0) return who;
+				String animation = animations[ai].MakeUpper();
+				if (animation == "IDLE") continue;
+				String soundName = Data("ATHM_" .. who .. "_" .. animation .. "_SOUND");
+				if (soundName.Length() == 0) continue;
+				String normalizedSound = NormalizeSoundName(soundName);
+				int previousSound = IndexOfStr(soundNames, normalizedSound);
+				if (previousSound >= 0)
+				{
+					Console.Printf("[ATHM] Sound %s has multiple animations; keeping %s.%s.\n",
+						normalizedSound, soundCharacters[previousSound], soundAnimations[previousSound]);
+					continue;
+				}
+				soundNames.Push(normalizedSound);
+				soundCharacters.Push(who);
+				soundAnimations.Push(animation);
+			}
+
+			Array<String> patterns;
+			AnimRegistryLang.SplitCSVNames(Data("ATHM_" .. who .. "_VOICE_MATCH"), patterns);
+			for (int pi = 0; pi < patterns.Size(); pi++)
+			{
+				voicePatterns.Push(patterns[pi].MakeUpper());
+				voicePatternCharacters.Push(who);
 			}
 		}
-		return "";
 	}
 
-	String ResolveCharFromVoiceByRanges(String clearUpper)
+	static bool MatchesVoicePattern(String voice, String pattern)
 	{
-		EnsureLangCaches();
+		int len = pattern.Length();
+		if (len == 0) return false;
+		if (pattern.ByteAt(len - 1) == 42)
+			return AnimRegistryLang.StartsWithIgnoreCase(voice, pattern.Left(len - 1));
 
-		String letters; int number;
-		bool ok = AnimRegistryLang.ParseLeadingLettersAndNumber(clearUpper, letters, number);
-		if (!ok) return "";
-
-		String lettersU = letters.MakeUpper();
-
-		bool listed = false;
-		for (int i = 0; i < langRangeSeries.Size(); i++)
+		int dash = pattern.IndexOf("-");
+		if (dash > 0)
 		{
-			if (langRangeSeries[i].MakeUpper() == lettersU) { listed = true; break; }
-		}
-		if (!listed) return "";
-
-		String specStr = AnimRegistryLang.L("$ANIMS_RANGE_MAP_" .. lettersU);
-		if (specStr.Length() == 0) return "";
-
-		Array<String> items;
-		AnimRegistryLang.SplitCSVNames(specStr, items);
-
-		for (int k = 0; k < items.Size(); k++)
-		{
-			String it = items[k]; // "1-5:GN1"
-			int colon = it.IndexOf(":");
-			if (colon < 0) continue;
-
-			String left = it.Left(colon);   // "1-5"
-			String who  = it.Mid(colon + 1); // "GN1"
-
-			int dash = left.IndexOf("-");
-			if (dash < 0) continue;
-
-			int a = left.Left(dash).ToInt();
-			int b = left.Mid(dash + 1).ToInt();
-			if (a > b) { int t = a; a = b; b = t; }
-
-			if (number >= a && number <= b) return who;
-		}
-
-		return "";
-	}
-
-	String ResolveCharFromVoiceExact(String clearUpper)
-	{
-		EnsureLangCaches();
-
-		for (int i = 0; i < langNameMapKeys.Size(); i++)
-		{
-			String key = langNameMapKeys[i];
-			if (key == clearUpper)
+			bool foundDigit = false;
+			int voiceLength = voice.Length();
+			for (int vi = 0; vi < voiceLength; vi++)
 			{
-				String who = AnimRegistryLang.L("$ANIMS_NAME_MAP_" .. key);
-				if (who.Length() > 0) return who;
+				int vc = voice.ByteAt(vi);
+				bool letter = vc >= 65 && vc <= 90;
+				bool digit = vc >= 48 && vc <= 57;
+				if (digit) foundDigit = true;
+				else if (!letter || foundDigit) return false;
+			}
+			if (!foundDigit) return false;
+			String firstLetters, lastLetters, voiceLetters;
+			int firstNumber, lastNumber, voiceNumber;
+			if (!AnimRegistryLang.ParseLeadingLettersAndNumber(pattern.Left(dash), firstLetters, firstNumber)) return false;
+			if (!AnimRegistryLang.ParseLeadingLettersAndNumber(pattern.Mid(dash + 1), lastLetters, lastNumber)) return false;
+			if (!AnimRegistryLang.ParseLeadingLettersAndNumber(voice, voiceLetters, voiceNumber)) return false;
+			if (firstLetters.MakeUpper() != lastLetters.MakeUpper() ||
+				firstLetters.MakeUpper() != voiceLetters.MakeUpper()) return false;
+			if (firstNumber > lastNumber) { int swap = firstNumber; firstNumber = lastNumber; lastNumber = swap; }
+			return voiceNumber >= firstNumber && voiceNumber <= lastNumber;
+		}
+		return voice == pattern;
+	}
+
+	static int VoicePatternSpecificity(String pattern)
+	{
+		int len = pattern.Length();
+		if (len > 0 && pattern.ByteAt(len - 1) == 42) return len - 1;
+		if (pattern.IndexOf("-") > 0) return 10000 + len;
+		return 20000 + len;
+	}
+
+	ui String ResolveCharFromVoiceSmart(String clear)
+	{
+		EnsureRegistry();
+		String wanted = NormalizeSoundName(clear);
+		resolvedAnimation = "";
+		for (int i = 0; i < soundNames.Size(); i++)
+		{
+			if (soundNames[i] == wanted)
+			{
+				resolvedAnimation = soundAnimations[i];
+				return soundCharacters[i];
 			}
 		}
-		return "";
+		String best = "";
+		int bestSpecificity = -1;
+		for (int i = 0; i < voicePatterns.Size(); i++)
+		{
+			if (!MatchesVoicePattern(wanted, voicePatterns[i])) continue;
+			int specificity = VoicePatternSpecificity(voicePatterns[i]);
+			if (specificity > bestSpecificity)
+			{
+				bestSpecificity = specificity;
+				best = voicePatternCharacters[i];
+			}
+		}
+		if (best.Length() > 0) resolvedAnimation = "IDLE";
+		return best;
 	}
 
-	String ResolveCharFromVoiceSmart(String clear)
+	ui String Data(String key)
 	{
-		String u = clear.MakeUpper();
-
-		String who = ResolveCharFromVoiceByRanges(u);
-		if (who.Length() > 0) return who;
-
-		who = ResolveCharFromVoiceExact(u);
-		if (who.Length() > 0) return who;
-
-		return ResolveCharFromVoicePrefix(u);
+		if (!dataSource) dataSource = new("AthmDataSource");
+		return dataSource.Get(key);
 	}
 
 	// --------------------------------------------------
@@ -957,6 +1153,8 @@ class PanelPlayer : Object
 		lastFrameIdx = -1;
 		useTempSeq = false;
 		tempCount = 0;
+		pendingBlockSound = "";
+		pendingBlockSoundMs = 0.0;
 	}
 
 	int EnsureFrameIndexByName(String name)
@@ -979,7 +1177,6 @@ class PanelPlayer : Object
 	}
 
 	ui String ApplyVariant(String base)
-		// for sexy Varni
 	{
 		if (base.Length() == 0) return base;
 
@@ -989,8 +1186,16 @@ class PanelPlayer : Object
 		int v = cv.GetInt();
 
 		if (v == 0) return base;
-		if (base == "VN" && v == 1)
-			return base .. "_ALT";
+		if (v == 1)
+		{
+			EnsureRegistry();
+			for (int i = 0; i < registryCharacters.Size(); i++)
+			{
+				String candidate = registryCharacters[i];
+				if (Data("ATHM_" .. candidate .. "_VARIANT_OF").MakeUpper() == base.MakeUpper())
+					return candidate;
+			}
+		}
 			
 		return base;
 	}
@@ -1003,7 +1208,11 @@ class PanelPlayer : Object
 
 		String who = ResolveCharFromVoiceSmart(clear);
 		who = ApplyVariant(who);
-		if (who.Length() == 0) return;
+		if (who.Length() == 0)
+		{
+			character = "";
+			return;
+		}
 		
 		bool changed = (character != who);
 		character = who;
@@ -1074,7 +1283,7 @@ class PanelPlayer : Object
 		if (ready) return;
 
 		useTempSeq = false;
-		tempFrames.Clear(); tempDurMs.Clear(); tempCount = 0;
+		tempFrames.Clear(); tempDurMs.Clear(); tempLocked.Clear(); tempCount = 0;
 		fbCacheName.Clear(); fbCacheOff.Clear();
 
 		curClip = -1; seqPos = 0; timeLeftMs = 0.0;
@@ -1084,8 +1293,6 @@ class PanelPlayer : Object
 
 		cachedScaleIdx = -1;
 		ApplyScaleFromCVar();
-
-		langCacheInit = false;
 
 		ready = true;
 	}
@@ -1137,6 +1344,250 @@ class PanelPlayer : Object
 		}
 	}
 
+	ui void DefineAnimationV2(String name, String track, bool loop=false, bool stopLast=true, double durationMs=0, String background="")
+	{
+		int idx = FindAnim(name);
+		if (idx < 0)
+		{
+			animNames.Push(name);
+			clipOffset.Push(0); clipCount.Push(0);
+			clipLoop.Push(loop); clipStopLast.Push(stopLast);
+			idx = animNames.Size() - 1;
+		}
+		else
+		{
+			clipOffset[idx] = 0; clipCount[idx] = 0;
+			clipLoop[idx] = loop; clipStopLast[idx] = stopLast;
+		}
+		while (clipIsTemplate.Size() <= idx) clipIsTemplate.Push(false);
+		while (clipTplFrames.Size() <= idx) clipTplFrames.Push("");
+		while (clipTplDurs.Size() <= idx) clipTplDurs.Push("");
+		while (clipTplTrack.Size() <= idx) clipTplTrack.Push("");
+		while (clipDurationMs.Size() <= idx) clipDurationMs.Push(0.0);
+		while (clipBackground.Size() <= idx) clipBackground.Push("");
+		clipIsTemplate[idx] = true;
+		clipTplTrack[idx] = track;
+		clipTplFrames[idx] = "";
+		clipTplDurs[idx] = "";
+		clipDurationMs[idx] = max(0.0, durationMs);
+		clipBackground[idx] = background;
+	}
+
+	static String TrimWS(String src)
+	{
+		int first = 0, last = src.Length();
+		while (first < last && IsWSByte(src.ByteAt(first))) first++;
+		while (last > first && IsWSByte(src.ByteAt(last - 1))) last--;
+		return src.Mid(first, last - first);
+	}
+
+	static String PickV2Choice(String spec)
+	{
+		spec = TrimWS(spec);
+		int specLength = spec.Length();
+		if (specLength >= 2 && spec.ByteAt(0) == 40 &&
+			spec.ByteAt(specLength - 1) == 41)
+		{
+			spec = spec.Mid(1, specLength - 2);
+			specLength = spec.Length();
+		}
+
+		int choices = 1;
+		for (int i = 0; i < specLength; i++) if (spec.ByteAt(i) == 124) choices++;
+		int pick = (choices > 1) ? int(FRandom(0.0, 1.0) * choices) : 0;
+		if (pick >= choices) pick = choices - 1;
+		int start = 0, current = 0;
+		for (int i = 0; i <= specLength; i++)
+		{
+			if (i == specLength || spec.ByteAt(i) == 124)
+			{
+				if (current == pick) return TrimWS(spec.Mid(start, i - start));
+				current++; start = i + 1;
+			}
+		}
+		return TrimWS(spec);
+	}
+
+	ui bool AppendV2Segment(String token, bool locked, String blockSound="", double blockSoundOffsetMs=0.0)
+	{
+		token = TrimWS(token);
+		if (token.Length() == 0) return false;
+		int at = -1, parens = 0;
+		int tokenLength = token.Length();
+		for (int i = 0; i < tokenLength; i++)
+		{
+			int c = token.ByteAt(i);
+			if (c == 40) parens++;
+			else if (c == 41) parens--;
+			else if (c == 64 && parens == 0) { at = i; break; }
+		}
+		if (at < 1)
+		{
+			Console.Printf("[ATHM] Invalid track segment '%s'. Expected FRAME@MILLISECONDS.\n", token);
+			return false;
+		}
+		String frameName = PickV2Choice(token.Left(at));
+		double duration = PickV2Choice(token.Mid(at + 1)).ToDouble();
+		if (frameName.Length() == 0 || duration <= 0.0 || duration > 60000.0)
+		{
+			Console.Printf("[ATHM] Invalid frame or duration in segment '%s'.\n", token);
+			return false;
+		}
+		if (tempCount >= 10000)
+		{
+			Console.Printf("[ATHM] Track exceeds the 10000 segment safety limit.\n");
+			return false;
+		}
+		int fi = EnsureFrameIndexByName(frameName);
+		if (fi < 0) fi = PlaceholderFrameIndex();
+		if (fi >= 0) lastGoodFrameIdx = fi;
+		tempFrames.Push(fi);
+		tempDurMs.Push(duration);
+		tempLocked.Push(locked);
+		tempBlockSound.Push(blockSound);
+		tempBlockSoundOffsetMs.Push(max(0.0, blockSoundOffsetMs));
+		tempCount++;
+		return true;
+	}
+
+	ui void AppendV2Segments(String source, bool locked, String blockSound="", double blockSoundOffsetMs=0.0)
+	{
+		int start = 0, parens = 0;
+		bool first = true;
+		int sourceLength = source.Length();
+		for (int i = 0; i <= sourceLength; i++)
+		{
+			bool end = i == sourceLength;
+			int c = end ? 0 : source.ByteAt(i);
+			if (!end && c == 40) parens++;
+			else if (!end && c == 41) parens--;
+			if (end || (c == 59 && parens == 0))
+			{
+				AppendV2Segment(source.Mid(start, i - start), locked,
+					first ? blockSound : "", first ? blockSoundOffsetMs : 0.0);
+				first = false;
+				start = i + 1;
+			}
+		}
+	}
+
+	ui bool ResolveV2TrackOnce(String source)
+	{
+		tempFrames.Clear(); tempDurMs.Clear(); tempLocked.Clear();
+		tempBlockSound.Clear(); tempBlockSoundOffsetMs.Clear(); tempCount = 0;
+		int start = 0, parens = 0, brackets = 0;
+		bool invalidNesting = false;
+		int sourceLength = source.Length();
+		for (int i = 0; i <= sourceLength; i++)
+		{
+			bool end = i == sourceLength;
+			int c = end ? 0 : source.ByteAt(i);
+			if (!end && c == 40) parens++;
+			else if (!end && c == 41) { parens--; if (parens < 0) invalidNesting = true; }
+			else if (!end && c == 91) brackets++;
+			else if (!end && c == 93) { brackets--; if (brackets < 0) invalidNesting = true; }
+			if (end || (c == 59 && parens == 0 && brackets == 0))
+			{
+				String entry = TrimWS(source.Mid(start, i - start));
+				bool locked = entry.Length() >= 2 && entry.ByteAt(0) == 91 &&
+					entry.ByteAt(entry.Length() - 1) == 93;
+				bool includeEntry = true;
+				bool lockedContentsUnwrapped = false;
+				String blockSound = "";
+				double blockSoundOffsetMs = 0.0;
+				if (entry.Length() >= 3 && entry.ByteAt(0) == 63)
+				{
+					int open = -1;
+					int entryLength = entry.Length();
+					for (int oi = 1; oi < entryLength; oi++)
+					{
+						if (entry.ByteAt(oi) == 91) { open = oi; break; }
+					}
+					if (open < 1 || entry.ByteAt(entry.Length() - 1) != 93)
+					{
+						Console.Printf("[ATHM] Invalid optional locked block '%s'.\n", entry);
+						invalidNesting = true;
+						includeEntry = false;
+					}
+					else
+					{
+						String prefix = TrimWS(entry.Mid(1, open - 1));
+						int metadataOpen = -1;
+						int prefixLength = prefix.Length();
+						for (int mi = 0; mi < prefixLength; mi++)
+						{
+							if (prefix.ByteAt(mi) == 60) { metadataOpen = mi; break; }
+						}
+						String chanceText = prefix;
+						if (metadataOpen >= 0)
+						{
+							if (prefix.ByteAt(prefix.Length() - 1) != 62)
+							{
+								Console.Printf("[ATHM] Invalid optional sound metadata: '%s'.\n", entry);
+								invalidNesting = true;
+								includeEntry = false;
+							}
+							else
+							{
+								chanceText = TrimWS(prefix.Left(metadataOpen));
+								String metadata = TrimWS(prefix.Mid(metadataOpen + 1,
+									prefix.Length() - metadataOpen - 2));
+								int soundAt = -1;
+								for (int si = metadata.Length() - 1; si >= 0; si--)
+								{
+									if (metadata.ByteAt(si) == 64) { soundAt = si; break; }
+								}
+								blockSound = TrimWS(soundAt < 0 ? metadata : metadata.Left(soundAt));
+								if (soundAt >= 0)
+									blockSoundOffsetMs = TrimWS(metadata.Mid(soundAt + 1)).ToDouble();
+								if (blockSound.Length() == 0 || blockSoundOffsetMs < 0.0)
+								{
+									Console.Printf("[ATHM] Invalid optional block sound: '%s'.\n", entry);
+									invalidNesting = true;
+									includeEntry = false;
+								}
+							}
+						}
+						double chance = chanceText.Length() == 0 ? 50.0 : chanceText.ToDouble();
+						if (chance <= 0.0 || chance > 100.0)
+						{
+							Console.Printf("[ATHM] Optional block chance must be in 0..100: '%s'.\n", entry);
+							invalidNesting = true;
+							includeEntry = false;
+						}
+						else
+						{
+							includeEntry = FRandom(0.0, 100.0) < chance;
+						}
+						entry = TrimWS(entry.Mid(open + 1, entry.Length() - open - 2));
+						locked = true;
+						lockedContentsUnwrapped = true;
+					}
+				}
+				if (locked)
+				{
+					if (!lockedContentsUnwrapped)
+						entry = TrimWS(entry.Mid(1, entry.Length() - 2));
+					if (entry.Length() == 0)
+					{
+						Console.Printf("[ATHM] Empty locked block is not allowed.\n");
+						invalidNesting = true;
+					}
+				}
+				if (includeEntry) AppendV2Segments(entry, locked, blockSound, blockSoundOffsetMs);
+				start = i + 1;
+			}
+		}
+		if (parens != 0 || brackets != 0 || invalidNesting)
+		{
+			Console.Printf("[ATHM] Unbalanced parentheses or locked brackets in track.\n");
+			tempFrames.Clear(); tempDurMs.Clear(); tempLocked.Clear();
+			tempBlockSound.Clear(); tempBlockSoundOffsetMs.Clear(); tempCount = 0;
+			return false;
+		}
+		return tempCount > 0;
+	}
+
 	ui void DefineAnimationTemplate(String name, String framesCsv, String dursCsv, bool loop=false, bool stopLast=true)
 	{
 		int idx = FindAnim(name);
@@ -1160,10 +1611,12 @@ class PanelPlayer : Object
 		while (clipIsTemplate.Size() <= idx) clipIsTemplate.Push(false);
 		while (clipTplFrames.Size() <= idx)  clipTplFrames.Push("");
 		while (clipTplDurs.Size() <= idx)    clipTplDurs.Push("");
+		while (clipTplTrack.Size() <= idx)   clipTplTrack.Push("");
 
 		clipIsTemplate[idx] = true;
 		clipTplFrames[idx]  = framesCsv;
 		clipTplDurs[idx]    = dursCsv;
+		clipTplTrack[idx]   = "";
 	}
 
 	void DefineAnimationByNames(String name, Array<String> fNames, Array<double> durMs, bool loop=false, bool stopLast=true)
@@ -1308,6 +1761,11 @@ class PanelPlayer : Object
 	{
 		if (clipIdx < 0 || clipIdx >= animNames.Size()) return false;
 		if (!(clipIsTemplate.Size() > clipIdx && clipIsTemplate[clipIdx])) return false;
+		if (clipTplTrack.Size() > clipIdx && clipTplTrack[clipIdx].Length() > 0)
+		{
+			if (!ResolveV2TrackOnce(clipTplTrack[clipIdx])) return false;
+			return PadResolvedSequenceToDuration(clipIdx);
+		}
 
 		String sF = clipTplFrames[clipIdx];
 		String sD = clipTplDurs[clipIdx];
@@ -1323,6 +1781,7 @@ class PanelPlayer : Object
 
 		tempFrames.Clear();
 		tempDurMs.Clear();
+		tempLocked.Clear();
 		tempCount = 0;
 
 		for (int i = 0; i < positions; i++)
@@ -1353,7 +1812,28 @@ class PanelPlayer : Object
 			tempCount++;
 		}
 
-		return tempCount > 0;
+		return PadResolvedSequenceToDuration(clipIdx);
+	}
+
+	ui bool PadResolvedSequenceToDuration(int clipIdx)
+	{
+		if (tempCount <= 0) return false;
+		if (clipIdx < 0 || clipIdx >= clipDurationMs.Size()) return true;
+		double wanted = clipDurationMs[clipIdx];
+		if (wanted <= 0.0) return true;
+
+		double actual = 0.0;
+		for (int i = 0; i < tempDurMs.Size(); i++) actual += tempDurMs[i];
+		if (actual + 0.001 < wanted)
+		{
+			tempFrames.Push(tempFrames[tempCount - 1]);
+			tempDurMs.Push(wanted - actual);
+			tempLocked.Push(false);
+			tempBlockSound.Push("");
+			tempBlockSoundOffsetMs.Push(0.0);
+			tempCount++;
+		}
+		return true;
 	}
 
 	ui bool EnsureFallbackAnim()
@@ -1434,7 +1914,8 @@ class PanelPlayer : Object
 
 		if (character.Length() > 0)
 		{
-			String clip = GetAnimationName(voiceName).MakeUpper();
+			String clip = resolvedAnimation.Length() > 0
+				? resolvedAnimation : NormalizeSoundName(voiceName);
 			if (PlayAnimChar(clip)) return true;
 			if (PlayAnimChar("IDLE")) return true;
 		}
@@ -1463,9 +1944,52 @@ class PanelPlayer : Object
 		return (i >= 0 && clipCount[i] > 0);
 	}
 
+	ui void PadCurrentSequenceToDuration(double wantedMs)
+	{
+		if (!active || !useTempSeq || tempCount <= 0 || wantedMs <= 0.0) return;
+
+		double actualMs = 0.0;
+		for (int i = 0; i < tempCount; i++) actualMs += tempDurMs[i];
+		if (actualMs + 0.001 >= wantedMs) return;
+
+		tempFrames.Push(tempFrames[tempCount - 1]);
+		tempDurMs.Push(wantedMs - actualMs);
+		tempLocked.Push(false);
+		tempBlockSound.Push("");
+		tempBlockSoundOffsetMs.Push(0.0);
+		tempCount++;
+	}
+
+	ui void ArmOptionalBlockSound()
+	{
+		if (!useTempSeq || seqPos < 0 || seqPos >= tempBlockSound.Size()) return;
+		String sound = tempBlockSound[seqPos];
+		if (sound.Length() == 0) return;
+		pendingBlockSound = sound;
+		pendingBlockSoundMs = tempBlockSoundOffsetMs[seqPos];
+		if (pendingBlockSoundMs <= 0.0)
+		{
+			DialogUIOverlay.PlayOptionalBlockSoundStatic(pendingBlockSound);
+			pendingBlockSound = "";
+		}
+	}
+
+	ui void TickOptionalBlockSound(double dt)
+	{
+		if (pendingBlockSound.Length() == 0) return;
+		pendingBlockSoundMs -= dt;
+		if (pendingBlockSoundMs <= 0.0)
+		{
+			DialogUIOverlay.PlayOptionalBlockSoundStatic(pendingBlockSound);
+			pendingBlockSound = "";
+		}
+	}
+
 	ui bool PlayAnim(String name)
 	{
 		PreloadOnce();
+		pendingBlockSound = "";
+		pendingBlockSoundMs = 0.0;
 
 		int idx = FindAnim(GetAnimationName(name));
 		if (idx < 0) return false;
@@ -1475,21 +1999,25 @@ class PanelPlayer : Object
 			if (!ResolveTemplateOnce(idx)) return false;
 
 			curClip = idx; active = true; seqPos = 0; useTempSeq = true;
+			ApplyBackgroundForClip(idx);
 
 			timeLeftMs = tempDurMs[0];
 			if (timeLeftMs <= 0) timeLeftMs = 1;
 
-			if (IsIdleName(GetAnimationName(name).MakeUpper()))
+			if (IsIdleName(GetAnimationName(name).MakeUpper()) &&
+				!(idx < clipDurationMs.Size() && clipDurationMs[idx] > 0.0))
 				timeLeftMs += RandomIdleHoldMs();
 
 			lastFrameIdx = tempFrames[0];
 			if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
+			ArmOptionalBlockSound();
 			return true;
 		}
 
 		if (clipCount[idx] <= 0) return false;
 
 		curClip = idx; active = true; seqPos = 0; useTempSeq = false;
+		ApplyBackgroundForClip(idx);
 
 		int base = clipOffset[idx];
 		timeLeftMs = flatDurMs[base];
@@ -1533,6 +2061,7 @@ class PanelPlayer : Object
 		if (cnt <= 0) { active = false; return; }
 
 		double dt = 1000.0 / TICRATE;
+		TickOptionalBlockSound(dt);
 		timeLeftMs -= dt;
 
 		while (timeLeftMs <= 0.0)
@@ -1543,7 +2072,17 @@ class PanelPlayer : Object
 			{
 				if (clipLoop[curClip])
 				{
-					if (useTempSeq) ResolveTemplateOnce(curClip);
+					if (useTempSeq)
+					{
+						if (!ResolveTemplateOnce(curClip))
+						{
+							active = false;
+							return;
+						}
+						// Optional blocks can change the resolved sequence size on
+						// every loop. Never keep the previous pass' frame count.
+						cnt = tempCount;
+					}
 					seqPos = 0;
 				}
 				else
@@ -1586,24 +2125,49 @@ class PanelPlayer : Object
 			}
 
 			if (lastFrameIdx >= 0) lastGoodFrameIdx = lastFrameIdx;
+			if (useTempSeq) ArmOptionalBlockSound();
 		}
+	}
+
+	ui bool TrySetBackgroundTexture(String name)
+	{
+		bgName = name;
+		if (name.Length() == 0)
+		{
+			bgTexture = TexMan.CheckForTexture("", TexMan.Type_MiscPatch);
+			return false;
+		}
+		
+		bgTexture = TexMan.CheckForTexture(name, TexMan.Type_MiscPatch);
+		if (!bgTexture.IsValid())
+		{
+			bgTexture = TexMan.CheckForTexture(name);
+		}
+		return bgTexture.IsValid();
 	}
 
 	ui void SetBackground(String who)
 	{
-		bgName = AnimRegistryLang.L("$ANIMS_" .. who .. "_BGDEF");
+		characterBgName = Data("ATHM_" .. who .. "_BACKGROUND");
+		TrySetBackgroundTexture(characterBgName);
+	}
 
-		if (bgName.Length() == 0)
+	ui void ApplyBackgroundForClip(int idx)
+	{
+		String selected = "";
+		if (idx >= 0 && idx < clipBackground.Size())
+			selected = clipBackground[idx];
+
+		if (selected.MakeLower() == "@none")
 		{
-			bgTexture = TexMan.CheckForTexture("", TexMan.Type_MiscPatch);
+			TrySetBackgroundTexture("");
 			return;
 		}
-		
-		bgTexture = TexMan.CheckForTexture(bgName, TexMan.Type_MiscPatch);
-		if (!bgTexture.IsValid())
-		{
-			bgTexture = TexMan.CheckForTexture(bgName);
-		}
+
+		if (selected.Length() > 0 && TrySetBackgroundTexture(selected))
+			return;
+
+		TrySetBackgroundTexture(characterBgName);
 	}
 
 	ui void DrawTexture(TextureID tex, int x, int y, int vW, int vH)
@@ -1661,6 +2225,12 @@ class PanelPlayer : Object
 		if (!active || curClip < 0) return true;
 		if (useTempSeq) return (tempCount <= 0);
 		return (clipCount[curClip] <= 0);
+	}
+
+	ui bool IsLocked()
+	{
+		return active && useTempSeq && seqPos >= 0 && seqPos < tempLocked.Size()
+			&& tempLocked[seqPos];
 	}
 
 	int CurrentFrameIndex()
