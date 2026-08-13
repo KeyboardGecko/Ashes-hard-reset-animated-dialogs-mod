@@ -1,0 +1,10 @@
+Micromamba 2.9.0 (win-64, build 0)
+
+Upstream project:
+https://github.com/mamba-org/micromamba-releases
+
+Official package endpoint:
+https://micro.mamba.pm/api/micromamba/win-64/latest
+
+The executable was extracted from the official conda-forge package. The
+package's complete license directory is redistributed beside this file.

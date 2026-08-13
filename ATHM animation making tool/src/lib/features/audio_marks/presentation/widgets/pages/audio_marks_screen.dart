@@ -26,6 +26,7 @@ import 'package:animaker/widgets/playback_player_preview.dart';
 // новые части
 import '../../../application/audio_transcode.dart';
 import '../../../application/frame_clipboard.dart';
+import '../../../application/forced_alignment.dart';
 import '../../../application/marks_to_athm_track.dart';
 import '../../../application/optional_audio_timeline.dart';
 import '../../../application/timeline_duration.dart';
@@ -40,6 +41,7 @@ import '../../hotkeys/keymap_controller.dart';
 import '../../images/label_images_panel.dart';
 import '../../widgets/project_menu.dart';
 import '../../widgets/playback_toolbar.dart';
+import '../../widgets/mfa_lipsync_dialog.dart';
 import '../step_variants_dialog.dart';
 
 final _itemScrollCtrl = ItemScrollController();
@@ -1091,6 +1093,75 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
     animationClock.setDurationMs(_animationDurationMs);
     _recordEditorState(before, label: 'remove audio');
     if (mounted) setState(() {});
+  }
+
+  Future<void> _generateMfaLipSync() async {
+    final audioPath = _playbackPath ?? currentAudioPath;
+    if (audioPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Load audio before generating lipsync.')),
+      );
+      return;
+    }
+    animationClock.pause();
+    await playback.raw.pause();
+    if (!mounted) return;
+
+    final generated = await showDialog<GeneratedLipSyncTrack>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => MfaLipSyncDialog(
+        audioPath: audioPath,
+        initialPrefix: _selectedCharacterId ?? '',
+      ),
+    );
+    if (generated == null || !mounted) return;
+
+    final beforeMarks = List<ClipMark>.from(marksCtrl.marks.value);
+    final beforeSelection = Set<String>.from(marksCtrl.selection.value);
+    final shifted = generated.marks
+        .map((mark) => mark.copyWith(startMs: mark.startMs + _audioOffsetMs))
+        .toList();
+    final selected = shifted.map((mark) => mark.id).toSet();
+    history.record(
+      beforeMarks: beforeMarks,
+      beforeSel: beforeSelection,
+      afterMarks: shifted,
+      afterSel: selected,
+      label: 'generate MFA lipsync',
+    );
+    marksCtrl.marks.value = shifted;
+    marksCtrl.selection.value = selected;
+    _refreshTimelineDurationFromMarks();
+    await _seekAnimation(_audioOffsetMs);
+
+    final availableLabels = imgSvc.map.keys
+        .map((label) => label.toUpperCase())
+        .toSet();
+    final missingFrames =
+        shifted
+            .map((mark) => mark.label?.toUpperCase())
+            .whereType<String>()
+            .where((label) => !availableLabels.contains(label))
+            .toSet()
+            .toList()
+          ..sort();
+    final messages = <String>['Generated ${shifted.length} lipsync frames.'];
+    if (generated.unmappedPhones.isNotEmpty) {
+      messages.add(
+        'Unmapped phones use N: ${generated.unmappedPhones.join(', ')}.',
+      );
+    }
+    if (missingFrames.isNotEmpty) {
+      messages.add('Missing images: ${missingFrames.join(', ')}.');
+    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(messages.join(' ')),
+        duration: const Duration(seconds: 7),
+      ),
+    );
   }
 
   Future<String?> _showIdentifierDialog({
@@ -3073,6 +3144,14 @@ class _AudioMarksScreenState extends State<AudioMarksScreen>
                         tooltip: 'Remove audio without changing animation',
                         onPressed: _removeAudio,
                         icon: const Icon(Icons.link_off),
+                      ),
+                      const SizedBox(width: 8),
+                      ActionChip(
+                        avatar: const Icon(Icons.auto_fix_high_outlined),
+                        label: const Text('AUTO LIPSYNC'),
+                        tooltip:
+                            'Generate an editable 9-pose track from audio and transcript',
+                        onPressed: _generateMfaLipSync,
                       ),
                     ],
                     if (_selectedAnimation != null) ...[

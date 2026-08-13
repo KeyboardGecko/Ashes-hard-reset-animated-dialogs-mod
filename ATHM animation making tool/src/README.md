@@ -20,6 +20,10 @@ an intermediate project format.
 - Set an explicit animation duration independently of the main audio duration.
 - Move the main audio clip inside a longer animation timeline.
 - Replace or remove main audio without discarding existing frame timing.
+- Generate an editable nine-pose lipsync track from audio and an exact
+  transcript using Montreal Forced Aligner. See
+  [`docs/MFA_LIPSYNC.md`](docs/MFA_LIPSYNC.md) for details. A portable
+  Micromamba bootstrap is included; Conda does not need to be installed.
 - Enable looping for idle and other repeating animations.
 - Lock adjacent frames into unskippable sequences.
 - Create optional locked sequences with a configurable playback chance.
@@ -227,7 +231,8 @@ Core playback and editing shortcuts can be changed in **Project > Settings**.
 - Visual Studio with the **Desktop development with C++** workload
 - Windows Developer Mode if requested by Flutter for plugin symlinks
 
-FFmpeg does not need to be installed separately.
+FFmpeg, Conda, Python, and MFA do not need to be installed separately. The
+first Auto Lipsync run downloads its isolated MFA runtime and language model.
 
 ### Run
 
@@ -277,3 +282,15 @@ data/licenses/ffmpeg/
 
 The bundled FFmpeg configuration is LGPL 2.1-or-later and excludes networking,
 device capture, and video processing.
+
+## Bundled Micromamba
+
+The Windows build contains Micromamba under:
+
+```text
+data/tools/micromamba.exe
+```
+
+It installs the pinned MFA runtime and requested language models into
+`%LOCALAPPDATA%\ATHM\mfa`. Its upstream notice and dependency licenses are
+installed under `data/licenses/micromamba/`.
